@@ -1,2 +1,3 @@
-# Career-a-vis-AI
-A deep dive into human-AI workplace dynamics.
+cd .\my-react-app
+npm install
+npm run dev
