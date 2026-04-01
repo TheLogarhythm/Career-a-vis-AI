@@ -1,6 +1,6 @@
 import React from "react";
 import "./App.css";
-import BarChart from "./elements/barChart.jsx";
+import IndustryIntensityChart from "./elements/industryIntensityChart.jsx";
 
 function App() {
   return (
@@ -35,9 +35,9 @@ function App() {
         </section>
 
         <section id="visualization">
-          <h2>Interactive Visualization</h2>
+          <h2>AI Impact on Industries</h2>
           
-          <BarChart />
+          <IndustryIntensityChart />
           
         </section>
 
