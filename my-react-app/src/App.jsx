@@ -5,6 +5,7 @@ import Task1 from "./page/task1";
 import Task2 from "./page/task2";
 import Task3 from "./page/task3";
 import Task4 from "./page/task4";
+import SummaryStats from "./components/SummaryStats";
 
 function App() {
   const [selectedTask, setSelectedTask] = useState("task1");
@@ -61,17 +62,48 @@ function App() {
           <div className={`drawer ${drawerOpen ? "open" : ""}`}>
             <div className="title">{renderTitle()}</div>
             <div className="summary">{renderSummary()}</div>
-            <button onClick={() => setSelectedTask("task1")}>Task 1</button>
-            <button onClick={() => setSelectedTask("task2")}>Task 2</button>
-            <button onClick={() => setSelectedTask("task3")}>Task 3</button>
-            <button onClick={() => setSelectedTask("task4")}>Task 4</button>
+            <SummaryStats selectedTask={selectedTask} />
+            
+            {/* Navigation Icons Grid */}
+            <div className="nav-grid">
+              <div 
+                className={`nav-card ${selectedTask === "task1" ? "active" : ""}`}
+                onClick={() => setSelectedTask("task1")}
+              >
+                <div className="nav-icon">🌍</div>
+                <div className="nav-label">Location</div>
+              </div>
+              
+              <div 
+                className={`nav-card ${selectedTask === "task2" ? "active" : ""}`}
+                onClick={() => setSelectedTask("task2")}
+              >
+                <div className="nav-icon">📈</div>
+                <div className="nav-label">Time</div>
+              </div>
+              
+              <div 
+                className={`nav-card ${selectedTask === "task3" ? "active" : ""}`}
+                onClick={() => setSelectedTask("task3")}
+              >
+                <div className="nav-icon">💬</div>
+                <div className="nav-label">Topics</div>
+              </div>
+              
+              <div 
+                className={`nav-card ${selectedTask === "task4" ? "active" : ""}`}
+                onClick={() => setSelectedTask("task4")}
+              >
+                <div className="nav-icon">🔮</div>
+                <div className="nav-label">Prediction</div>
+              </div>
+            </div>
           </div>
-
         </div>
 
         <div
           className="triangle-toggle"
-            style={{ left: drawerOpen ? "200px" : "0" }}
+            style={{ left: drawerOpen ? "320px" : "0" }}
           onClick={() => setDrawerOpen(!drawerOpen)}
         >
           {drawerOpen ? "◀" : "▶"}
