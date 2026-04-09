@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
+import * as THREE from "three";
 import "./task1.css";
 
 const REGION_COLORS = d3.scaleOrdinal([
@@ -184,10 +185,11 @@ function drawGlobeScene(layer, regionSummary, worldData, width, height, currentR
 
   const globeCenterX = width / 2;
   const globeCenterY = height / 2 + 10;
+  const globeScale = Math.min(width, height) * 0.45; // Shared scale factor
 
   const projection = d3
     .geoOrthographic()
-    .scale(Math.min(width, height) * 0.48)
+    .scale(globeScale)
     .translate([globeCenterX, globeCenterY])
     .rotate(currentRotation)
     .clipAngle(90)
@@ -463,9 +465,11 @@ function Task1() {
   const [rotation, setRotation] = useState([-35, -16, 0]);
 
   const svgRef = useRef(null);
+  const threeContainerRef = useRef(null);
   const miniSvgRef = useRef(null);
   const stepRefs = useRef([]);
   const sceneRef = useRef(null);
+  const threeSceneRef = useRef(null);
   const miniSceneRef = useRef(null);
   const globeTimerRef = useRef(null);
   const isInteractingRef = useRef(false);
@@ -558,6 +562,56 @@ function Task1() {
         globeBundle
       };
 
+      // Three.js Photorealistic Globe Setup
+      if (threeContainerRef.current) {
+        // Clear previous renderer if any
+        threeContainerRef.current.innerHTML = "";
+
+        const scene = new THREE.Scene();
+        // Orthographic Camera is essential for 1:1 D3-ThreeJS alignment
+        const camera = new THREE.OrthographicCamera(
+          -width / 2, width / 2, 
+          height / 2, -height / 2, 
+          0.1, 2000
+        );
+        camera.position.z = 1000;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(width, height);
+        threeContainerRef.current.appendChild(renderer.domElement);
+
+        const group = new THREE.Group();
+        // Shift group by 10px down to match D3 translate Y-offset
+        group.position.y = -10; 
+        scene.add(group);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+        dirLight.position.set(5, 3, 5);
+        scene.add(dirLight);
+
+        const loader = new THREE.TextureLoader();
+        // Standard Detail Satellite Texture
+        const texture = loader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg");
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+
+        // Radius MUST match globeScale exactly
+        const commonScale = Math.min(width, height) * 0.45;
+        const geometry = new THREE.SphereGeometry(commonScale, 128, 128);
+        const material = new THREE.MeshStandardMaterial({
+          map: texture,
+          roughness: 1,
+        });
+        const globe = new THREE.Mesh(geometry, material);
+        group.add(globe);
+
+        threeSceneRef.current = { scene, camera, renderer, globe, group };
+      }
+
       // Mini Globe Controller Setup
       const miniWidth = 120;
       const miniHeight = 120;
@@ -611,10 +665,21 @@ function Task1() {
           if (sceneRef.current && sceneRef.current.globeBundle) {
             sceneRef.current.globeBundle.redraw(nextRotation);
           }
+
+          // Sync Three.js rotation
+          if (threeSceneRef.current) {
+            const { globe, renderer, scene: tScene, camera } = threeSceneRef.current;
+            // Calibrated alignment: -90° offset for center-aligned textures
+            globe.rotation.y = (nextRotation[0] * (Math.PI / 180)) - Math.PI / 2;
+            globe.rotation.x = -nextRotation[1] * (Math.PI / 180);
+            renderer.render(tScene, camera);
+          }
+
           setRotation(nextRotation);
         })
         .on("end", () => {
-          // Interaction ends, timer remains stopped unless we want to resume
+          // Permanently disable auto-rotation after user takes control
+          isInteractingRef.current = true;
         });
 
       miniSvg.call(dragHandler);
@@ -666,20 +731,33 @@ function Task1() {
         .style("opacity", isActive ? 1 : 0);
     });
 
-    if (activeStep === 0 && scene.globeBundle) {
+    if (activeStep === 0 && scene.globeBundle && !isInteractingRef.current) {
       if (globeTimerRef.current) {
         globeTimerRef.current.stop();
       }
 
       globeTimerRef.current = d3.timer((elapsed) => {
+        if (isInteractingRef.current) {
+          globeTimerRef.current.stop();
+          return;
+        }
+
         const newRotation = [rotation[0] + elapsed * 0.015, rotation[1], 0];
         scene.globeBundle.redraw(newRotation);
+
+        // Sync Three.js rotation
+        if (threeSceneRef.current) {
+          const { globe, renderer, scene: tScene, camera } = threeSceneRef.current;
+          globe.rotation.y = (newRotation[0] * (Math.PI / 180)) - Math.PI / 2;
+          globe.rotation.x = -newRotation[1] * (Math.PI / 180);
+          renderer.render(tScene, camera);
+        }
       });
     } else if (globeTimerRef.current) {
       globeTimerRef.current.stop();
       globeTimerRef.current = null;
     }
-  }, [activeStep, isLoading]);
+  }, [activeStep, isLoading, rotation]);
 
   useEffect(() => {
     return () => {
@@ -705,6 +783,16 @@ function Task1() {
       <div className="scrolly-shell">
         <div className="viz-column">
           <div className="viz-sticky">
+            <div 
+              className="three-globe-container" 
+              ref={threeContainerRef} 
+              style={{ 
+                opacity: activeStep === 0 ? 1 : 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            />
             <svg ref={svgRef} className="story-svg" />
 
             {activeStep === 1 && years.length ? (
