@@ -145,12 +145,13 @@ function Task3_linechart() {
   }, [data, overlay]);
 
   return (
-    <div className="chart-container" style={{ padding: "20px" }}>
+    <div >
       <h2>Changes over Time</h2>
       <button onClick={() => setOverlay(!overlay)} style={{ marginBottom: "20px", padding: "8px 16px" }}>
         {overlay ? "Switch to Grid View" : "Switch to Overlay View"}
       </button>
-      <div ref={chartRef} style={{ position: "relative" }}></div>
+      <div ref={chartRef} style={{ background: "white", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.2)", padding: "20px" }}></div>
+
     </div>
   );
 }
