@@ -450,9 +450,10 @@ function Task1() {
   const globeTimerRef = useRef(null);
 
   useEffect(() => {
+    const baseUrl = import.meta.env.BASE_URL;
     Promise.all([
-      d3.csv("/ai_impact_jobs_2010_2025.csv", normalizeHistoryRow),
-      d3.csv("/metrics.csv", normalizeMetricRow)
+      d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`, normalizeHistoryRow),
+      d3.csv(`${baseUrl}metrics.csv`, normalizeMetricRow)
     ])
       .then(([rows, metrics]) => {
         setHistoryRows(rows);
@@ -592,7 +593,7 @@ function Task1() {
       globeTimerRef.current.stop();
       globeTimerRef.current = null;
     }
-  }, [activeStep]);
+  }, [activeStep, isLoading]);
 
   useEffect(() => {
     return () => {
