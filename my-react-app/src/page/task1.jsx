@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
+import * as topojson from "topojson-client";
+import * as THREE from "three";
 import "./task1.css";
 
 const REGION_COLORS = d3.scaleOrdinal([
@@ -178,31 +180,52 @@ function computeStarMetrics(rows, metricRows) {
   return [...coreMetrics, ...fileMetrics].slice(0, 8);
 }
 
-function drawGlobeScene(layer, regionSummary, width, height) {
+function drawGlobeScene(layer, regionSummary, worldData, width, height, currentRotation) {
   layer.selectAll("*").remove();
 
   const globeCenterX = width / 2;
   const globeCenterY = height / 2 + 10;
+  const globeScale = Math.min(width, height) * 0.45; // Shared scale factor
 
   const projection = d3
     .geoOrthographic()
-    .scale(Math.min(width, height) * 0.29)
+    .scale(globeScale)
     .translate([globeCenterX, globeCenterY])
+    .rotate(currentRotation)
     .clipAngle(90)
     .precision(0.3);
 
   const path = d3.geoPath(projection);
-  const graticule = d3.geoGraticule10();
 
-  const spherePath = layer
+  // 1. Water Layer (Circle/Sphere)
+  layer
     .append("path")
     .datum({ type: "Sphere" })
-    .attr("class", "globe-sphere");
+    .attr("class", "globe-water")
+    .attr("d", path);
 
-  const gratPath = layer
+  // 2. Graticules
+  layer
     .append("path")
-    .datum(graticule)
-    .attr("class", "globe-graticule");
+    .datum(d3.geoGraticule10())
+    .attr("class", "globe-graticule")
+    .attr("d", path);
+
+  // 3. Land / Countries
+  if (worldData) {
+    const countries = topojson.feature(worldData, worldData.objects.countries);
+    layer
+      .append("path")
+      .datum(countries)
+      .attr("class", "globe-land")
+      .attr("d", path);
+
+    layer
+      .append("path")
+      .datum(topojson.mesh(worldData, worldData.objects.countries, (a, b) => a !== b))
+      .attr("class", "globe-borders")
+      .attr("d", path);
+  }
 
   const radiusScale = d3
     .scaleSqrt()
@@ -221,9 +244,9 @@ function drawGlobeScene(layer, regionSummary, width, height) {
     .append("circle")
     .attr("r", (d) => radiusScale(d.salary))
     .attr("fill", (d) => REGION_COLORS(d.region))
-    .attr("fill-opacity", 0.88)
-    .attr("stroke", "#f4f0e2")
-    .attr("stroke-width", 1.2);
+    .attr("fill-opacity", 0.9)
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 1.5);
 
   markers
     .append("text")
@@ -232,18 +255,14 @@ function drawGlobeScene(layer, regionSummary, width, height) {
     .attr("text-anchor", "middle")
     .text((d) => d.region);
 
-  markers.append("title").text(
-    (d) =>
-      `${d.region}\nAI intensity: ${(d.aiIntensity * 100).toFixed(1)}%\nAverage salary: $${d3
-        .format(",.0f")(d.salary)}`
-  );
+  const redraw = (rotation) => {
+    projection.rotate(rotation);
+    const center = [-rotation[0], -rotation[1]];
 
-  const redraw = (rotationLon) => {
-    projection.rotate([rotationLon, -16, 0]);
-    const center = [-rotationLon, 16];
-
-    spherePath.attr("d", path);
-    gratPath.attr("d", path);
+    layer.selectAll(".globe-water").attr("d", path);
+    layer.selectAll(".globe-graticule").attr("d", path);
+    layer.selectAll(".globe-land").attr("d", path);
+    layer.selectAll(".globe-borders").attr("d", path);
 
     markers
       .attr("transform", (d) => {
@@ -255,7 +274,6 @@ function drawGlobeScene(layer, regionSummary, width, height) {
       );
   };
 
-  redraw(-35);
   return { redraw };
 }
 
@@ -439,25 +457,34 @@ function drawStarScene(layer, metrics, width, height) {
 function Task1() {
   const [historyRows, setHistoryRows] = useState([]);
   const [metricRows, setMetricRows] = useState([]);
+  const [worldData, setWorldData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const [activeStep, setActiveStep] = useState(0);
   const [selectedYear, setSelectedYear] = useState(null);
+  const [rotation, setRotation] = useState([-35, -16, 0]);
 
   const svgRef = useRef(null);
+  const threeContainerRef = useRef(null);
+  const miniSvgRef = useRef(null);
   const stepRefs = useRef([]);
   const sceneRef = useRef(null);
+  const threeSceneRef = useRef(null);
+  const miniSceneRef = useRef(null);
   const globeTimerRef = useRef(null);
+  const isInteractingRef = useRef(false);
 
   useEffect(() => {
     const baseUrl = import.meta.env.BASE_URL;
     Promise.all([
       d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`, normalizeHistoryRow),
-      d3.csv(`${baseUrl}metrics.csv`, normalizeMetricRow)
+      d3.csv(`${baseUrl}metrics.csv`, normalizeMetricRow),
+      d3.json(`${baseUrl}world-110m.json`)
     ])
-      .then(([rows, metrics]) => {
+      .then(([rows, metrics, world]) => {
         setHistoryRows(rows);
         setMetricRows(metrics);
+        setWorldData(world);
         const firstYear = d3.min(rows, (row) => row.postingYear);
         setSelectedYear(firstYear ?? null);
       })
@@ -502,7 +529,7 @@ function Task1() {
   }, []);
 
   useEffect(() => {
-    if (!historyRows.length || selectedYear === null || !starMetrics.length || !svgRef.current) {
+    if (!historyRows.length || !worldData || !svgRef.current || !miniSvgRef.current) {
       return;
     }
 
@@ -521,7 +548,7 @@ function Task1() {
       const mapLayer = root.append("g").attr("class", "scene-layer scene-map");
       const starLayer = root.append("g").attr("class", "scene-layer scene-star");
 
-      const globeBundle = drawGlobeScene(globeLayer, regionSummary, width, height);
+      const globeBundle = drawGlobeScene(globeLayer, regionSummary, worldData, width, height, rotation);
       drawMapScene(mapLayer, historyRows, selectedYear, width, height);
       drawStarScene(starLayer, starMetrics, width, height);
 
@@ -534,8 +561,131 @@ function Task1() {
         starLayer,
         globeBundle
       };
+
+      // Three.js Photorealistic Globe Setup
+      if (threeContainerRef.current) {
+        // Clear previous renderer if any
+        threeContainerRef.current.innerHTML = "";
+
+        const scene = new THREE.Scene();
+        // Orthographic Camera is essential for 1:1 D3-ThreeJS alignment
+        const camera = new THREE.OrthographicCamera(
+          -width / 2, width / 2, 
+          height / 2, -height / 2, 
+          0.1, 2000
+        );
+        camera.position.z = 1000;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(width, height);
+        threeContainerRef.current.appendChild(renderer.domElement);
+
+        const group = new THREE.Group();
+        // Shift group by 10px down to match D3 translate Y-offset
+        group.position.y = -10; 
+        scene.add(group);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+        dirLight.position.set(5, 3, 5);
+        scene.add(dirLight);
+
+        const loader = new THREE.TextureLoader();
+        // Standard Detail Satellite Texture
+        const texture = loader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg");
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+
+        // Radius MUST match globeScale exactly
+        const commonScale = Math.min(width, height) * 0.45;
+        const geometry = new THREE.SphereGeometry(commonScale, 128, 128);
+        const material = new THREE.MeshStandardMaterial({
+          map: texture,
+          roughness: 1,
+        });
+        const globe = new THREE.Mesh(geometry, material);
+        group.add(globe);
+
+        threeSceneRef.current = { scene, camera, renderer, globe, group };
+      }
+
+      // Mini Globe Controller Setup
+      const miniWidth = 120;
+      const miniHeight = 120;
+      const miniSvg = d3
+        .select(miniSvgRef.current)
+        .attr("width", miniWidth)
+        .attr("height", miniHeight);
+      
+      miniSvg.selectAll("*").remove();
+      
+      const miniProjection = d3
+        .geoOrthographic()
+        .scale(55)
+        .translate([miniWidth / 2, miniHeight / 2])
+        .rotate(rotation)
+        .clipAngle(90);
+
+      const miniPath = d3.geoPath(miniProjection);
+
+      miniSvg.append("circle")
+        .attr("cx", miniWidth / 2)
+        .attr("cy", miniHeight / 2)
+        .attr("r", 60)
+        .attr("class", "mini-water");
+
+      if (worldData) {
+        miniSvg.append("path")
+          .datum(topojson.feature(worldData, worldData.objects.land))
+          .attr("class", "mini-land")
+          .attr("d", miniPath);
+      }
+
+      const dragHandler = d3.drag()
+        .on("start", () => {
+          isInteractingRef.current = true;
+          if (globeTimerRef.current) globeTimerRef.current.stop();
+        })
+        .on("drag", (event) => {
+          const r = miniProjection.rotate();
+          const sensitivity = 0.25;
+          const nextRotation = [
+            r[0] + event.dx * sensitivity,
+            r[1] - event.dy * sensitivity,
+            r[2]
+          ];
+          
+          miniProjection.rotate(nextRotation);
+          miniSvg.selectAll(".mini-land").attr("d", miniPath);
+          
+          // Sync large globe
+          if (sceneRef.current && sceneRef.current.globeBundle) {
+            sceneRef.current.globeBundle.redraw(nextRotation);
+          }
+
+          // Sync Three.js rotation
+          if (threeSceneRef.current) {
+            const { globe, renderer, scene: tScene, camera } = threeSceneRef.current;
+            // Calibrated alignment: -90° offset for center-aligned textures
+            globe.rotation.y = (nextRotation[0] * (Math.PI / 180)) - Math.PI / 2;
+            globe.rotation.x = -nextRotation[1] * (Math.PI / 180);
+            renderer.render(tScene, camera);
+          }
+
+          setRotation(nextRotation);
+        })
+        .on("end", () => {
+          // Permanently disable auto-rotation after user takes control
+          isInteractingRef.current = true;
+        });
+
+      miniSvg.call(dragHandler);
+      miniSceneRef.current = { miniSvg, miniProjection, miniPath };
     }
-  }, [historyRows, selectedYear, starMetrics, regionSummary]);
+  }, [historyRows, worldData, selectedYear, starMetrics, regionSummary]);
 
   useEffect(() => {
     if (!sceneRef.current || selectedYear === null) {
@@ -581,19 +731,33 @@ function Task1() {
         .style("opacity", isActive ? 1 : 0);
     });
 
-    if (activeStep === 0 && scene.globeBundle) {
+    if (activeStep === 0 && scene.globeBundle && !isInteractingRef.current) {
       if (globeTimerRef.current) {
         globeTimerRef.current.stop();
       }
 
       globeTimerRef.current = d3.timer((elapsed) => {
-        scene.globeBundle.redraw(-35 + elapsed * 0.015);
+        if (isInteractingRef.current) {
+          globeTimerRef.current.stop();
+          return;
+        }
+
+        const newRotation = [rotation[0] + elapsed * 0.015, rotation[1], 0];
+        scene.globeBundle.redraw(newRotation);
+
+        // Sync Three.js rotation
+        if (threeSceneRef.current) {
+          const { globe, renderer, scene: tScene, camera } = threeSceneRef.current;
+          globe.rotation.y = (newRotation[0] * (Math.PI / 180)) - Math.PI / 2;
+          globe.rotation.x = -newRotation[1] * (Math.PI / 180);
+          renderer.render(tScene, camera);
+        }
       });
     } else if (globeTimerRef.current) {
       globeTimerRef.current.stop();
       globeTimerRef.current = null;
     }
-  }, [activeStep, isLoading]);
+  }, [activeStep, isLoading, rotation]);
 
   useEffect(() => {
     return () => {
@@ -619,6 +783,16 @@ function Task1() {
       <div className="scrolly-shell">
         <div className="viz-column">
           <div className="viz-sticky">
+            <div 
+              className="three-globe-container" 
+              ref={threeContainerRef} 
+              style={{ 
+                opacity: activeStep === 0 ? 1 : 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            />
             <svg ref={svgRef} className="story-svg" />
 
             {activeStep === 1 && years.length ? (
@@ -703,6 +877,11 @@ function Task1() {
             </p>
           </section>
         </div>
+      </div>
+
+      <div className="mini-globe-wrap" style={{ opacity: activeStep === 0 ? 1 : 0 }}>
+        <div className="mini-globe-label">Drag to Rotate</div>
+        <svg ref={miniSvgRef} className="mini-svg" />
       </div>
 
       {isLoading ? <p className="loading-text">Loading data...</p> : null}
