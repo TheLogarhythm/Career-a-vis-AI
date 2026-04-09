@@ -577,8 +577,7 @@ function Task1() {
       layer
         .style("pointer-events", isActive ? "all" : "none")
         .transition(transition)
-        .style("opacity", isActive ? 1 : 0)
-        .attr("transform", isActive ? "translate(0,0) scale(1)" : "translate(0,22) scale(0.965)");
+        .style("opacity", isActive ? 1 : 0);
     });
 
     if (activeStep === 0 && scene.globeBundle) {
@@ -645,6 +644,7 @@ function Task1() {
 
         <div className="story-column">
           <section
+            id="task-1"
             className="story-step"
             data-step="0"
             ref={(element) => {
@@ -659,6 +659,7 @@ function Task1() {
           </section>
 
           <section
+            id="task-2"
             className="story-step"
             data-step="1"
             ref={(element) => {
@@ -673,6 +674,7 @@ function Task1() {
           </section>
 
           <section
+            id="task-3"
             className="story-step"
             data-step="2"
             ref={(element) => {
@@ -683,6 +685,20 @@ function Task1() {
             <p>
               The final view transitions to the statistics star chart (same concept as your current plot),
               combining core dataset measures and strategic metrics.
+            </p>
+          </section>
+          
+          <section
+            id="task-4"
+            className="story-step"
+            data-step="3"
+            ref={(element) => {
+              stepRefs.current[3] = element;
+            }}
+          >
+            <h2>4. Future Predictions</h2>
+            <p>
+              AI Impact on Job Market in the future (Placeholder for Visualization 4).
             </p>
           </section>
         </div>

@@ -5,73 +5,107 @@
 }
 
 .drawer {
-  position: fixed;       
+  position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;        
+  height: 100vh;
   width: 0;
   overflow: hidden;
-  background: #d7ddcf;
-  transition: width 0.3s ease;
-  padding: 1rem 0;
+  background: #fdfcf8;
+  border-right: 1px solid var(--line);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
 }
+
 .drawer.open {
-  width: 200px;
+  width: 240px;
+}
+
+.drawer-content {
+  padding: 2rem 1.2rem;
+  width: 240px; /* Locked width to prevent text wrapping during transition */
+}
+
+.drawer .title {
+  font-family: "Fraunces", serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.drawer .summary {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-bottom: 2rem;
+  padding-left: 2px;
+}
+
+.nav-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 500;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: rgba(145, 165, 168, 0.1);
+  color: var(--accent);
+  border-color: rgba(145, 165, 168, 0.2);
+  transform: translateX(4px);
+}
+
+.nav-btn.active {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 4px 12px rgba(10, 147, 150, 0.2);
 }
 
 .triangle-toggle {
-  position: fixed;       
+  position: fixed;
   top: 50%;
   left: 0;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
+  width: 24px;
+  height: 48px;
+  border-radius: 0 8px 8px 0;
+  z-index: 101;
   cursor: pointer;
-  background: #91a5a8;
-  transition: background 0.3s ease;
+  background: var(--accent);
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
+
 .triangle-toggle:hover {
-  background: #5a6060;
+  background: var(--ink);
+  width: 30px;
 }
 
 .content {
   flex: 1;
-  padding: 1rem;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: 0;
 }
+
 .drawer.open ~ .content {
-  margin-left: 200px;    }
-
-button {
-  margin: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #91a5a8;
-  color: white;
-  border: none;
-  cursor: pointer;
-  margin-left: 1rem;
-
-}
-
-.drawer .title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-.drawer .summary {
-  font-size: 0.9rem;
-  color: #333;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 0.5rem;
-  padding-left: 1rem;
-
+  margin-left: 240px;
 }

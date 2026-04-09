@@ -29,7 +29,8 @@ body {
 .scrolly-root {
   position: relative;
   min-height: 100vh;
-  padding: 22px;
+  margin-right: 61.8vw;
+  padding: 40px 10px; /* Minimized side padding */
   overflow: visible;
 }
 
@@ -57,13 +58,12 @@ body {
 }
 
 .scrolly-header {
-  max-width: 1280px;
-  margin: 0 auto 18px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 18px 20px;
-  background: rgba(255, 253, 248, 0.92);
-  box-shadow: var(--shadow);
+  width: 100%;
+  margin: 0 0 60px 0;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 30px;
+  background: transparent;
+  box-shadow: none;
 }
 
 .eyebrow {
@@ -87,31 +87,36 @@ h1 {
 }
 
 .scrolly-shell {
-  max-width: 1280px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(320px, 0.8fr) minmax(760px, 2fr);
-  gap: 18px;
-  align-items: start;
+  max-width: 100%;
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
 }
 
-.viz-column {
-  position: relative;
-  order: 2;
-  align-self: start;
+.story-column {
+  width: 100%;
+  display: grid;
+  gap: 100vh;
+  padding: 16px 0 24px 0;
+  z-index: 1;
 }
+
+/* viz-column is no longer needed with fixed positioning */
 
 .viz-sticky {
   position: fixed;
   top: 0;
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  right: 0;
+  bottom: 0;
+  width: 61.8%; 
+  border-left: 1px solid var(--line);
   background: var(--panel);
   box-shadow: var(--shadow);
-  padding: 12px;
-  min-height: 100vh;
+  padding: 24px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  z-index: 2;
 }
 
 .story-svg {
@@ -192,12 +197,7 @@ h1 {
   font-weight: 600;
 }
 
-.story-column {
-  order: 1;
-  display: grid;
-  gap: 100vh;
-  padding: 16px 6px 24px 0;
-}
+/* Merged into main story-column definition above */
 
 .story-step {
   min-height: 42vh;
@@ -223,11 +223,24 @@ h1 {
 }
 
 .year-slider-wrap {
-  margin-top: 10px;
+  position: absolute;
+  bottom: 6px;
+  left: 24px;
+/* ... */
+  right: 24px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fff;
-  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 10px 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  animation: slideUpFade 0.4s ease-out;
+  z-index: 10;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .year-slider-wrap label {
