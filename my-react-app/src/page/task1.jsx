@@ -277,11 +277,11 @@ function drawGlobeScene(layer, regionSummary, worldData, width, height, currentR
   return { redraw };
 }
 
-function drawMapScene(layer, rows, selectedYear, width, height) {
+function drawMapScene(layer, rows, worldData, selectedYear, width, height) {
   layer.selectAll("*").remove();
 
   const projection = d3
-    .geoNaturalEarth1()
+    .geoEqualEarth()
     .fitExtent(
       [
         [52, 58],
@@ -323,6 +323,14 @@ function drawMapScene(layer, rows, selectedYear, width, height) {
     .datum({ type: "Sphere" })
     .attr("class", "map-sphere")
     .attr("d", path);
+
+  if (worldData && worldData.objects) {
+    layer
+      .append("path")
+      .datum(topojson.feature(worldData, worldData.objects.countries))
+      .attr("class", "map-land")
+      .attr("d", path);
+  }
 
   layer
     .append("path")
@@ -549,7 +557,7 @@ function Task1() {
       const starLayer = root.append("g").attr("class", "scene-layer scene-star");
 
       const globeBundle = drawGlobeScene(globeLayer, regionSummary, worldData, width, height, rotation);
-      drawMapScene(mapLayer, historyRows, selectedYear, width, height);
+      drawMapScene(mapLayer, historyRows, worldData, selectedYear, width, height);
       drawStarScene(starLayer, starMetrics, width, height);
 
       sceneRef.current = {
@@ -695,11 +703,12 @@ function Task1() {
     drawMapScene(
       sceneRef.current.mapLayer,
       historyRows,
+      worldData,
       selectedYear,
       sceneRef.current.width,
       sceneRef.current.height
     );
-  }, [selectedYear, historyRows]);
+  }, [selectedYear, historyRows, worldData]);
 
   useEffect(() => {
     if (!sceneRef.current || !starMetrics.length) {
