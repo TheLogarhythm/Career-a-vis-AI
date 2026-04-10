@@ -6,18 +6,20 @@ function IndustryDashboard() {
   const isFirstRender = useRef(true);
   const [overlay, setOverlay] = useState(false);
   const [data, setData] = useState([]);
-  
+
   const [visibleKeys, setVisibleKeys] = useState({
     salary_usd: true,
     ai_intensity_score: true,
     automation_risk_score: true,
-    ai_mentioned: true
+    ai_mentioned: true,
   });
 
   // Increased bottom margin for long industry labels
   const margin = { top: 60, right: 180, bottom: 120, left: 70 };
-  const gridW = 450, gridH = 340;
-  const fullW = 950, fullH = 600;
+  const gridW = 450,
+    gridH = 340;
+  const fullW = 950,
+    fullH = 600;
 
   const charts = [
     { key: "salary_usd", title: "Avg Salary", color: "#1DD3B0" },
@@ -35,20 +37,24 @@ function IndustryDashboard() {
   useEffect(() => {
     d3.csv("/ai_impact_jobs_2010_2025.csv").then((raw) => {
       // 1. Group by 'industry' instead of seniority
-      const rolled = d3.rollups(raw, v => ({
-        salary_usd: d3.mean(v, d => +d.salary_usd),
-        ai_intensity_score: d3.mean(v, d => +d.ai_intensity_score),
-        automation_risk_score: d3.mean(v, d => +d.automation_risk_score),
-        ai_mentioned: d3.mean(v, d => d.ai_mentioned === "True" ? 1 : 0) * 100,
-      }), d => d.industry);
+      const rolled = d3.rollups(
+        raw,
+        (v) => ({
+          salary_usd: d3.mean(v, (d) => +d.salary_usd),
+          ai_intensity_score: d3.mean(v, (d) => +d.ai_intensity_score),
+          automation_risk_score: d3.mean(v, (d) => +d.automation_risk_score),
+          ai_mentioned: d3.mean(v, (d) => (d.ai_mentioned === "True" ? 1 : 0)) * 100,
+        }),
+        (d) => d.industry,
+      );
 
-      const keys = charts.map(c => c.key);
+      const keys = charts.map((c) => c.key);
       const stats = rolled.map(([industry, values]) => ({ industry, ...values }));
 
       // Normalize for stacking
-      const normalizedStats = stats.map(d => {
+      const normalizedStats = stats.map((d) => {
         const norm = { ...d };
-        keys.forEach(k => norm[`${k}_norm`] = d[k] / (d3.max(stats, s => s[k]) || 1));
+        keys.forEach((k) => (norm[`${k}_norm`] = d[k] / (d3.max(stats, (s) => s[k]) || 1)));
         return norm;
       });
 
@@ -61,12 +67,20 @@ function IndustryDashboard() {
 
     const container = d3.select(chartRef.current);
     let svg = container.select("svg");
-    
+
     let tooltip = container.select(".tooltip-div");
     if (tooltip.empty()) {
-      tooltip = container.append("div").attr("class", "tooltip-div")
-        .style("position", "fixed").style("background", "white").style("border", "1px solid #ccc")
-        .style("padding", "8px").style("border-radius", "4px").style("opacity", 0).style("pointer-events", "none").style("z-index", "100");
+      tooltip = container
+        .append("div")
+        .attr("class", "tooltip-div")
+        .style("position", "fixed")
+        .style("background", "white")
+        .style("border", "1px solid #ccc")
+        .style("padding", "8px")
+        .style("border-radius", "4px")
+        .style("opacity", 0)
+        .style("pointer-events", "none")
+        .style("z-index", "100");
     }
 
     if (svg.empty()) {
@@ -86,21 +100,30 @@ function IndustryDashboard() {
     const width = overlay ? fullW - margin.left - margin.right : gridW - margin.left - 40;
     const height = overlay ? fullH - margin.top - margin.bottom : gridH - margin.top - margin.bottom;
 
-    const activeKeys = charts.filter(c => visibleKeys[c.key]).map(c => `${c.key}_norm`);
+    const activeKeys = charts.filter((c) => visibleKeys[c.key]).map((c) => `${c.key}_norm`);
     const stackedData = d3.stack().keys(activeKeys)(data);
 
-    svg.transition(t).attr("width", overlay ? fullW : gridW * 2).attr("height", overlay ? fullH : gridH * 2);
+    svg
+      .transition(t)
+      .attr("width", overlay ? fullW : gridW * 2)
+      .attr("height", overlay ? fullH : gridH * 2);
 
     charts.forEach((chart, i) => {
       const g = svg.select(`.group-${i}`);
       const isVisible = visibleKeys[chart.key];
-      const series = stackedData.find(s => s.key === `${chart.key}_norm`);
+      const series = stackedData.find((s) => s.key === `${chart.key}_norm`);
 
       // 2. Map domain to 'industry'
-      const industries = data.map(d => d.industry);
+      const industries = data.map((d) => d.industry);
       const x = d3.scaleBand().domain(industries).range([0, width]).padding(0.3);
-      const y = d3.scaleLinear()
-        .domain([0, overlay ? d3.max(data, d => activeKeys.reduce((a, k) => a + d[k], 0)) || 1 : d3.max(data, d => d[chart.key]) || 1])
+      const y = d3
+        .scaleLinear()
+        .domain([
+          0,
+          overlay
+            ? d3.max(data, (d) => activeKeys.reduce((a, k) => a + d[k], 0)) || 1
+            : d3.max(data, (d) => d[chart.key]) || 1,
+        ])
         .range([height, 0]);
 
       const tx = overlay ? margin.left : (i % 2) * gridW + margin.left;
@@ -110,7 +133,10 @@ function IndustryDashboard() {
 
       const bars = g.select(".bars").selectAll(".bar").data(data);
 
-      bars.enter().append("rect").attr("class", "bar")
+      bars
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
         .merge(bars)
         .on("mouseover", (event, d) => {
           if (!isVisible) return;
@@ -121,19 +147,21 @@ function IndustryDashboard() {
           tooltip.html(`<b>${d.industry}</b><br/>${chart.title}: ${val}`);
         })
         .on("mousemove", (event) => {
-          tooltip.style("left", (event.clientX + 15) + "px").style("top", (event.clientY - 40) + "px");
+          tooltip.style("left", event.clientX + 15 + "px").style("top", event.clientY - 40 + "px");
         })
         .on("mouseout", () => {
           d3.selectAll(".bar").style("opacity", overlay ? 0.8 : 1);
           tooltip.transition().duration(200).style("opacity", 0);
         })
         .transition(t)
-        .attr("x", d => x(d.industry))
+        .attr("x", (d) => x(d.industry))
         .attr("width", x.bandwidth())
         .attr("fill", chart.color)
-        .attr("y", (d, idx) => overlay ? (isVisible && series ? y(series[idx][1]) : height) : y(d[chart.key]))
-        .attr("height", (d, idx) => overlay ? (isVisible && series ? y(series[idx][0]) - y(series[idx][1]) : 0) : height - y(d[chart.key]))
-        .style("opacity", isVisible ? (overlay ? 0.8 : 1) : (overlay ? 0 : 0.3));
+        .attr("y", (d, idx) => (overlay ? (isVisible && series ? y(series[idx][1]) : height) : y(d[chart.key])))
+        .attr("height", (d, idx) =>
+          overlay ? (isVisible && series ? y(series[idx][0]) - y(series[idx][1]) : 0) : height - y(d[chart.key]),
+        )
+        .style("opacity", isVisible ? (overlay ? 0.8 : 1) : overlay ? 0 : 0.3);
 
       // 3. Rotate labels to fit long industry names
       g.select(".x-axis")
@@ -147,14 +175,17 @@ function IndustryDashboard() {
         .attr("dy", ".15em")
         .attr("transform", "rotate(-45)");
 
-      g.select(".y-axis").transition(t).style("opacity", (overlay || !isVisible) ? 0 : 1).call(d3.axisLeft(y).ticks(5));
+      g.select(".y-axis")
+        .transition(t)
+        .style("opacity", overlay || !isVisible ? 0 : 1)
+        .call(d3.axisLeft(y).ticks(5));
 
       g.select(".chart-label")
-        .on("click", () => setVisibleKeys(prev => ({ ...prev, [chart.key]: !prev[chart.key] })))
+        .on("click", () => setVisibleKeys((prev) => ({ ...prev, [chart.key]: !prev[chart.key] })))
         .transition(t)
         .attr("fill", isVisible ? chart.color : "#9ca3af")
         .attr("x", overlay ? width + 15 : width / 2)
-        .attr("y", overlay ? (i * 25) : -15)
+        .attr("y", overlay ? i * 25 : -15)
         .attr("text-anchor", overlay ? "start" : "middle")
         .text(`${isVisible ? "●" : "○"} ${chart.title}`);
     });
@@ -164,7 +195,10 @@ function IndustryDashboard() {
 
   return (
     <div style={{ padding: "40px", backgroundColor: "#f9fafb" }}>
-      <button onClick={() => setOverlay(!overlay)} style={{ padding: "10px 20px", cursor: "pointer", marginBottom: "20px" }}>
+      <button
+        onClick={() => setOverlay(!overlay)}
+        style={{ padding: "10px 20px", cursor: "pointer", marginBottom: "20px" }}
+      >
         {overlay ? "⬅ Back to Grid" : "📊 View Stacked Comparison"}
       </button>
       <div ref={chartRef} style={{ background: "white", borderRadius: "12px", padding: "20px" }}></div>

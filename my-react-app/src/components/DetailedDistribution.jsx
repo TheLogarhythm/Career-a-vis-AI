@@ -27,13 +27,11 @@ function DetailedDistribution({ metric, data, onClose }) {
           description: `共涵盖 ${Object.keys(countryCounts).length} 个国家`,
           details: sortedCountries.slice(0, 5).map((c) => `${c[0]}: ${c[1]} 个职位`),
         };
-      
+
       case "ai_intensity":
         // 直接对所有数据进行统计，只过滤可解析的数值
-        const intensities = data
-          .map((d) => parseFloat(d.ai_intensity_score))
-          .filter((v) => !isNaN(v));
-        
+        const intensities = data.map((d) => parseFloat(d.ai_intensity_score)).filter((v) => !isNaN(v));
+
         if (intensities.length === 0) {
           return {
             type: "ai_histogram",
@@ -57,7 +55,7 @@ function DetailedDistribution({ metric, data, onClose }) {
           { range: "80-90%", count: intensities.filter((v) => v >= 0.8 && v < 0.9).length },
           { range: "90-100%", count: intensities.filter((v) => v >= 0.9).length },
         ];
-        const avg = (intensities.reduce((a, b) => a + b) / intensities.length * 100).toFixed(1);
+        const avg = ((intensities.reduce((a, b) => a + b) / intensities.length) * 100).toFixed(1);
         const max = (Math.max(...intensities) * 100).toFixed(1);
         const min = (Math.min(...intensities) * 100).toFixed(1);
         return {
@@ -66,20 +64,13 @@ function DetailedDistribution({ metric, data, onClose }) {
           title: "AI 强度分布 (直方图)",
           description: `显示职位AI强度的分布情况`,
           stats: { avg, max, min },
-          details: [
-            `总样本数: ${intensities.length}`,
-            `平均值: ${avg}%`,
-            `最大值: ${max}%`,
-            `最小值: ${min}%`,
-          ],
+          details: [`总样本数: ${intensities.length}`, `平均值: ${avg}%`, `最大值: ${max}%`, `最小值: ${min}%`],
         };
-      
+
       case "automation_risk":
         // 直接对所有数据进行统计，只过滤可解析的数值
-        const risks = data
-          .map((d) => parseFloat(d.automation_risk_score))
-          .filter((v) => !isNaN(v));
-        
+        const risks = data.map((d) => parseFloat(d.automation_risk_score)).filter((v) => !isNaN(v));
+
         if (risks.length === 0) {
           return {
             type: "risk_histogram",
@@ -103,9 +94,9 @@ function DetailedDistribution({ metric, data, onClose }) {
           { range: "0.8-0.9", count: risks.filter((v) => v >= 0.8 && v < 0.9).length },
           { range: "0.9-1.0", count: risks.filter((v) => v >= 0.9).length },
         ];
-        const riskAvg = (risks.reduce((a, b) => a + b) / risks.length * 100).toFixed(1);
+        const riskAvg = ((risks.reduce((a, b) => a + b) / risks.length) * 100).toFixed(1);
         const highRiskCount = risks.filter((v) => v > 0.6).length;
-        
+
         return {
           type: "risk_histogram",
           data: riskBins,
@@ -119,15 +110,15 @@ function DetailedDistribution({ metric, data, onClose }) {
             `高风险占比: ${((highRiskCount / risks.length) * 100).toFixed(1)}%`,
           ],
         };
-      
+
       case "displacement_risk":
         // 按industry分类，计算automation_risk平均值
         const industryStats = {};
         data.forEach((d) => {
           const industry = d.industry || "Unknown";
           const val = parseFloat(d.automation_risk_score);
-          const risk = (isNaN(val) || val === null || val === undefined) ? null : val;
-          
+          const risk = isNaN(val) || val === null || val === undefined ? null : val;
+
           // 只处理有效的 0-1 范围数据
           if (risk !== null && !isNaN(risk) && risk >= 0 && risk <= 1) {
             if (!industryStats[industry]) {
@@ -155,11 +146,9 @@ function DetailedDistribution({ metric, data, onClose }) {
           data: industryData,
           title: "行业自动化风险分布 (饼图)",
           description: `按行业统计的平均自动化风险水平`,
-          details: industryData.slice(0, 8).map(
-            (d) => `${d.label}: ${d.percentage}% (${d.count}个职位)`
-          ),
+          details: industryData.slice(0, 8).map((d) => `${d.label}: ${d.percentage}% (${d.count}个职位)`),
         };
-      
+
       default:
         return null;
     }
@@ -167,7 +156,7 @@ function DetailedDistribution({ metric, data, onClose }) {
 
   const drawChart = () => {
     if (!chartRef.current) return;
-    
+
     const stats = calculateStats();
     if (!stats) return;
 
@@ -178,11 +167,7 @@ function DetailedDistribution({ metric, data, onClose }) {
     d3.select(chartRef.current).selectAll("*").remove();
 
     if (stats.type === "country") {
-      const svg = d3
-        .select(chartRef.current)
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+      const svg = d3.select(chartRef.current).append("svg").attr("width", width).attr("height", height);
 
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
@@ -198,9 +183,7 @@ function DetailedDistribution({ metric, data, onClose }) {
         .domain([0, d3.max(stats.data, (d) => d[1])])
         .range([innerHeight, 0]);
 
-      const g = svg
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
       g.selectAll(".bar")
         .data(stats.data)
@@ -226,13 +209,8 @@ function DetailedDistribution({ metric, data, onClose }) {
         .attr("text-anchor", "end");
 
       g.append("g").call(d3.axisLeft(yScale)).selectAll("text").attr("font-size", "9px");
-    } 
-    else if (stats.type === "ai_histogram" || stats.type === "risk_histogram") {
-      const svg = d3
-        .select(chartRef.current)
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    } else if (stats.type === "ai_histogram" || stats.type === "risk_histogram") {
+      const svg = d3.select(chartRef.current).append("svg").attr("width", width).attr("height", height);
 
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
@@ -248,9 +226,7 @@ function DetailedDistribution({ metric, data, onClose }) {
         .domain([0, d3.max(stats.data, (d) => d.count)])
         .range([innerHeight, 0]);
 
-      const g = svg
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
       const color = stats.type === "ai_histogram" ? "#ee9b00" : "#9b2226";
 
@@ -275,29 +251,18 @@ function DetailedDistribution({ metric, data, onClose }) {
         .attr("font-size", "9px");
 
       g.append("g").call(d3.axisLeft(yScale)).selectAll("text").attr("font-size", "9px");
-    } 
-    else if (stats.type === "industry_pie") {
-      const svg = d3
-        .select(chartRef.current)
-        .append("svg")
-        .attr("width", width)
-        .attr("height", height);
+    } else if (stats.type === "industry_pie") {
+      const svg = d3.select(chartRef.current).append("svg").attr("width", width).attr("height", height);
 
       const radius = Math.min(width, height) / 2 - 20;
-      const g = svg
-        .append("g")
-        .attr("transform", `translate(${width / 2},${height / 2})`);
+      const g = svg.append("g").attr("transform", `translate(${width / 2},${height / 2})`);
 
       const pie = d3.pie().value((d) => d.avgRisk);
       const arc = d3.arc().innerRadius(0).outerRadius(radius);
 
       const colors = d3.schemeCategory10;
 
-      const arcs = g
-        .selectAll(".arc")
-        .data(pie(stats.data))
-        .join("g")
-        .attr("class", "arc");
+      const arcs = g.selectAll(".arc").data(pie(stats.data)).join("g").attr("class", "arc");
 
       arcs
         .append("path")
@@ -330,9 +295,11 @@ function DetailedDistribution({ metric, data, onClose }) {
     <div className="detailed-distribution">
       <div className="detail-header">
         <h3>{stats.title}</h3>
-        <button className="close-btn" onClick={onClose}>✕</button>
+        <button className="close-btn" onClick={onClose}>
+          ✕
+        </button>
       </div>
-      
+
       <div className="detail-description">{stats.description}</div>
 
       <div className="chart-container" ref={chartRef}></div>
@@ -347,10 +314,7 @@ function DetailedDistribution({ metric, data, onClose }) {
       </div>
 
       {tooltip && (
-        <div
-          className="tooltip"
-          style={{ top: `${tooltip.y}px`, left: `${tooltip.x}px` }}
-        >
+        <div className="tooltip" style={{ top: `${tooltip.y}px`, left: `${tooltip.x}px` }}>
           {tooltip.text}
         </div>
       )}

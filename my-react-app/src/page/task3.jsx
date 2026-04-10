@@ -5,9 +5,9 @@ import Task3_linechart from "./task3_charts/task3-linechart";
 import SeniorityDashboard from "./task3_charts/task3-SeniorityDashboard";
 
 function Task3() {
- 
   return (
-    <div className="chart-container" style={{ padding: "20px" }}>
+    <div>
+      {" "}
       <h2>AI Impact Analysis</h2>
       <SeniorityDashboard />
       <Task3_linechart />

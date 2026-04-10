@@ -16,14 +16,19 @@ function Task3_linechart() {
 
   useEffect(() => {
     d3.csv("/ai_impact_jobs_2010_2025.csv").then((raw) => {
-      const grouped = d3.rollups(raw, v => ({
-        ai_mentioned: d3.mean(v, d => d.ai_mentioned === "True" ? 1 : 0) * 100,
-        salary_usd: d3.mean(v, d => +d.salary_usd),
-        automation_risk_score: d3.mean(v, d => +d.automation_risk_score),
-        ai_intensity_score: d3.mean(v, d => +d.ai_intensity_score),
-      }), d => +d.posting_year);
+      const grouped = d3.rollups(
+        raw,
+        (v) => ({
+          ai_mentioned: d3.mean(v, (d) => (d.ai_mentioned === "True" ? 1 : 0)) * 100,
+          salary_usd: d3.mean(v, (d) => +d.salary_usd),
+          automation_risk_score: d3.mean(v, (d) => +d.automation_risk_score),
+          ai_intensity_score: d3.mean(v, (d) => +d.ai_intensity_score),
+        }),
+        (d) => +d.posting_year,
+      );
 
-      const stats = grouped.map(([year, vals]) => ({ posting_year: year, ...vals }))
+      const stats = grouped
+        .map(([year, vals]) => ({ posting_year: year, ...vals }))
         .sort((a, b) => a.posting_year - b.posting_year);
       setData(stats);
     });
@@ -37,7 +42,8 @@ function Task3_linechart() {
     let tooltip = container.select(".tooltip-div");
 
     if (tooltip.empty()) {
-      tooltip = container.append("div")
+      tooltip = container
+        .append("div")
         .attr("class", "tooltip-div")
         .style("position", "fixed")
         .style("background", "white")
@@ -60,7 +66,11 @@ function Task3_linechart() {
       svg = container.append("svg").attr("overflow", "visible");
       charts.forEach((chart, i) => {
         const g = svg.append("g").attr("class", `chart-group group-${i}`);
-        g.append("path").attr("class", "line").attr("fill", "none").attr("stroke", chart.color).attr("stroke-width", 2.5);
+        g.append("path")
+          .attr("class", "line")
+          .attr("fill", "none")
+          .attr("stroke", chart.color)
+          .attr("stroke-width", 2.5);
         g.append("g").attr("class", "x-axis");
         g.append("g").attr("class", "y-axis");
         g.append("text").attr("class", "chart-label").attr("fill", chart.color).style("font-weight", "bold");
@@ -74,7 +84,8 @@ function Task3_linechart() {
     const width = overlay ? fullW - margin.left - margin.right : gridW - margin.left - 20;
     const height = overlay ? fullH - margin.top - margin.bottom : gridH - margin.top - margin.bottom;
 
-    svg.transition(t)
+    svg
+      .transition(t)
       .attr("width", overlay ? fullW : gridW * 2)
       .attr("height", overlay ? fullH : gridH * 2);
 
@@ -88,13 +99,20 @@ function Task3_linechart() {
       const g = svg.select(`.group-${i}`);
       g.transition(t).attr("transform", `translate(${translateX}, ${translateY})`);
 
-      const x = d3.scaleLinear().domain(d3.extent(data, d => d.posting_year)).range([0, width]);
-      const maxVal = d3.max(data, d => d[chart.key]);
-      const y = d3.scaleLinear().domain([0, overlay ? 1 : maxVal]).range([height, 0]);
+      const x = d3
+        .scaleLinear()
+        .domain(d3.extent(data, (d) => d.posting_year))
+        .range([0, width]);
+      const maxVal = d3.max(data, (d) => d[chart.key]);
+      const y = d3
+        .scaleLinear()
+        .domain([0, overlay ? 1 : maxVal])
+        .range([height, 0]);
 
-      const lineGen = d3.line()
-        .x(d => x(d.posting_year))
-        .y(d => y(overlay ? d[chart.key] / maxVal : d[chart.key]))
+      const lineGen = d3
+        .line()
+        .x((d) => x(d.posting_year))
+        .y((d) => y(overlay ? d[chart.key] / maxVal : d[chart.key]))
         .curve(d3.curveMonotoneX);
 
       g.select(".line").transition(t).attr("d", lineGen(data));
@@ -112,13 +130,18 @@ function Task3_linechart() {
       g.select(".chart-label")
         .transition(t)
         .attr("x", overlay ? width + 15 : width / 2)
-        .attr("y", overlay ? (i * 25) : -10)
+        .attr("y", overlay ? i * 25 : -10)
         .attr("text-anchor", overlay ? "start" : "middle")
         .text(chart.title);
 
       const circles = g.selectAll(".dot").data(data);
 
-      circles.enter().append("circle").attr("class", "dot").attr("r", 5).attr("fill", chart.color)
+      circles
+        .enter()
+        .append("circle")
+        .attr("class", "dot")
+        .attr("r", 5)
+        .attr("fill", chart.color)
         .merge(circles)
         .on("mouseover", (event, d) => {
           tooltip.transition().duration(200).style("opacity", 1);
@@ -128,30 +151,35 @@ function Task3_linechart() {
           `);
         })
         .on("mousemove", (event) => {
-          tooltip.style("left", (event.clientX + 15) + "px")
-                 .style("top", (event.clientY - 40) + "px");
+          tooltip.style("left", event.clientX + 15 + "px").style("top", event.clientY - 40 + "px");
         })
         .on("mouseout", () => {
           tooltip.transition().duration(300).style("opacity", 0);
         })
         .transition(t)
-        .attr("cx", d => x(d.posting_year))
-        .attr("cy", d => y(overlay ? d[chart.key] / maxVal : d[chart.key]));
+        .attr("cx", (d) => x(d.posting_year))
+        .attr("cy", (d) => y(overlay ? d[chart.key] / maxVal : d[chart.key]));
     });
 
     // 3. Mark the first render as complete after the logic runs
     isFirstRender.current = false;
-
   }, [data, overlay]);
 
   return (
-    <div >
+    <div>
       <h2>Changes over Time</h2>
       <button onClick={() => setOverlay(!overlay)} style={{ marginBottom: "20px", padding: "8px 16px" }}>
         {overlay ? "Switch to Grid View" : "Switch to Overlay View"}
       </button>
-      <div ref={chartRef} style={{ background: "white", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.2)", padding: "20px" }}></div>
-
+      <div
+        ref={chartRef}
+        style={{
+          background: "white",
+          borderRadius: "12px",
+          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.2)",
+          padding: "20px",
+        }}
+      ></div>
     </div>
   );
 }

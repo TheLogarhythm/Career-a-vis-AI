@@ -14,7 +14,7 @@ function SummaryStats({ selectedTask }) {
   const parseCSV = (text) => {
     const lines = text.split("\n").filter((line) => line.trim());
     const headers = lines[0].split(",").map((h) => h.trim());
-    
+
     const data = [];
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(",");
@@ -30,7 +30,7 @@ function SummaryStats({ selectedTask }) {
   const loadStats = async () => {
     try {
       const filePath = "/ai_impact_jobs_2010_2025.csv";
-      
+
       const response = await fetch(filePath);
       const text = await response.text();
       const data = parseCSV(text);
@@ -39,13 +39,15 @@ function SummaryStats({ selectedTask }) {
       // Calculate statistics
       const totalJobs = data.length;
       const countries = [...new Set(data.map((d) => d.country))].length;
-      
+
       const avgAiIntensity = (
-        data.reduce((sum, d) => sum + (parseFloat(d.ai_intensity_score) || 0), 0) / totalJobs * 100
+        (data.reduce((sum, d) => sum + (parseFloat(d.ai_intensity_score) || 0), 0) / totalJobs) *
+        100
       ).toFixed(1);
-      
+
       const avgAutomationRisk = (
-        data.reduce((sum, d) => sum + (parseFloat(d.automation_risk_score) || 0), 0) / totalJobs * 100
+        (data.reduce((sum, d) => sum + (parseFloat(d.automation_risk_score) || 0), 0) / totalJobs) *
+        100
       ).toFixed(1);
 
       // Count displacement risk levels
@@ -83,49 +85,31 @@ function SummaryStats({ selectedTask }) {
 
   // Show detailed distribution when a metric is selected
   if (selectedMetric && rawData) {
-    return (
-      <DetailedDistribution
-        metric={selectedMetric}
-        data={rawData}
-        onClose={() => setSelectedMetric(null)}
-      />
-    );
+    return <DetailedDistribution metric={selectedMetric} data={rawData} onClose={() => setSelectedMetric(null)} />;
   }
 
   return (
     <div className="summary-stats-container">
       <div className="summary-stats">
-        <div 
-          className="stat-card" 
-          onClick={() => setSelectedMetric("country")}
-        >
+        <div className="stat-card" onClick={() => setSelectedMetric("country")}>
           <div className="stat-label">地区分布</div>
           <div className="stat-value">{stats.countries}</div>
           <div className="stat-unit">个国家</div>
         </div>
 
-        <div 
-          className="stat-card" 
-          onClick={() => setSelectedMetric("ai_intensity")}
-        >
+        <div className="stat-card" onClick={() => setSelectedMetric("ai_intensity")}>
           <div className="stat-label">AI 强度</div>
           <div className="stat-value">{stats.avgAiIntensity}%</div>
           <div className="stat-unit">平均值</div>
         </div>
 
-        <div 
-          className="stat-card" 
-          onClick={() => setSelectedMetric("automation_risk")}
-        >
+        <div className="stat-card" onClick={() => setSelectedMetric("automation_risk")}>
           <div className="stat-label">自动化风险</div>
           <div className="stat-value">{stats.avgAutomationRisk}%</div>
           <div className="stat-unit">平均值</div>
         </div>
 
-        <div 
-          className="stat-card" 
-          onClick={() => setSelectedMetric("displacement_risk")}
-        >
+        <div className="stat-card" onClick={() => setSelectedMetric("displacement_risk")}>
           <div className="stat-label">高风险职位</div>
           <div className="stat-value">{stats.highRiskPercentage}%</div>
           <div className="stat-unit">占比</div>

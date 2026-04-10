@@ -4,7 +4,11 @@
   background: #f8fafc;
   display: flex;
   flex-direction: column;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: #1e293b;
   overflow: hidden;
   position: relative;
@@ -28,8 +32,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .guide-content {
@@ -45,8 +53,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .guide-header {
@@ -198,7 +212,7 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   position: relative;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 /* Timeflow 详情面板 */
@@ -215,8 +229,14 @@
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(10px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .panel-header {
@@ -242,7 +262,7 @@
 }
 
 .year-tag {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 11px;
@@ -257,7 +277,7 @@
   width: 22px;
   height: 22px;
   border: none;
-  background: rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.3);
   color: white;
   border-radius: 50%;
   cursor: pointer;
@@ -270,7 +290,7 @@
 }
 
 .close-btn-header:hover {
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   transform: scale(1.1);
 }
 
@@ -466,8 +486,14 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.5); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 .play-placeholder {
@@ -533,7 +559,7 @@
 .tick-year {
   font-size: 10px;
   color: #64748b;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   transition: all 0.2s;
 }
 
@@ -577,13 +603,13 @@
   border-radius: 12px;
   font-size: 12px;
   font-weight: 700;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
   white-space: nowrap;
 }
 
 .year-tooltip::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 50%;
@@ -611,7 +637,7 @@
 .handle-icon {
   font-size: 20px;
   margin-bottom: 2px;
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
 }
 
 .handle-icon.solid {
@@ -631,7 +657,7 @@
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   white-space: nowrap;
 }
 
@@ -649,12 +675,13 @@ svg {
   stroke-width: 0;
 }
 
-.current-circle, .prev-circle {
+.current-circle,
+.prev-circle {
   transition: all 0.3s ease;
 }
 
 .current-circle:hover {
-  filter: drop-shadow(0 0 6px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.3));
 }
 
 .connection-line {
