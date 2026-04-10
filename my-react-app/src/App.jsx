@@ -33,7 +33,7 @@ function App() {
     setShowFullTable(false);
   };
 
-  // 渲染主内容 - 不强制任何布局，完全交给子组件
+  // 渲染主内容
   const renderMainContent = () => {
     if (showFullTable) {
       return <FullTableView data={fullData} loading={tableLoading} onBack={handleBackToTask} />;
@@ -94,7 +94,7 @@ function App() {
         {drawerOpen ? "◀" : "▶"}
       </div>
 
-      {/* 右侧主内容区 - 完全不干涉内部布局 */}
+      {/* 右侧主内容区 */}
       <main className={`main-content ${drawerOpen ? "drawer-open" : ""}`}>
         {renderMainContent()}
       </main>
