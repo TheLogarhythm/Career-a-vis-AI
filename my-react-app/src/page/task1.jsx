@@ -13,7 +13,7 @@ const REGION_COLORS = d3.scaleOrdinal([
   "#6d597a",
   "#3a86ff",
   "#2a9d8f",
-  "#457b9d"
+  "#457b9d",
 ]);
 
 const INDUSTRY_COLORS = d3.scaleOrdinal(d3.schemeTableau10);
@@ -27,7 +27,7 @@ const REGION_ANCHORS = {
   Oceania: [140, -25],
   "South America": [-60, -15],
   "South Asia": [78, 20],
-  "Southeast Asia": [105, 7]
+  "Southeast Asia": [105, 7],
 };
 
 const COUNTRY_COORDS = {
@@ -74,7 +74,7 @@ const COUNTRY_COORDS = {
   UAE: [54.4, 24.4],
   "United Kingdom": [-3.4, 55.4],
   "United States": [-98.6, 39.8],
-  Vietnam: [108.3, 14.1]
+  Vietnam: [108.3, 14.1],
 };
 
 function hashString(value) {
@@ -114,14 +114,14 @@ function normalizeHistoryRow(row) {
     reskillingRequired: row.reskilling_required === "True",
     displacementRisk: row.ai_job_displacement_risk,
     lon,
-    lat
+    lat,
   };
 }
 
 function normalizeMetricRow(row) {
   return {
     label: row.label,
-    value: parseFloat(String(row.value).replace("%", ""))
+    value: parseFloat(String(row.value).replace("%", "")),
   };
 }
 
@@ -134,9 +134,9 @@ function computeRegionSummary(rows) {
         lat: d3.mean(values, (d) => d.lat) || 0,
         aiIntensity: d3.mean(values, (d) => d.aiIntensityScore) || 0,
         salary: d3.mean(values, (d) => d.salaryUsd) || 0,
-        count: values.length
+        count: values.length,
       }),
-      (d) => d.region
+      (d) => d.region,
     )
     .map(([region, stats]) => ({ region, ...stats }))
     .sort((a, b) => d3.descending(a.aiIntensity, b.aiIntensity));
@@ -150,31 +150,31 @@ function computeStarMetrics(rows, metricRows) {
   const coreMetrics = [
     {
       label: "AI Mention",
-      value: (d3.mean(rows, (d) => (d.aiMentioned ? 1 : 0)) || 0) * 100
+      value: (d3.mean(rows, (d) => (d.aiMentioned ? 1 : 0)) || 0) * 100,
     },
     {
       label: "Intensity",
-      value: (d3.mean(rows, (d) => d.aiIntensityScore) || 0) * 100
+      value: (d3.mean(rows, (d) => d.aiIntensityScore) || 0) * 100,
     },
     {
       label: "Reskilling",
-      value: (d3.mean(rows, (d) => (d.reskillingRequired ? 1 : 0)) || 0) * 100
+      value: (d3.mean(rows, (d) => (d.reskillingRequired ? 1 : 0)) || 0) * 100,
     },
     {
       label: "High Risk",
-      value: (d3.mean(rows, (d) => (d.displacementRisk === "High" ? 1 : 0)) || 0) * 100
+      value: (d3.mean(rows, (d) => (d.displacementRisk === "High" ? 1 : 0)) || 0) * 100,
     },
     {
       label: "Salary Momentum",
-      value: Math.min(100, Math.max(0, (d3.mean(rows, (d) => d.salaryDeltaPct) || 0) * 4 + 50))
-    }
+      value: Math.min(100, Math.max(0, (d3.mean(rows, (d) => d.salaryDeltaPct) || 0) * 4 + 50)),
+    },
   ];
 
   const fileMetrics = metricRows
     .filter((metric) => Number.isFinite(metric.value))
     .map((metric) => ({
       label: metric.label,
-      value: Math.max(0, Math.min(100, metric.value))
+      value: Math.max(0, Math.min(100, metric.value)),
     }));
 
   return [...coreMetrics, ...fileMetrics].slice(0, 8);
@@ -198,27 +198,15 @@ function drawGlobeScene(layer, regionSummary, worldData, width, height, currentR
   const path = d3.geoPath(projection);
 
   // 1. Water Layer (Circle/Sphere)
-  layer
-    .append("path")
-    .datum({ type: "Sphere" })
-    .attr("class", "globe-water")
-    .attr("d", path);
+  layer.append("path").datum({ type: "Sphere" }).attr("class", "globe-water").attr("d", path);
 
   // 2. Graticules
-  layer
-    .append("path")
-    .datum(d3.geoGraticule10())
-    .attr("class", "globe-graticule")
-    .attr("d", path);
+  layer.append("path").datum(d3.geoGraticule10()).attr("class", "globe-graticule").attr("d", path);
 
   // 3. Land / Countries
   if (worldData) {
     const countries = topojson.feature(worldData, worldData.objects.countries);
-    layer
-      .append("path")
-      .datum(countries)
-      .attr("class", "globe-land")
-      .attr("d", path);
+    layer.append("path").datum(countries).attr("class", "globe-land").attr("d", path);
 
     layer
       .append("path")
@@ -269,9 +257,7 @@ function drawGlobeScene(layer, regionSummary, worldData, width, height, currentR
         const point = projection([d.lon, d.lat]);
         return point ? `translate(${point[0]}, ${point[1]})` : "translate(-9999,-9999)";
       })
-      .attr("display", (d) =>
-        d3.geoDistance([d.lon, d.lat], center) < Math.PI / 2 ? null : "none"
-      );
+      .attr("display", (d) => (d3.geoDistance([d.lon, d.lat], center) < Math.PI / 2 ? null : "none"));
   };
 
   return { redraw };
@@ -280,15 +266,13 @@ function drawGlobeScene(layer, regionSummary, worldData, width, height, currentR
 function drawMapScene(layer, rows, worldData, selectedYear, width, height) {
   layer.selectAll("*").remove();
 
-  const projection = d3
-    .geoEqualEarth()
-    .fitExtent(
-      [
-        [52, 58],
-        [width - 52, height - 130]
-      ],
-      { type: "Sphere" }
-    );
+  const projection = d3.geoEqualEarth().fitExtent(
+    [
+      [52, 58],
+      [width - 52, height - 130],
+    ],
+    { type: "Sphere" },
+  );
 
   const path = d3.geoPath(projection);
   const yearRows = rows.filter((row) => row.postingYear === selectedYear);
@@ -303,9 +287,9 @@ function drawMapScene(layer, rows, worldData, selectedYear, width, height) {
         lat: d3.mean(values, (d) => d.lat) || 0,
         aiIntensity: d3.mean(values, (d) => d.aiIntensityScore) || 0,
         salary: d3.mean(values, (d) => d.salaryUsd) || 0,
-        count: values.length
+        count: values.length,
       }),
-      (d) => `${d.country}__${d.industry}`
+      (d) => `${d.country}__${d.industry}`,
     )
     .map(([key, stats]) => ({ key, ...stats }));
 
@@ -314,15 +298,9 @@ function drawMapScene(layer, rows, worldData, selectedYear, width, height) {
     .domain(d3.extent(grouped, (d) => d.salary))
     .range([3, 14]);
 
-  const intensityScale = d3
-    .scaleSequential(d3.interpolateYlOrRd)
-    .domain([0.02, 0.95]);
+  const intensityScale = d3.scaleSequential(d3.interpolateYlOrRd).domain([0.02, 0.95]);
 
-  layer
-    .append("path")
-    .datum({ type: "Sphere" })
-    .attr("class", "map-sphere")
-    .attr("d", path);
+  layer.append("path").datum({ type: "Sphere" }).attr("class", "map-sphere").attr("d", path);
 
   if (worldData && worldData.objects) {
     layer
@@ -332,11 +310,7 @@ function drawMapScene(layer, rows, worldData, selectedYear, width, height) {
       .attr("d", path);
   }
 
-  layer
-    .append("path")
-    .datum(d3.geoGraticule10())
-    .attr("class", "map-graticule")
-    .attr("d", path);
+  layer.append("path").datum(d3.geoGraticule10()).attr("class", "map-graticule").attr("d", path);
 
   layer
     .append("text")
@@ -371,11 +345,14 @@ function drawMapScene(layer, rows, worldData, selectedYear, width, height) {
     .duration(500)
     .attr("r", (d) => radiusScale(d.salary));
 
-  dots.append("title").text(
-    (d) =>
-      `${d.industry} in ${d.country}\nAI intensity: ${(d.aiIntensity * 100).toFixed(1)}%\nSalary: $${d3
-        .format(",.0f")(d.salary)}\nSamples: ${d.count}`
-  );
+  dots
+    .append("title")
+    .text(
+      (d) =>
+        `${d.industry} in ${d.country}\nAI intensity: ${(d.aiIntensity * 100).toFixed(1)}%\nSalary: $${d3.format(
+          ",.0f",
+        )(d.salary)}\nSamples: ${d.count}`,
+    );
 }
 
 function drawStarScene(layer, metrics, width, height) {
@@ -385,12 +362,7 @@ function drawStarScene(layer, metrics, width, height) {
   const centerY = height / 2 + 10;
   const maxRadius = Math.min(width, height) * 0.24;
 
-  layer
-    .append("text")
-    .attr("x", 64)
-    .attr("y", 38)
-    .attr("class", "scene-title")
-    .text("AI Impact Statistics Star Chart");
+  layer.append("text").attr("x", 64).attr("y", 38).attr("class", "scene-title").text("AI Impact Statistics Star Chart");
 
   layer
     .append("text")
@@ -417,7 +389,7 @@ function drawStarScene(layer, metrics, width, height) {
       x: centerX + Math.cos(angle) * valueRadius,
       y: centerY + Math.sin(angle) * valueRadius,
       labelX: centerX + Math.cos(angle) * (maxRadius + 24),
-      labelY: centerY + Math.sin(angle) * (maxRadius + 24)
+      labelY: centerY + Math.sin(angle) * (maxRadius + 24),
     };
   });
 
@@ -433,12 +405,7 @@ function drawStarScene(layer, metrics, width, height) {
 
   layer
     .append("polygon")
-    .attr(
-      "points",
-      points
-        .map((point) => `${point.x},${point.y}`)
-        .join(" ")
-    )
+    .attr("points", points.map((point) => `${point.x},${point.y}`).join(" "))
     .attr("class", "star-area");
 
   layer
@@ -487,7 +454,7 @@ function Task1() {
     Promise.all([
       d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`, normalizeHistoryRow),
       d3.csv(`${baseUrl}metrics.csv`, normalizeMetricRow),
-      d3.json(`${baseUrl}world-110m.json`)
+      d3.json(`${baseUrl}world-110m.json`),
     ])
       .then(([rows, metrics, world]) => {
         setHistoryRows(rows);
@@ -501,15 +468,12 @@ function Task1() {
 
   const years = useMemo(
     () => Array.from(new Set(historyRows.map((row) => row.postingYear))).sort((a, b) => a - b),
-    [historyRows]
+    [historyRows],
   );
 
   const regionSummary = useMemo(() => computeRegionSummary(historyRows), [historyRows]);
 
-  const starMetrics = useMemo(
-    () => computeStarMetrics(historyRows, metricRows),
-    [historyRows, metricRows]
-  );
+  const starMetrics = useMemo(() => computeStarMetrics(historyRows, metricRows), [historyRows, metricRows]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -523,8 +487,8 @@ function Task1() {
       },
       {
         threshold: 0.55,
-        rootMargin: "-10% 0px -20% 0px"
-      }
+        rootMargin: "-10% 0px -20% 0px",
+      },
     );
 
     stepRefs.current.forEach((element) => {
@@ -567,7 +531,7 @@ function Task1() {
         globeLayer,
         mapLayer,
         starLayer,
-        globeBundle
+        globeBundle,
       };
 
       // Three.js Photorealistic Globe Setup
@@ -577,11 +541,7 @@ function Task1() {
 
         const scene = new THREE.Scene();
         // Orthographic Camera is essential for 1:1 D3-ThreeJS alignment
-        const camera = new THREE.OrthographicCamera(
-          -width / 2, width / 2, 
-          height / 2, -height / 2, 
-          0.1, 2000
-        );
+        const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 0.1, 2000);
         camera.position.z = 1000;
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -591,7 +551,7 @@ function Task1() {
 
         const group = new THREE.Group();
         // Shift group by 10px down to match D3 translate Y-offset
-        group.position.y = -10; 
+        group.position.y = -10;
         scene.add(group);
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
@@ -603,7 +563,9 @@ function Task1() {
 
         const loader = new THREE.TextureLoader();
         // Standard Detail Satellite Texture
-        const texture = loader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg");
+        const texture = loader.load(
+          "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg",
+        );
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
 
@@ -623,13 +585,10 @@ function Task1() {
       // Mini Globe Controller Setup
       const miniWidth = 120;
       const miniHeight = 120;
-      const miniSvg = d3
-        .select(miniSvgRef.current)
-        .attr("width", miniWidth)
-        .attr("height", miniHeight);
-      
+      const miniSvg = d3.select(miniSvgRef.current).attr("width", miniWidth).attr("height", miniHeight);
+
       miniSvg.selectAll("*").remove();
-      
+
       const miniProjection = d3
         .geoOrthographic()
         .scale(55)
@@ -639,20 +598,23 @@ function Task1() {
 
       const miniPath = d3.geoPath(miniProjection);
 
-      miniSvg.append("circle")
+      miniSvg
+        .append("circle")
         .attr("cx", miniWidth / 2)
         .attr("cy", miniHeight / 2)
         .attr("r", 60)
         .attr("class", "mini-water");
 
       if (worldData) {
-        miniSvg.append("path")
+        miniSvg
+          .append("path")
           .datum(topojson.feature(worldData, worldData.objects.land))
           .attr("class", "mini-land")
           .attr("d", miniPath);
       }
 
-      const dragHandler = d3.drag()
+      const dragHandler = d3
+        .drag()
         .on("start", () => {
           isInteractingRef.current = true;
           if (globeTimerRef.current) globeTimerRef.current.stop();
@@ -660,15 +622,11 @@ function Task1() {
         .on("drag", (event) => {
           const r = miniProjection.rotate();
           const sensitivity = 0.25;
-          const nextRotation = [
-            r[0] + event.dx * sensitivity,
-            r[1] - event.dy * sensitivity,
-            r[2]
-          ];
-          
+          const nextRotation = [r[0] + event.dx * sensitivity, r[1] - event.dy * sensitivity, r[2]];
+
           miniProjection.rotate(nextRotation);
           miniSvg.selectAll(".mini-land").attr("d", miniPath);
-          
+
           // Sync large globe
           if (sceneRef.current && sceneRef.current.globeBundle) {
             sceneRef.current.globeBundle.redraw(nextRotation);
@@ -678,7 +636,7 @@ function Task1() {
           if (threeSceneRef.current) {
             const { globe, renderer, scene: tScene, camera } = threeSceneRef.current;
             // Calibrated alignment: -90° offset for center-aligned textures
-            globe.rotation.y = (nextRotation[0] * (Math.PI / 180)) - Math.PI / 2;
+            globe.rotation.y = nextRotation[0] * (Math.PI / 180) - Math.PI / 2;
             globe.rotation.x = -nextRotation[1] * (Math.PI / 180);
             renderer.render(tScene, camera);
           }
@@ -706,7 +664,7 @@ function Task1() {
       worldData,
       selectedYear,
       sceneRef.current.width,
-      sceneRef.current.height
+      sceneRef.current.height,
     );
   }, [selectedYear, historyRows, worldData]);
 
@@ -715,12 +673,7 @@ function Task1() {
       return;
     }
 
-    drawStarScene(
-      sceneRef.current.starLayer,
-      starMetrics,
-      sceneRef.current.width,
-      sceneRef.current.height
-    );
+    drawStarScene(sceneRef.current.starLayer, starMetrics, sceneRef.current.width, sceneRef.current.height);
   }, [starMetrics]);
 
   useEffect(() => {
@@ -757,7 +710,7 @@ function Task1() {
         // Sync Three.js rotation
         if (threeSceneRef.current) {
           const { globe, renderer, scene: tScene, camera } = threeSceneRef.current;
-          globe.rotation.y = (newRotation[0] * (Math.PI / 180)) - Math.PI / 2;
+          globe.rotation.y = newRotation[0] * (Math.PI / 180) - Math.PI / 2;
           globe.rotation.x = -newRotation[1] * (Math.PI / 180);
           renderer.render(tScene, camera);
         }
@@ -784,22 +737,22 @@ function Task1() {
         <p className="eyebrow">Scroll-Driven D3 Narrative</p>
         <h1>AI Job Market: Globe to Map to Star Chart</h1>
         <p>
-          Scroll down and the visualization transitions scene-by-scene: regional globe, year-filtered map,
-          and statistics star chart.
+          Scroll down and the visualization transitions scene-by-scene: regional globe, year-filtered map, and
+          statistics star chart.
         </p>
       </header>
 
       <div className="scrolly-shell">
         <div className="viz-column">
           <div className="viz-sticky">
-            <div 
-              className="three-globe-container" 
-              ref={threeContainerRef} 
-              style={{ 
+            <div
+              className="three-globe-container"
+              ref={threeContainerRef}
+              style={{
                 opacity: activeStep === 0 ? 1 : 0,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             />
             <svg ref={svgRef} className="story-svg" />
@@ -837,8 +790,8 @@ function Task1() {
           >
             <h2>1. Globe View: Regional Footprint</h2>
             <p>
-              A 3D-style orthographic globe summarizes AI intensity by region. Bubble size shows salary level,
-              and color marks each region.
+              A 3D-style orthographic globe summarizes AI intensity by region. Bubble size shows salary level, and color
+              marks each region.
             </p>
           </section>
 
@@ -867,11 +820,11 @@ function Task1() {
           >
             <h2>3. Star Chart: Statistics Profile</h2>
             <p>
-              The final view transitions to the statistics star chart (same concept as your current plot),
-              combining core dataset measures and strategic metrics.
+              The final view transitions to the statistics star chart (same concept as your current plot), combining
+              core dataset measures and strategic metrics.
             </p>
           </section>
-          
+
           <section
             id="task-4"
             className="story-step"
@@ -881,9 +834,7 @@ function Task1() {
             }}
           >
             <h2>4. Future Predictions</h2>
-            <p>
-              AI Impact on Job Market in the future (Placeholder for Visualization 4).
-            </p>
+            <p>AI Impact on Job Market in the future (Placeholder for Visualization 4).</p>
           </section>
         </div>
       </div>
