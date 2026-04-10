@@ -1,0 +1,125 @@
+/* Summary Statistics Container */
+.summary-stats-container {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.875rem;
+}
+
+.summary-stats.loading {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a959e;
+  font-size: 0.9rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem;
+  border: 1px solid #e0e5dd;
+  box-shadow: 0 2px 8px rgba(10, 147, 150, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(10, 147, 150, 0.1) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+  background: #f9fbfa;
+  border-color: #0a9396;
+  box-shadow: 0 4px 12px rgba(10, 147, 150, 0.15);
+  transform: translateY(-2px);
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #8a959e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0a9396;
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-unit {
+  font-size: 0.65rem;
+  color: #bbb;
+  font-weight: 400;
+  margin-top: 0.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.stat-change {
+  font-size: 0.7rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.stat-change.positive {
+  color: #10a369;
+}
+
+.stat-change.negative {
+  color: #d9534f;
+}
+
+.stat-hint {
+  font-size: 0.75rem;
+  color: #8a959e;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  text-align: center;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .summary-stats {
+    grid-template-columns: 1fr;
+    padding: 0 1rem 1rem 1rem;
+    gap: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+}
+
