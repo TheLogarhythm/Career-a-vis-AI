@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 .task2-container {
   width: 100%;
   height: 100%;
@@ -12,21 +10,156 @@
   position: relative;
 }
 
-/* 引导层 */
-.guide-overlay {
+/* ============================================ */
+/* Spotlight 引导系统样式 */
+/* ============================================ */
+
+.guide-spotlight-overlay {
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.spotlight-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+.spotlight-highlight {
+  position: absolute;
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  z-index: 1;
+  animation: pulse-highlight 2s infinite;
+  background: transparent;
+}
+
+.spotlight-inner-glow {
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
+  border: 2px solid #0ea5e9;
+  border-radius: 8px;
+  box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.3);
+}
+
+@keyframes pulse-highlight {
+  0%, 100% { 
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(14, 165, 233, 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(14, 165, 233, 0.6); 
+  }
+}
+
+.spotlight-tooltip {
+  position: absolute;
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 240px;
+  max-width: 300px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+  z-index: 2;
+  animation: slideIn 0.3s ease;
+}
+
+.spotlight-tooltip h3 {
+  margin: 0 0 8px 0;
+  color: #0ea5e9;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.spotlight-tooltip p {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.spotlight-actions {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  animation: fadeIn 0.3s ease;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.spotlight-actions span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.spotlight-actions button {
+  padding: 6px 16px;
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.spotlight-actions button:hover {
+  background: #0284c7;
+  transform: translateY(-1px);
+}
+
+.spotlight-tooltip .spotlight-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.spotlight-top .spotlight-arrow {
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0 8px;
+  border-color: white transparent transparent transparent;
+}
+
+.spotlight-bottom .spotlight-arrow {
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 8px 8px 8px;
+  border-color: transparent transparent white transparent;
+}
+
+.spotlight-left .spotlight-arrow {
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 8px 0 8px 8px;
+  border-color: transparent transparent transparent white;
+}
+
+.spotlight-right .spotlight-arrow {
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 8px 8px 8px 0;
+  border-color: transparent white transparent transparent;
 }
 
 @keyframes fadeIn {
@@ -34,103 +167,9 @@
   to { opacity: 1; }
 }
 
-.guide-content {
-  background: white;
-  border-radius: 16px;
-  padding: 40px;
-  max-width: 700px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.4s ease;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.guide-header {
-  text-align: center;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 20px;
-  margin-bottom: 30px;
-}
-
-.guide-header h2 {
-  margin: 0 0 10px 0;
-  color: #0f172a;
-  font-size: 24px;
-}
-
-.mode-indicator {
-  display: inline-block;
-  padding: 6px 16px;
-  background: #f1f5f9;
-  border-radius: 20px;
-  font-size: 14px;
-  color: #0ea5e9;
-  font-weight: 600;
-}
-
-.guide-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.guide-item {
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  transition: transform 0.2s;
-}
-
-.guide-item:hover {
-  transform: translateX(5px);
-  border-color: #0ea5e9;
-}
-
-.guide-icon {
-  font-size: 32px;
-  flex-shrink: 0;
-}
-
-.guide-text h3 {
-  margin: 0 0 8px 0;
-  color: #0ea5e9;
-  font-size: 16px;
-}
-
-.guide-text p {
-  margin: 4px 0;
-  color: #475569;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.start-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 6px rgba(14, 165, 233, 0.3);
-}
-
-.start-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 12px rgba(14, 165, 233, 0.4);
 }
 
 /* 控制栏 */
@@ -219,11 +258,6 @@
   top: 20px;
   right: 20px;
   left: auto !important;
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(10px); }
-  to { opacity: 1; transform: translateX(0); }
 }
 
 .panel-header {
@@ -319,6 +353,8 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   z-index: 50;
   overflow: hidden;
+  top: 20px;
+  right: 20px;
 }
 
 .compare-header {
@@ -680,14 +716,39 @@ svg {
   font-weight: 500;
 }
 
+/* 拖拽样式 */
+.clock-draggable,
+.compare-handle {
+  cursor: grab !important;
+  user-select: none;
+  touch-action: none;
+}
+
+.clock-draggable:active,
+.compare-handle:active {
+  cursor: grabbing !important;
+}
+
+/* 图例容器 */
+.legend-container {
+  position: absolute;
+  right: 20px;
+  top: 80px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
 /* ============================================ */
-/* Parallel Coordinate 新增样式 */
+/* Parallel Coordinate 样式 */
 /* ============================================ */
 
-/* Parallel Coordinate 滚动容器 - 关键修复：明确高度 */
 .pc-scroll-container {
   width: 100%;
-  height: calc(100vh - 200px); /* 明确高度，减去header和timeline */
+  height: calc(100vh - 200px);
   overflow-y: auto;
   overflow-x: hidden;
   padding: 20px;
@@ -695,7 +756,6 @@ svg {
   box-sizing: border-box;
 }
 
-/* 自定义滚动条 */
 .pc-scroll-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -714,7 +774,6 @@ svg {
   background: #94a3b8;
 }
 
-/* PC图表盒子 */
 .pc-chart-box {
   background: white;
   border-radius: 12px;
@@ -734,7 +793,6 @@ svg {
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* 全局图例 */
 .pc-global-legend {
   background: white;
   border-radius: 12px;
@@ -799,205 +857,3 @@ svg {
   max-width: 220px;
   line-height: 1.4;
 }
-
-/* ============================================ */
-/* Spotlight 引导系统样式 - 修复版 */
-/* ============================================ */
-
-.guide-spotlight-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 9999;
-  pointer-events: none;
-}
-
-.spotlight-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  pointer-events: auto;
-  animation: fadeIn 0.3s ease;
-}
-
-/* 关键修复: 高亮区域使用box-shadow创建镂空效果，内部保持正常亮度 */
-.spotlight-highlight {
-  position: absolute;
-  border-radius: 8px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
-  pointer-events: none;
-  z-index: 1;
-  animation: pulse-highlight 2s infinite;
-  /* 确保内部内容可见 */
-  background: transparent;
-}
-
-.spotlight-inner-glow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 2px solid #0ea5e9;
-  border-radius: 8px;
-  box-shadow: inset 0 0 20px rgba(14, 165, 233, 0.3);
-}
-
-@keyframes pulse-highlight {
-  0%, 100% { 
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(14, 165, 233, 0.3); 
-  }
-  50% { 
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(14, 165, 233, 0.6); 
-  }
-}
-
-.spotlight-tooltip {
-  position: absolute;
-  background: white;
-  border-radius: 12px;
-  padding: 16px 20px;
-  min-width: 240px;
-  max-width: 300px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-  pointer-events: auto;
-  z-index: 2;
-  animation: slideIn 0.3s ease;
-}
-
-.spotlight-tooltip h3 {
-  margin: 0 0 8px 0;
-  color: #0ea5e9;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.spotlight-tooltip p {
-  margin: 0;
-  color: #475569;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.spotlight-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.spotlight-actions span {
-  color: #94a3b8;
-  font-size: 12px;
-}
-
-.spotlight-actions button {
-  padding: 6px 16px;
-  background: #0ea5e9;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.spotlight-actions button:hover {
-  background: #0284c7;
-  transform: translateY(-1px);
-}
-
-/* 箭头样式 */
-.spotlight-tooltip .spotlight-arrow {
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
-}
-
-.spotlight-top .spotlight-arrow {
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 8px 8px 0 8px;
-  border-color: white transparent transparent transparent;
-}
-
-.spotlight-bottom .spotlight-arrow {
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 0 8px 8px 8px;
-  border-color: transparent transparent white transparent;
-}
-
-.spotlight-left .spotlight-arrow {
-  right: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-width: 8px 0 8px 8px;
-  border-color: transparent transparent transparent white;
-}
-
-.spotlight-right .spotlight-arrow {
-  left: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-width: 8px 8px 8px 0;
-  border-color: transparent white transparent transparent;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 拖拽样式 */
-.clock-draggable,
-.compare-handle {
-  cursor: grab !important;
-  user-select: none;
-  touch-action: none;
-}
-
-.clock-draggable:active,
-.compare-handle:active {
-  cursor: grabbing !important;
-}
-
-/* 图例容器 - 确保guide能正确定位 */
-.legend-container {
-  position: absolute;
-  right: 20px;
-  top: 80px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  z-index: 10;
-}
-
-/* Parallel模式下的图例确保可见 */
-.pc-global-legend {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  border: 1px solid #e2e8f0;
-}
->>>>>>> Stashed changes

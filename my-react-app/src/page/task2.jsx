@@ -1,15 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import * as d3 from "d3";
+import "./task2.css";
 
-<<<<<<< Updated upstream
-function Task2() {
-    return (
-        <div>
-            <h2>Task 2: Data Visualization</h2>
-        </div>
-    )
-   }
-export default Task2;
-=======
 const INDUSTRY_COLORS = {
   Tech: "#dc2626", Finance: "#d97706", Healthcare: "#db2777",
   Education: "#0891b2", Manufacturing: "#7c3aed", Retail: "#ea580c",
@@ -21,7 +13,7 @@ const MARGIN = { top: 60, right: 200, bottom: 100, left: 100 };
 const WIDTH = 900 - MARGIN.left - MARGIN.right;
 const HEIGHT = 550 - MARGIN.top - MARGIN.bottom;
 
-// 英文引导步骤配置 - 修正了target选择器
+// 英文引导步骤配置
 const GUIDE_STEPS = {
   timeflow: [
     { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between Timeflow, Compare, and Parallel Coordinate views', position: 'bottom' },
@@ -103,7 +95,6 @@ const Task2 = () => {
   // 检查是否需要显示引导
   useEffect(() => {
     if (!guideState[mode]) {
-      // 延迟一点确保DOM已渲染
       setTimeout(() => startGuide(mode), 500);
     }
   }, [mode, guideState]);
@@ -199,7 +190,7 @@ const Task2 = () => {
     }
   }, [mode, data, currentYear, compareYears.left, compareYears.right]);
 
-  // 关键修复1: 根据实际数据计算比例尺范围
+  // 根据实际数据计算比例尺范围
   const scales = useMemo(() => {
     if (data.length === 0) return null;
     
@@ -207,7 +198,7 @@ const Task2 = () => {
     const xExtent = d3.extent(data, d => d.avgAIIntensity);
     const xPadding = (xExtent[1] - xExtent[0]) * 0.05;
     
-    // Y轴 (Salary): 使用数据实际范围，底部留10%空间，顶部留20%空间
+    // Y轴 (Salary): 使用数据实际范围
     const yExtent = d3.extent(data, d => d.avgSalary);
     const yPadding = (yExtent[1] - yExtent[0]) * 0.1;
     
@@ -223,10 +214,9 @@ const Task2 = () => {
         .domain([yExtent[0] - yPadding, yExtent[1] + yPadding * 2])
         .range([HEIGHT, 0])
         .nice(),
-      // 关键修复2: Size scale使用更合理的范围，基于实际数据
       size: d3.scaleSqrt()
         .domain(sizeExtent)
-        .range([6, 35]), // 最小6px，最大35px，比之前的[8,45]更合理
+        .range([6, 35]),
       opacity: d3.scaleLinear().domain([0.4, 0.8]).range([0.35, 1.0]).clamp(true),
     };
   }, [data]);
@@ -266,7 +256,7 @@ const Task2 = () => {
       .call(d3.axisLeft(scales.y).tickSize(-WIDTH).tickFormat(""))
       .selectAll("line").style("stroke", "#e2e8f0").style("stroke-dasharray", "2,2");
 
-    // X轴 - 显示实际数据范围
+    // X轴
     const xAxis = g.append("g").attr("transform", `translate(0,${HEIGHT})`)
       .call(d3.axisBottom(scales.x).ticks(8).tickFormat((d) => d.toFixed(2)));
     xAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
@@ -276,7 +266,7 @@ const Task2 = () => {
       .style("font-size", "13px").style("font-weight", "600")
       .text("AI Intensity Score");
 
-    // Y轴 - 显示实际薪资范围
+    // Y轴
     const yAxis = g.append("g").call(d3.axisLeft(scales.y).ticks(8).tickFormat((d) => `$${(d / 1000).toFixed(0)}k`));
     yAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
     yAxis.selectAll("text").attr("fill", "#475569").style("font-size", "11px");
@@ -395,7 +385,7 @@ const Task2 = () => {
       .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk));
   };
 
-  // 关键修复3: 改进Legend，添加具体的Size标注
+  // 改进的Legend，包含具体的Size标注
   const drawLegend = (svg) => {
     const industries = [...new Set(data.map((d) => d.industry))];
     const legendG = svg.append("g").attr("transform", `translate(${WIDTH + MARGIN.left + 20}, ${MARGIN.top})`);
@@ -432,15 +422,13 @@ const Task2 = () => {
     opacityG.append("rect").attr("y", 15).attr("width", 80).attr("height", 6).attr("rx", 3).attr("fill", `url(#${gradientId})`);
     opacityG.append("text").attr("y", 32).attr("fill", "#64748b").attr("font-size", "9px").text("Low → High");
 
-    // 关键修复: Size说明 - 显示具体数值
+    // Size说明 - 显示具体数值
     const sizeG = legendG.append("g").attr("transform", `translate(0, ${industries.length * 26 + 55})`);
     sizeG.append("text").attr("fill", "#64748b").attr("font-size", "10px").text("Size = Job Count");
     
-    // 获取实际数据中的具体数值用于标注
     const jobCountExtent = d3.extent(data, d => d.jobCount);
     const sizeScale = d3.scaleSqrt().domain(jobCountExtent).range([6, 35]);
     
-    // 选择三个代表性数值: 最小值、中间值、最大值
     const minCount = jobCountExtent[0];
     const maxCount = jobCountExtent[1];
     const midCount = Math.round((minCount + maxCount) / 2);
@@ -462,7 +450,6 @@ const Task2 = () => {
         .attr("stroke-width", 1.5)
         .attr("opacity", 0.6);
       
-      // 添加数值标签
       sizeG.append("text")
         .attr("x", example.x)
         .attr("y", 35 + r + 12)
@@ -473,7 +460,7 @@ const Task2 = () => {
     });
   };
 
-  // Parallel Coordinates绘制 - 使用实际数据范围
+  // Parallel Coordinates绘制
   const drawParallelCoordinates = () => {
     d3.select(svgRef.current).style("display", "none");
     const container = d3.select(pcScrollRef.current);
@@ -493,30 +480,29 @@ const Task2 = () => {
     
     const xScale = d3.scalePoint().domain(years).range([0, pcWidth - pcMargin.left - pcMargin.right]);
 
-    // 使用实际数据范围
     const metrics = [
       { 
         key: 'avgAIIntensity', 
         label: 'AI Intensity Score', 
-        domain: d3.extent(data, d => d.avgAIIntensity), // 实际范围
+        domain: d3.extent(data, d => d.avgAIIntensity),
         format: d => d.toFixed(2) 
       },
       { 
         key: 'avgSalary', 
         label: 'Average Salary (USD)', 
-        domain: d3.extent(data, d => d.avgSalary), // 实际范围
+        domain: d3.extent(data, d => d.avgSalary),
         format: d => `$${(d/1000).toFixed(0)}k` 
       },
       { 
         key: 'avgAutomationRisk', 
         label: 'Automation Risk Score', 
-        domain: d3.extent(data, d => d.avgAutomationRisk), // 实际范围
+        domain: d3.extent(data, d => d.avgAutomationRisk),
         format: d => (d*100).toFixed(0) + '%' 
       },
       { 
         key: 'jobCount', 
         label: 'Job Count', 
-        domain: d3.extent(data, d => d.jobCount), // 实际范围
+        domain: d3.extent(data, d => d.jobCount),
         format: d => d.toString() 
       }
     ];
@@ -539,7 +525,6 @@ const Task2 = () => {
         .domain(metric.domain)
         .range([pcHeight - pcMargin.top - pcMargin.bottom, 0]);
 
-      // 网格线
       years.forEach(year => {
         const x = xScale(year);
         g.append("line")
@@ -556,11 +541,9 @@ const Task2 = () => {
           .text(year);
       });
 
-      // Y轴
       const yAxis = g.append("g").call(d3.axisLeft(yScale).ticks(5).tickFormat(metric.format));
       yAxis.selectAll("text").attr("font-size", "9px").attr("fill", "#64748b");
 
-      // 绘制线条
       const line = d3.line()
         .x(d => xScale(d.year))
         .y(d => yScale(d[metric.key]))
@@ -603,7 +586,6 @@ const Task2 = () => {
       });
     });
 
-    // 添加全局图例
     const legendDiv = container.append("div").attr("class", "pc-global-legend");
     legendDiv.append("div").attr("class", "pc-legend-title").text("Industries (Click to filter)");
     
@@ -674,7 +656,6 @@ const Task2 = () => {
     setSelectedIndustries(newSet);
   };
 
-  // 引导功能
   const startGuide = (guideMode) => {
     setActiveGuide(guideMode);
     setGuideStep(0);
@@ -697,7 +678,6 @@ const Task2 = () => {
     }
   };
 
-  // 关键修复4: 确保能正确获取元素位置，包括处理SVG内的元素
   const getHighlightPosition = (selector) => {
     const element = document.querySelector(selector);
     if (!element) {
@@ -716,7 +696,6 @@ const Task2 = () => {
   const getGuidePosition = (step) => {
     const highlight = getHighlightPosition(step.target);
     if (highlight.display === 'none') {
-      // 如果找不到元素，居中显示
       return { 
         left: window.innerWidth / 2, 
         top: window.innerHeight / 2,
@@ -768,7 +747,7 @@ const Task2 = () => {
 
   return (
     <div className="task2-container">
-      {/* Spotlight引导层 - 关键修复5: 改进高亮效果，让内部正常显示 */}
+      {/* Spotlight引导层 */}
       {activeGuide && currentStep && (
         <div className="guide-spotlight-overlay">
           <div className="spotlight-backdrop" onClick={closeGuide} />
@@ -776,7 +755,6 @@ const Task2 = () => {
             className="spotlight-highlight" 
             style={getHighlightPosition(currentStep.target)}
           >
-            {/* 内部遮罩层，确保高亮区域内容可见 */}
             <div className="spotlight-inner-glow" />
           </div>
           <div 
@@ -960,4 +938,3 @@ const Task2 = () => {
 };
 
 export default Task2;
->>>>>>> Stashed changes
