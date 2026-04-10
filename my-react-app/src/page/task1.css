@@ -197,7 +197,7 @@ h1 {
 
 .mini-globe-wrap {
   position: fixed;
-  bottom: 105px;
+  bottom: 20px;
   left: calc(38.2vw + 24px); /* Anchored to the left edge of the visualization panel */
   width: 140px;
   height: 160px;
@@ -238,6 +238,24 @@ h1 {
 .mini-land {
   fill: #94d2bd;
   stroke: none;
+}
+
+.map-sphere {
+  fill: #001219; /* Deep navy water background */
+  stroke: rgba(10, 147, 150, 0.4);
+  stroke-width: 1;
+}
+
+.map-land {
+  fill: #001f2d; /* Slightly lighter navy for landmasses */
+  stroke: rgba(148, 210, 189, 0.15);
+  stroke-width: 0.5;
+}
+
+.map-graticule {
+  fill: none;
+  stroke: rgba(217, 223, 230, 0.05); /* Very subtle grid */
+  stroke-width: 0.5;
 }
 
 
