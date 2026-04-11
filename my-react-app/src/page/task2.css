@@ -11,7 +11,7 @@
 }
 
 /* ============================================ */
-/* Spotlight 引导系统样式 */
+/* Spotlight 引导系统样式 - 修复版 */
 /* ============================================ */
 
 .guide-spotlight-overlay {
@@ -43,6 +43,9 @@
   z-index: 1;
   animation: pulse-highlight 2s infinite;
   background: transparent;
+  /* 确保高亮区域不会超出视口 */
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
 .spotlight-inner-glow {
@@ -71,11 +74,14 @@
   border-radius: 12px;
   padding: 16px 20px;
   min-width: 240px;
-  max-width: 300px;
+  max-width: 320px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   pointer-events: auto;
-  z-index: 2;
+  z-index: 10000;  /* 提高z-index确保在最上层 */
   animation: slideIn 0.3s ease;
+  /* 防止文本溢出 */
+  word-wrap: break-word;
+  hyphens: auto;
 }
 
 .spotlight-tooltip h3 {
@@ -241,10 +247,10 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* Timeflow 详情面板 */
+/* Timeflow 详情面板 - 修复：更靠近图表 */
 .detail-panel {
   position: absolute;
-  width: 220px;
+  width: 200px;  /* 稍微减小宽度 */
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -252,14 +258,124 @@
   overflow: hidden;
   z-index: 50;
   animation: slideIn 0.2s ease;
-}
-
-.right-panel {
+  /* 修复：更靠近图表，而不是紧贴右边 */
+  right: 240px;  /* 给legend留出空间 */
   top: 20px;
-  right: 20px;
-  left: auto !important;
 }
 
+/* Compare 对比面板 - 修复：更靠近图表且显示完整数据 */
+.compare-detail-panel {
+  position: absolute;
+  width: 220px;  /* 增加宽度以适应更多内容 */
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  overflow: hidden;
+  top: 20px;
+  right: 240px;  /* 修复：更靠近图表 */
+  max-height: 80%;  /* 限制最大高度 */
+  overflow-y: auto;  /* 允许滚动如果内容太多 */
+}
+
+.compare-header {
+  padding: 12px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.compare-year-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.year-solid {
+  color: #0ea5e9;
+}
+
+.year-hollow {
+  color: #f59e0b;
+}
+
+.vs-text {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.compare-grid {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compare-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.compare-industry-header {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.compare-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+}
+
+.solid-row {
+  background: rgba(14, 165, 233, 0.05);
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.hollow-row {
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.dot {
+  font-size: 14px;
+  color: #0ea5e9;
+  flex-shrink: 0;
+}
+
+.dot.hollow {
+  color: #f59e0b;
+  -webkit-text-stroke: 2px #f59e0b;
+  color: transparent;
+}
+
+.row-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #475569;
+}
+
+.row-stats span {
+  line-height: 1.4;
+}
+
+/* 面板头部样式 */
 .panel-header {
   padding: 12px;
   color: white;
@@ -341,111 +457,6 @@
 
 .risk-text {
   color: #dc2626;
-}
-
-/* Compare 对比面板 */
-.compare-detail-panel {
-  position: absolute;
-  width: 240px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  z-index: 50;
-  overflow: hidden;
-  top: 20px;
-  right: 20px;
-}
-
-.compare-header {
-  padding: 12px;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.compare-year-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.year-solid {
-  color: #0ea5e9;
-}
-
-.year-hollow {
-  color: #f59e0b;
-}
-
-.vs-text {
-  color: #94a3b8;
-  font-size: 11px;
-}
-
-.compare-grid {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.compare-item {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.compare-industry-header {
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.compare-rows {
-  display: flex;
-  flex-direction: column;
-}
-
-.compare-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  font-size: 11px;
-}
-
-.solid-row {
-  background: rgba(14, 165, 233, 0.05);
-  border-bottom: 1px dashed #e2e8f0;
-}
-
-.hollow-row {
-  background: rgba(245, 158, 11, 0.05);
-}
-
-.dot {
-  font-size: 14px;
-  color: #0ea5e9;
-  flex-shrink: 0;
-}
-
-.dot.hollow {
-  color: #f59e0b;
-}
-
-.row-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  color: #475569;
-}
-
-.row-stats span {
-  line-height: 1.4;
 }
 
 /* 时间轴 */
@@ -729,21 +740,8 @@ svg {
   cursor: grabbing !important;
 }
 
-/* 图例容器 */
-.legend-container {
-  position: absolute;
-  right: 20px;
-  top: 80px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  z-index: 10;
-}
-
 /* ============================================ */
-/* Parallel Coordinate 样式 */
+/* Parallel Coordinate 样式 - 修复版 */
 /* ============================================ */
 
 .pc-scroll-container {
@@ -754,6 +752,7 @@ svg {
   padding: 20px;
   background: #f8fafc;
   box-sizing: border-box;
+  position: relative;  /* 新增：确保子元素定位正确 */
 }
 
 .pc-scroll-container::-webkit-scrollbar {
@@ -782,6 +781,7 @@ svg {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   border: 1px solid #e2e8f0;
   flex-shrink: 0;
+  position: relative;  /* 新增：确保内部SVG定位正确 */
 }
 
 .pc-metric-title {
@@ -802,6 +802,7 @@ svg {
   border: 1px solid #e2e8f0;
   position: sticky;
   bottom: 20px;
+  z-index: 10;  /* 确保在最上层 */
 }
 
 .pc-legend-title {
@@ -842,7 +843,7 @@ svg {
   border-radius: 2px;
 }
 
-/* Floating Tooltip */
+/* Floating Tooltip - 修复：确保单一实例和正确z-index */
 .pc-floating-tooltip {
   position: fixed;
   background: rgba(15, 23, 42, 0.95);
@@ -851,9 +852,16 @@ svg {
   border-radius: 8px;
   font-size: 12px;
   pointer-events: none;
-  z-index: 10000;
+  z-index: 10001;  /* 提高z-index确保在最上层 */
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   border: 1px solid rgba(255,255,255,0.1);
   max-width: 220px;
   line-height: 1.4;
+  /* 防止快速移动时的闪烁 */
+  will-change: transform, opacity;
+}
+
+/* 图例容器 - 新增：用于引导系统定位 */
+.legend-svg-container {
+  /* 这个类主要用于JS选择器定位，不需要额外样式 */
 }

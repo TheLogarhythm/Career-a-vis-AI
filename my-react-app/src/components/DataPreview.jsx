@@ -207,27 +207,6 @@ const computeEnhancedColumnStats = (rawData) => {
         </div>
       </div>
 
-      {/* 统计网格 */}
-      <div className="stats-grid-kaggle">
-        <StatCard 
-          title="Years" 
-          icon="📅" 
-          value={`${stats.yearRange[0]} - ${stats.yearRange[1]}`}
-          subtitle="time span"
-        >
-          <MiniBarChart 
-            data={stats.yearCounts} 
-            maxValue={d3.max(stats.yearCounts, d => d[1])}
-            onHover={(item, e) => setTooltip({x: e.clientX, y: e.clientY, text: `${item[0]}: ${item[1]} jobs`})}
-            onLeave={() => setTooltip(null)}
-          />
-        </StatCard>
-
-        <StatCard title="Industries" icon="🏭" value={stats.industries} subtitle="sectors" />
-        <StatCard title="Countries" icon="🌍" value={stats.countries} subtitle="global reach" />
-        <StatCard title="Regions" icon="🌐" value={stats.regions} subtitle="areas" />
-      </div>
-
       {/* 增强的列统计 */}
       <div className="detailed-stats-section">
         {/* 添加提示横幅 */}

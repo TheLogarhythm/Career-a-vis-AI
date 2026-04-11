@@ -1,26 +1,27 @@
 .kaggle-preview {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-bottom: 12px;
+  gap: 8px;
+  padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
 /* 加载状态 */
 .loading {
-  padding: 40px;
+  padding: 30px;
   text-align: center;
   color: #64748b;
 }
 
 .preview-spinner {
-  font-size: 32px;
+  font-size: 28px;
   animation: spin 2s linear infinite;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 @keyframes spin {
@@ -32,13 +33,14 @@
 .file-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px;
   background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
   border-bottom: 1px solid #e2e8f0;
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+  flex-shrink: 0;
 }
 
 .file-header:hover {
@@ -46,15 +48,16 @@
 }
 
 .file-icon {
-  font-size: 28px;
-  width: 48px;
-  height: 48px;
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #0ea5e9;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.25);
+  flex-shrink: 0;
 }
 
 .file-info {
@@ -63,7 +66,7 @@
 }
 
 .file-name {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 2px;
@@ -73,21 +76,21 @@
 }
 
 .file-meta {
-  font-size: 11px;
+  font-size: 10px;
   color: #64748b;
   font-family: 'Courier New', monospace;
 }
 
 .click-hint {
   position: absolute;
-  right: 12px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 10px;
+  font-size: 9px;
   color: #0ea5e9;
   background: rgba(14, 165, 233, 0.1);
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -100,32 +103,33 @@
 .stats-grid-kaggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 0 12px;
+  gap: 6px;
+  padding: 0 10px;
+  flex-shrink: 0;
 }
 
 .stat-card {
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 10px;
+  border-radius: 6px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   transition: all 0.2s;
 }
 
 .stat-card:hover {
   border-color: #0ea5e9;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.1);
   transform: translateY(-1px);
 }
 
 .stat-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10px;
+  gap: 4px;
+  font-size: 9px;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -133,31 +137,31 @@
 }
 
 .stat-icon {
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .stat-value-large {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #0f172a;
   font-family: 'Courier New', monospace;
 }
 
 .stat-detail {
-  font-size: 10px;
+  font-size: 9px;
   color: #94a3b8;
 }
 
 .stat-chart {
-  margin-top: 4px;
-  height: 24px;
+  margin-top: 2px;
+  height: 20px;
 }
 
 /* 迷你柱状图 */
 .mini-chart {
   display: flex;
   align-items: flex-end;
-  gap: 2px;
+  gap: 1px;
   height: 100%;
 }
 
@@ -165,7 +169,7 @@
   flex: 1;
   height: 100%;
   background: #f1f5f9;
-  border-radius: 2px 2px 0 0;
+  border-radius: 1px 1px 0 0;
   position: relative;
   cursor: pointer;
 }
@@ -173,8 +177,8 @@
 .mini-bar {
   width: 100%;
   background: #0ea5e9;
-  border-radius: 2px 2px 0 0;
-  min-height: 2px;
+  border-radius: 1px 1px 0 0;
+  min-height: 1px;
   transition: opacity 0.2s;
 }
 
@@ -184,35 +188,42 @@
 
 /* 详细统计区 */
 .detailed-stats-section {
-  padding: 0 12px;
+  padding: 0 10px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .section-label {
-  font-size: 10px;
+  font-size: 9px;
   color: #94a3b8;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  flex-shrink: 0;
 }
 
+/* 关键修复：增加高度和底部padding，防止卡片被截断 */
 .stats-scroll-container {
   overflow-x: auto;
   overflow-y: hidden;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: 6px;
+  padding: 12px 6px 20px 6px; /* 增加底部padding */
+  min-height: 140px; /* 增加最小高度确保卡片完整显示 */
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
 .stats-scroll-container::-webkit-scrollbar {
-  height: 6px;
+  height: 6px; /* 稍微增加滚动条高度 */
 }
 
 .stats-scroll-container::-webkit-scrollbar-track {
   background: #f1f5f9;
+  border-radius: 3px;
 }
 
 .stats-scroll-container::-webkit-scrollbar-thumb {
@@ -222,52 +233,30 @@
 
 .stats-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   min-width: max-content;
+  align-items: flex-start; /* 改为flex-start避免拉伸问题 */
+  padding: 4px 2px; /* 增加一点内边距 */
 }
 
 .stat-cell {
   flex-shrink: 0;
-  width: 140px;
+  width: 120px;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
-  padding: 8px;
+  padding: 8px; /* 稍微增加padding */
   cursor: pointer;
   transition: all 0.2s;
-  position: relative; /* 为tooltip定位 */
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* 添加轻微阴影 */
 }
 
 .stat-cell:hover, .stat-cell.hovered {
   border-color: #0ea5e9;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2); /* 增强hover阴影 */
+  transform: translateY(-3px); /* 增加hover位移 */
 }
-
-/* 已删除：hover黑框提示 */
-/*
-.stat-cell::before {
-  content: "Click for details";
-  position: absolute;
-  top: -20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #0f172a;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  white-space: nowrap;
-  z-index: 100;
-}
-
-.stat-cell:hover::before {
-  opacity: 1;
-}
-*/
 
 .cell-header {
   display: flex;
@@ -279,19 +268,19 @@
 }
 
 .cell-name {
-  font-size: 10px;
+  font-size: 10px; /* 稍微增大 */
   font-weight: 700;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 80px;
+  max-width: 75px;
 }
 
 .type-badge {
-  font-size: 8px;
-  padding: 2px 5px;
-  border-radius: 8px;
+  font-size: 7px;
+  padding: 1px 4px;
+  border-radius: 6px;
   text-transform: uppercase;
   font-weight: 600;
 }
@@ -317,7 +306,7 @@
 }
 
 .cell-viz {
-  height: 50px;
+  height: 45px; /* 稍微增加 */
   margin-bottom: 6px;
 }
 
@@ -327,8 +316,9 @@
 }
 
 .cell-footer {
-  font-size: 9px;
+  font-size: 9px; /* 稍微增大 */
   color: #64748b;
+  line-height: 1.3;
 }
 
 .top-values-preview {
@@ -342,16 +332,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: #475569;
+  font-size: 9px;
 }
 
 .more-tag {
   color: #94a3b8;
   font-style: italic;
+  font-size: 9px;
 }
 
 .unique-count {
   font-weight: 600;
   color: #0ea5e9;
+  font-size: 11px;
 }
 
 /* 增强Tooltip */
@@ -359,11 +352,11 @@
   position: fixed;
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
-  min-width: 220px;
-  max-width: 280px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border-radius: 6px;
+  padding: 10px;
+  min-width: 200px;
+  max-width: 260px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   z-index: 10000;
   pointer-events: none;
   animation: fadeIn 0.2s;
@@ -375,46 +368,37 @@
 }
 
 .tooltip-content {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .tooltip-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
   border-bottom: 1px solid #e2e8f0;
 }
 
 .tooltip-header strong {
-  font-size: 13px;
+  font-size: 12px;
   color: #0f172a;
 }
 
 .type-tag {
-  font-size: 9px;
-  padding: 2px 6px;
-  border-radius: 10px;
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 8px;
   text-transform: uppercase;
-}
-
-.type-tag.categorical {
-  background: #ede9fe;
-  color: #7c3aed;
-}
-
-.type-tag.numeric {
-  background: #d1fae5;
-  color: #059669;
 }
 
 .tooltip-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  margin-bottom: 10px;
+  gap: 2px;
+  margin-bottom: 8px;
   color: #64748b;
+  font-size: 10px;
 }
 
 .tooltip-stats .missing {
@@ -424,79 +408,101 @@
 
 .tooltip-distribution {
   border-top: 1px solid #f1f5f9;
-  padding-top: 8px;
+  padding-top: 6px;
 }
 
 .dist-title {
-  font-size: 10px;
+  font-size: 9px;
   color: #94a3b8;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-transform: uppercase;
 }
 
 .dist-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 4px;
+  margin-bottom: 2px;
 }
 
 .dist-value {
-  width: 80px;
+  width: 70px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: #475569;
+  font-size: 10px;
 }
 
 .dist-bar-bg {
   flex: 1;
-  height: 6px;
+  height: 5px;
   background: #f1f5f9;
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .dist-bar {
   height: 100%;
   background: #0ea5e9;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .dist-pct {
-  width: 30px;
+  width: 28px;
   text-align: right;
   color: #64748b;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .dist-more {
   text-align: center;
   color: #94a3b8;
-  font-size: 10px;
-  margin-top: 4px;
+  font-size: 9px;
+  margin-top: 2px;
   font-style: italic;
 }
 
 /* 数据预览表格 */
 .preview-table-container {
-  padding: 0 12px;
+  padding: 0 10px;
+  flex-shrink: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.preview-table-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.preview-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
 }
 
 .table-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 4px 0;
 }
 
 .table-scroll-x {
   overflow-x: auto;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  max-height: 200px;
+  border-radius: 6px;
+  max-height: 120px;
   overflow-y: auto;
   scrollbar-width: thin;
 }
@@ -505,12 +511,12 @@
   width: max-content;
   min-width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .preview-table th {
   background: #f1f5f9;
-  padding: 8px 10px;
+  padding: 6px 8px;
   text-align: left;
   font-weight: 600;
   color: #475569;
@@ -522,11 +528,11 @@
 }
 
 .preview-table td {
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-bottom: 1px solid #f1f5f9;
   color: #334155;
   white-space: nowrap;
-  max-width: 100px;
+  max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -538,7 +544,7 @@
 .col-id {
   font-family: monospace;
   color: #64748b;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .col-year {
@@ -556,20 +562,21 @@
 .click-hint-banner {
   background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
   color: white;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+  flex-shrink: 0;
 }
 
 .click-hint-banner::before {
   content: "👆";
-  font-size: 14px;
+  font-size: 12px;
 }
 
 /* 固定范围直方图样式 */
@@ -577,18 +584,17 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  height: 50px;
+  height: 40px;
   gap: 1px;
-  padding: 0 4px;
+  padding: 0 2px;
 }
 
 .mini-histogram.fixed-range .hist-bar {
   flex: 1;
   background: #10b981;
-  border-radius: 2px 2px 0 0;
-  min-height: 2px;
+  border-radius: 1px 1px 0 0;
+  min-height: 1px;
   opacity: 0.8;
-  transition: opacity 0.2s;
 }
 
 .mini-histogram.fixed-range .hist-bar:hover {

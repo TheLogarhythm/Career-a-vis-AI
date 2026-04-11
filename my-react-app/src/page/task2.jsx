@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import * as d3 from "d3";
 import "./task2.css";
 
@@ -19,18 +19,19 @@ const GUIDE_STEPS = {
     { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between Timeflow, Compare, and Parallel Coordinate views', position: 'bottom' },
     { target: '.play-button-cool', title: 'Play Control', content: 'Click to auto-play time evolution, or drag the timeline handle below', position: 'right' },
     { target: '.clock-draggable', title: 'Timeline Scrubber', content: 'Drag this clock icon to manually select any year', position: 'top' },
-    { target: '.legend-container', title: 'Industry Filter', content: 'Click colored boxes to filter industries. Size = Job Count', position: 'left' }
+    { target: '.legend-svg-container', title: 'Industry Filter', content: 'Click colored boxes to filter industries. Size = Job Count', position: 'left' }
   ],
   compare: [
     { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between different visualization modes', position: 'bottom' },
     { target: '.compare-handle.left', title: 'Start Year', content: 'Drag the blue dot to select the comparison start year', position: 'top' },
     { target: '.compare-handle.right', title: 'End Year', content: 'Drag the orange dot to select the comparison end year', position: 'top' },
-    { target: '.compare-detail-panel', title: 'Comparison Details', content: 'Selected industries show detailed side-by-side comparison here', position: 'left' }
+    // 修复：改为bottom位置，避免右侧溢出
+    { target: '.compare-detail-panel', title: 'Comparison Details', content: 'Selected industries show detailed side-by-side comparison here', position: 'bottom' }
   ],
   parallel: [
     { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between different visualization modes', position: 'bottom' },
-    { target: '.pc-scroll-container', title: 'Charts Area', content: 'Scroll to view all 4 metric charts: AI Intensity, Salary, Risk, and Job Count', position: 'right' },
     { target: '.pc-global-legend', title: 'Industry Legend', content: 'Click to filter industries. Hover over lines to see year-by-year values', position: 'top' },
+    { target: '.pc-chart-box:first-child', title: 'Charts Area', content: 'Scroll to view all 4 metric charts: AI Intensity, Salary, Risk, and Job Count', position: 'right' },
     { target: '.pc-chart-box', title: 'Data Interaction', content: 'Each line represents one industry trend over time. Hover for exact values.', position: 'right' }
   ]
 };
@@ -39,6 +40,7 @@ const Task2 = () => {
   const svgRef = useRef(null);
   const pcScrollRef = useRef(null);
   const timelineRef = useRef(null);
+  const chartContainerRef = useRef(null);
   const [data, setData] = useState([]);
   const [currentYear, setCurrentYear] = useState(2010);
   const [selectedIndustries, setSelectedIndustries] = useState(new Set());
@@ -48,17 +50,16 @@ const Task2 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState(null);
   
-  // 引导状态
   const [guideState, setGuideState] = useState(() => {
-    const saved = localStorage.getItem('task2_guide_completed_v2');
+    const saved = localStorage.getItem('task2_guide_completed_v4');
     return saved ? JSON.parse(saved) : { timeflow: false, compare: false, parallel: false };
   });
   const [activeGuide, setActiveGuide] = useState(null);
   const [guideStep, setGuideStep] = useState(0);
   
   const [pcHoveredIndustry, setPcHoveredIndustry] = useState(null);
+  const pcTooltipRef = useRef(null);
 
-  // 数据加载
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -92,14 +93,15 @@ const Task2 = () => {
     loadData();
   }, []);
 
-  // 检查是否需要显示引导
   useEffect(() => {
     if (!guideState[mode]) {
-      setTimeout(() => startGuide(mode), 500);
+      const timer = setTimeout(() => {
+        startGuide(mode);
+      }, 800);
+      return () => clearTimeout(timer);
     }
   }, [mode, guideState]);
 
-  // 播放控制
   useEffect(() => {
     let timer;
     if (isPlaying && mode === "timeflow") {
@@ -117,7 +119,6 @@ const Task2 = () => {
     return () => clearInterval(timer);
   }, [isPlaying, data, mode]);
 
-  // 绑定拖拽事件到时间轴
   useEffect(() => {
     if (!timelineRef.current || data.length === 0) return;
     
@@ -190,19 +191,15 @@ const Task2 = () => {
     }
   }, [mode, data, currentYear, compareYears.left, compareYears.right]);
 
-  // 根据实际数据计算比例尺范围
   const scales = useMemo(() => {
     if (data.length === 0) return null;
     
-    // X轴 (AI Intensity): 使用数据实际范围，留出5%的padding
     const xExtent = d3.extent(data, d => d.avgAIIntensity);
     const xPadding = (xExtent[1] - xExtent[0]) * 0.05;
     
-    // Y轴 (Salary): 使用数据实际范围
     const yExtent = d3.extent(data, d => d.avgSalary);
     const yPadding = (yExtent[1] - yExtent[0]) * 0.1;
     
-    // Size (Job Count): 根据实际数据范围调整
     const sizeExtent = d3.extent(data, d => d.jobCount);
     
     return {
@@ -221,7 +218,6 @@ const Task2 = () => {
     };
   }, [data]);
 
-  // 主绘制函数
   useEffect(() => {
     if (!scales || data.length === 0) return;
     
@@ -238,9 +234,11 @@ const Task2 = () => {
     if (pcScrollRef.current) pcScrollRef.current.style.display = "none";
     
     svg.selectAll("*").remove();
+    
+    const legendG = svg.append("g").attr("class", "legend-svg-container");
+    
     const g = svg.append("g").attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
-    // 箭头标记
     svg.append("defs").append("marker")
       .attr("id", "arrowhead").attr("viewBox", "0 -5 10 10")
       .attr("refX", 8).attr("refY", 0)
@@ -248,7 +246,6 @@ const Task2 = () => {
       .attr("orient", "auto")
       .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#64748b");
 
-    // 网格线
     g.append("g").attr("transform", `translate(0,${HEIGHT})`)
       .call(d3.axisBottom(scales.x).tickSize(-HEIGHT).tickFormat(""))
       .selectAll("line").style("stroke", "#e2e8f0").style("stroke-dasharray", "2,2");
@@ -256,7 +253,6 @@ const Task2 = () => {
       .call(d3.axisLeft(scales.y).tickSize(-WIDTH).tickFormat(""))
       .selectAll("line").style("stroke", "#e2e8f0").style("stroke-dasharray", "2,2");
 
-    // X轴
     const xAxis = g.append("g").attr("transform", `translate(0,${HEIGHT})`)
       .call(d3.axisBottom(scales.x).ticks(8).tickFormat((d) => d.toFixed(2)));
     xAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
@@ -266,7 +262,6 @@ const Task2 = () => {
       .style("font-size", "13px").style("font-weight", "600")
       .text("AI Intensity Score");
 
-    // Y轴
     const yAxis = g.append("g").call(d3.axisLeft(scales.y).ticks(8).tickFormat((d) => `$${(d / 1000).toFixed(0)}k`));
     yAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
     yAxis.selectAll("text").attr("fill", "#475569").style("font-size", "11px");
@@ -278,7 +273,7 @@ const Task2 = () => {
     if (mode === "timeflow") drawTimeflowMode(g);
     else drawCompareMode(g);
     
-    drawLegend(svg);
+    drawLegend(legendG);
   };
 
   const drawTimeflowMode = (g) => {
@@ -385,10 +380,10 @@ const Task2 = () => {
       .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk));
   };
 
-  // 改进的Legend，包含具体的Size标注
-  const drawLegend = (svg) => {
+  const drawLegend = (legendG) => {
     const industries = [...new Set(data.map((d) => d.industry))];
-    const legendG = svg.append("g").attr("transform", `translate(${WIDTH + MARGIN.left + 20}, ${MARGIN.top})`);
+    
+    legendG.attr("transform", `translate(${WIDTH + MARGIN.left + 20}, ${MARGIN.top})`);
 
     legendG.append("text").attr("x", 0).attr("y", -10).attr("fill", "#1e293b")
       .style("font-size", "13px").style("font-weight", "bold").text("Industry Filter");
@@ -411,18 +406,16 @@ const Task2 = () => {
         .attr("opacity", selectedIndustries.size === 0 || selectedIndustries.has(industry) ? 1 : 0.3);
     });
 
-    // Opacity说明
     const opacityG = legendG.append("g").attr("transform", `translate(0, ${industries.length * 26 + 15})`);
     opacityG.append("text").attr("fill", "#64748b").attr("font-size", "10px").text("Opacity = Risk (40%-80%)");
     const gradientId = "opacity-gradient";
-    const defs = svg.append("defs");
+    const defs = d3.select(svgRef.current).append("defs");
     const gradient = defs.append("linearGradient").attr("id", gradientId).attr("x1", "0%").attr("x2", "100%");
     gradient.append("stop").attr("offset", "0%").attr("stop-color", "#64748b").attr("stop-opacity", 0.35);
     gradient.append("stop").attr("offset", "100%").attr("stop-color", "#64748b").attr("stop-opacity", 1);
     opacityG.append("rect").attr("y", 15).attr("width", 80).attr("height", 6).attr("rx", 3).attr("fill", `url(#${gradientId})`);
     opacityG.append("text").attr("y", 32).attr("fill", "#64748b").attr("font-size", "9px").text("Low → High");
 
-    // Size说明 - 显示具体数值
     const sizeG = legendG.append("g").attr("transform", `translate(0, ${industries.length * 26 + 55})`);
     sizeG.append("text").attr("fill", "#64748b").attr("font-size", "10px").text("Size = Job Count");
     
@@ -460,7 +453,6 @@ const Task2 = () => {
     });
   };
 
-  // Parallel Coordinates绘制
   const drawParallelCoordinates = () => {
     d3.select(svgRef.current).style("display", "none");
     const container = d3.select(pcScrollRef.current);
@@ -569,20 +561,6 @@ const Task2 = () => {
             setPcHoveredIndustry(null);
             hidePCTooltip();
           });
-
-        g.selectAll(`.pc-dot-${idx}-${ind.industry}`)
-          .data(ind.values)
-          .join("circle")
-          .attr("cx", d => xScale(d.year))
-          .attr("cy", d => yScale(d[metric.key]))
-          .attr("r", isHovered ? 5 : 3)
-          .attr("fill", ind.color)
-          .attr("opacity", isDimmed ? 0.1 : 0.9)
-          .style("cursor", "pointer")
-          .on("mouseenter", (e, d) => {
-            setPcHoveredIndustry(ind.industry);
-            showPointTooltip(e, d, ind, metric);
-          });
       });
     });
 
@@ -607,6 +585,8 @@ const Task2 = () => {
   };
 
   const showPCTooltip = (e, industry, metric, xScale, yScale) => {
+    hidePCTooltip();
+    
     const mouseX = d3.pointer(e)[0];
     const years = xScale.domain();
     const closestYear = years.reduce((prev, curr) => 
@@ -624,30 +604,24 @@ const Task2 = () => {
       .attr("class", "pc-floating-tooltip")
       .style("left", (e.clientX + 15) + "px")
       .style("top", (e.clientY - 10) + "px")
+      .style("opacity", 0)
       .html(`
         <div style="color:${industry.color};font-weight:600;margin-bottom:4px;">${industry.industry} - ${closestYear}</div>
         <div>${metric.label}: <strong>${metric.format(point[metric.key])}</strong>${change}</div>
       `);
+    
+    tooltip.transition().duration(200).style("opacity", 1);
+    
+    pcTooltipRef.current = tooltip;
   };
 
-  const showPointTooltip = (e, d, industry, metric) => {
-    const prevPoint = industry.values.find(v => v.year === d.year - 1);
-    const change = prevPoint ? 
-      `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
-
-    d3.select("body").append("div")
-      .attr("class", "pc-floating-tooltip")
-      .style("left", (e.clientX + 15) + "px")
-      .style("top", (e.clientY - 10) + "px")
-      .html(`
-        <div style="color:${industry.color};font-weight:600;margin-bottom:4px;">${industry.industry} - ${d.year}</div>
-        <div>${metric.format(d[metric.key])}${change}</div>
-      `);
-  };
-
-  const hidePCTooltip = () => {
-    d3.selectAll(".pc-floating-tooltip").remove();
-  };
+  const hidePCTooltip = useCallback(() => {
+    if (pcTooltipRef.current) {
+      pcTooltipRef.current.transition().duration(200).style("opacity", 0).remove();
+      pcTooltipRef.current = null;
+    }
+    d3.selectAll(".pc-floating-tooltip").transition().duration(200).style("opacity", 0).remove();
+  }, []);
 
   const toggleIndustry = (industry) => {
     const newSet = new Set(selectedIndustries);
@@ -657,14 +631,16 @@ const Task2 = () => {
   };
 
   const startGuide = (guideMode) => {
-    setActiveGuide(guideMode);
-    setGuideStep(0);
+    setTimeout(() => {
+      setActiveGuide(guideMode);
+      setGuideStep(0);
+    }, 500);
   };
 
   const closeGuide = () => {
     const newState = { ...guideState, [activeGuide]: true };
     setGuideState(newState);
-    localStorage.setItem('task2_guide_completed_v2', JSON.stringify(newState));
+    localStorage.setItem('task2_guide_completed_v4', JSON.stringify(newState));
     setActiveGuide(null);
     setGuideStep(0);
   };
@@ -685,14 +661,17 @@ const Task2 = () => {
       return { display: 'none' };
     }
     const rect = element.getBoundingClientRect();
+    
+    const padding = 4;
     return {
-      left: rect.left - 4,
-      top: rect.top - 4,
-      width: rect.width + 8,
-      height: rect.height + 8
+      left: Math.max(0, rect.left - padding),
+      top: Math.max(0, rect.top - padding),
+      width: Math.min(rect.width + padding * 2, window.innerWidth - rect.left),
+      height: Math.min(rect.height + padding * 2, window.innerHeight - rect.top)
     };
   };
 
+  // 修复：改进的引导位置计算，防止溢出视口，特别是右侧
   const getGuidePosition = (step) => {
     const highlight = getHighlightPosition(step.target);
     if (highlight.display === 'none') {
@@ -703,40 +682,76 @@ const Task2 = () => {
       };
     }
     
-    const offset = 20;
+    const offset = 15;
+    const tooltipWidth = 280;
+    const tooltipHeight = 120;
+    
+    let left, top, transform;
+    
+    // 检测目标位置（左侧还是右侧）
+    const isRightSide = highlight.left > window.innerWidth / 2;
+    const isBottomSide = highlight.top > window.innerHeight / 2;
     
     switch(step.position) {
       case 'bottom':
-        return { 
-          left: highlight.left + highlight.width / 2, 
-          top: highlight.top + highlight.height + offset,
-          transform: 'translate(-50%, 0)'
-        };
+        left = highlight.left + highlight.width / 2;
+        top = highlight.top + highlight.height + offset;
+        transform = 'translate(-50%, 0)';
+        // 如果右侧空间不足，向左调整
+        if (left + tooltipWidth/2 > window.innerWidth - 10) {
+          left = window.innerWidth - tooltipWidth/2 - 10;
+        }
+        // 如果底部空间不足，显示在顶部
+        if (top + tooltipHeight > window.innerHeight) {
+          top = highlight.top - offset;
+          transform = 'translate(-50%, -100%)';
+        }
+        break;
       case 'top':
-        return { 
-          left: highlight.left + highlight.width / 2, 
-          top: highlight.top - offset,
-          transform: 'translate(-50%, -100%)'
-        };
+        left = highlight.left + highlight.width / 2;
+        top = highlight.top - offset;
+        transform = 'translate(-50%, -100%)';
+        // 右侧边界检测
+        if (left + tooltipWidth/2 > window.innerWidth - 10) {
+          left = window.innerWidth - tooltipWidth/2 - 10;
+        }
+        // 如果顶部空间不足，显示在底部
+        if (top < tooltipHeight) {
+          top = highlight.top + highlight.height + offset;
+          transform = 'translate(-50%, 0)';
+        }
+        break;
       case 'left':
-        return { 
-          left: highlight.left - offset, 
-          top: highlight.top + highlight.height / 2,
-          transform: 'translate(-100%, -50%)'
-        };
+        left = highlight.left - offset;
+        top = highlight.top + highlight.height / 2;
+        transform = 'translate(-100%, -50%)';
+        // 如果左侧空间不足，改到右侧
+        if (left < tooltipWidth) {
+          left = highlight.left + highlight.width + offset;
+          transform = 'translate(0, -50%)';
+        }
+        break;
       case 'right':
-        return { 
-          left: highlight.left + highlight.width + offset, 
-          top: highlight.top + highlight.height / 2,
-          transform: 'translate(0, -50%)'
-        };
+        left = highlight.left + highlight.width + offset;
+        top = highlight.top + highlight.height / 2;
+        transform = 'translate(0, -50%)';
+        // 如果右侧空间不足，改到左侧
+        if (left + tooltipWidth > window.innerWidth) {
+          left = highlight.left - offset;
+          transform = 'translate(-100%, -50%)';
+        }
+        break;
       default:
-        return { 
-          left: highlight.left + highlight.width / 2, 
-          top: highlight.top + highlight.height + offset,
-          transform: 'translate(-50%, 0)'
-        };
+        left = highlight.left + highlight.width / 2;
+        top = highlight.top + highlight.height + offset;
+        transform = 'translate(-50%, 0)';
     }
+    
+    // 确保不超出视口边界
+    left = Math.max(tooltipWidth/2 + 10, Math.min(window.innerWidth - tooltipWidth/2 - 10, left));
+    top = Math.max(tooltipHeight, Math.min(window.innerHeight - 20, top));
+    
+    return { left, top, transform };
   };
 
   const yearRange = data.length > 0 ? [d3.min(data, (d) => d.year), d3.max(data, (d) => d.year)] : [2010, 2024];
@@ -746,8 +761,7 @@ const Task2 = () => {
   if (data.length === 0) return <div className="loading">Initializing Time Machine...</div>;
 
   return (
-    <div className="task2-container">
-      {/* Spotlight引导层 */}
+    <div className="task2-container" ref={chartContainerRef}>
       {activeGuide && currentStep && (
         <div className="guide-spotlight-overlay">
           <div className="spotlight-backdrop" onClick={closeGuide} />
@@ -774,7 +788,6 @@ const Task2 = () => {
         </div>
       )}
 
-      {/* 控制栏 */}
       <div className="control-bar">
         <div className="mode-switcher">
           <button className={mode === "timeflow" ? "active" : ""} onClick={() => setMode("timeflow")}>⏱️ Timeflow</button>
@@ -784,7 +797,6 @@ const Task2 = () => {
         <button className="help-btn" onClick={() => startGuide(mode)}>❓ How to Use</button>
       </div>
 
-      {/* 图表区域 */}
       <div className="chart-wrapper">
         <div className="chart-container">
           <svg 
@@ -839,17 +851,19 @@ const Task2 = () => {
                         <div className="compare-row solid-row">
                           <span className="dot">●</span>
                           <div className="row-stats">
-                            <span>${Math.round(leftData.avgSalary / 1000)}k</span>
+                            <span><strong>${Math.round(leftData.avgSalary / 1000)}k</strong></span>
                             <span>AI:{leftData.avgAIIntensity.toFixed(2)}</span>
                             <span>Risk:{(leftData.avgAutomationRisk * 100).toFixed(0)}%</span>
+                            <span>Jobs:{leftData.jobCount}</span>
                           </div>
                         </div>
                         <div className="compare-row hollow-row">
                           <span className="dot hollow">○</span>
                           <div className="row-stats">
-                            <span>${Math.round(rightData.avgSalary / 1000)}k</span>
+                            <span><strong>${Math.round(rightData.avgSalary / 1000)}k</strong></span>
                             <span>AI:{rightData.avgAIIntensity.toFixed(2)}</span>
                             <span>Risk:{(rightData.avgAutomationRisk * 100).toFixed(0)}%</span>
+                            <span>Jobs:{rightData.jobCount}</span>
                           </div>
                         </div>
                       </div>
