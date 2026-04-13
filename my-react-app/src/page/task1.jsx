@@ -4,6 +4,9 @@ import * as topojson from "topojson-client";
 import * as THREE from "three";
 import "./task1.css";
 
+const BASE_WIDTH = 1180;
+const BASE_HEIGHT = 760;
+
 const REGION_COLORS = d3.scaleOrdinal([
   "#0a9396",
   "#ee9b00",
@@ -506,11 +509,9 @@ function Task1() {
     }
 
     if (!sceneRef.current) {
-      const width = 1180;
-      const height = 760;
       const svg = d3
         .select(svgRef.current)
-        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("viewBox", `0 0 ${BASE_WIDTH} ${BASE_HEIGHT}`)
         .attr("preserveAspectRatio", "xMidYMid meet");
 
       svg.selectAll("*").remove();
@@ -520,14 +521,14 @@ function Task1() {
       const mapLayer = root.append("g").attr("class", "scene-layer scene-map");
       const starLayer = root.append("g").attr("class", "scene-layer scene-star");
 
-      const globeBundle = drawGlobeScene(globeLayer, regionSummary, worldData, width, height, rotation);
-      drawMapScene(mapLayer, historyRows, worldData, selectedYear, width, height);
-      drawStarScene(starLayer, starMetrics, width, height);
+      const globeBundle = drawGlobeScene(globeLayer, regionSummary, worldData, BASE_WIDTH, BASE_HEIGHT, rotation);
+      drawMapScene(mapLayer, historyRows, worldData, selectedYear, BASE_WIDTH, BASE_HEIGHT);
+      drawStarScene(starLayer, starMetrics, BASE_WIDTH, BASE_HEIGHT);
 
       sceneRef.current = {
         svg,
-        width,
-        height,
+        width: BASE_WIDTH,
+        height: BASE_HEIGHT,
         globeLayer,
         mapLayer,
         starLayer,
@@ -541,12 +542,20 @@ function Task1() {
 
         const scene = new THREE.Scene();
         // Orthographic Camera is essential for 1:1 D3-ThreeJS alignment
-        const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 0.1, 2000);
+        // Initial setup with base dimensions; will be updated by ResizeObserver
+        const camera = new THREE.OrthographicCamera(
+          -BASE_WIDTH / 2,
+          BASE_WIDTH / 2,
+          BASE_HEIGHT / 2,
+          -BASE_HEIGHT / 2,
+          0.1,
+          2000,
+        );
         camera.position.z = 1000;
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(width, height);
+        renderer.setSize(BASE_WIDTH, BASE_HEIGHT);
         threeContainerRef.current.appendChild(renderer.domElement);
 
         const group = new THREE.Group();
@@ -570,7 +579,7 @@ function Task1() {
         texture.wrapT = THREE.RepeatWrapping;
 
         // Radius MUST match globeScale exactly
-        const commonScale = Math.min(width, height) * 0.45;
+        const commonScale = Math.min(BASE_WIDTH, BASE_HEIGHT) * 0.45;
         const geometry = new THREE.SphereGeometry(commonScale, 128, 128);
         const material = new THREE.MeshStandardMaterial({
           map: texture,
@@ -580,6 +589,53 @@ function Task1() {
         group.add(globe);
 
         threeSceneRef.current = { scene, camera, renderer, globe, group };
+
+        // Handle Resize for Three.js Alignment
+        const handleResize = () => {
+          if (!threeContainerRef.current || !threeSceneRef.current) return;
+
+          const container = threeContainerRef.current;
+          const rect = container.getBoundingClientRect();
+          const domWidth = rect.width;
+          const domHeight = rect.height;
+
+          if (domWidth === 0 || domHeight === 0) return;
+
+          const aspect = BASE_WIDTH / BASE_HEIGHT;
+          const domAspect = domWidth / domHeight;
+
+          let viewWidth, viewHeight;
+          if (domAspect > aspect) {
+            // Wider than base aspect: height is the constraint (matches SVG "meet" logic)
+            viewHeight = BASE_HEIGHT;
+            viewWidth = BASE_HEIGHT * domAspect;
+          } else {
+            // Taller than base aspect: width is the constraint
+            viewWidth = BASE_WIDTH;
+            viewHeight = BASE_WIDTH / domAspect;
+          }
+
+          const { camera: tCamera, renderer: tRenderer } = threeSceneRef.current;
+          tCamera.left = -viewWidth / 2;
+          tCamera.right = viewWidth / 2;
+          tCamera.top = viewHeight / 2;
+          tCamera.bottom = -viewHeight / 2;
+          tCamera.updateProjectionMatrix();
+
+          tRenderer.setSize(domWidth, domHeight);
+          tRenderer.setPixelRatio(window.devicePixelRatio);
+          tRenderer.render(scene, tCamera);
+        };
+
+        const resizeObserver = new ResizeObserver(() => {
+          handleResize();
+        });
+
+        resizeObserver.observe(threeContainerRef.current);
+        handleResize(); // Initial call
+
+        // Clean up observer if needed (though it's in a one-time init block)
+        threeSceneRef.current.resizeObserver = resizeObserver;
       }
 
       // Mini Globe Controller Setup

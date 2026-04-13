@@ -103,14 +103,37 @@ h1 {
   right: 0;
   bottom: 0;
   width: 61.8%;
-  border-left: 1px solid var(--line);
-  background: var(--panel);
+  background: radial-gradient(circle at 60% 40%, #001219 0%, #000000 100%);
   box-shadow: var(--shadow);
   padding: 24px;
   height: 100vh;
   display: flex;
   flex-direction: column;
   z-index: 2;
+  overflow: hidden;
+}
+
+/* Starfield effect */
+.viz-sticky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 10% 20%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 20% 35%, #ffffff 80%, transparent),
+    radial-gradient(2px 2px at 30% 15%, #ffffff 40%, transparent),
+    radial-gradient(1px 1px at 40% 70%, #ffffff 90%, transparent),
+    radial-gradient(1.5px 1.5px at 55% 45%, #ffffff 60%, transparent),
+    radial-gradient(1px 1px at 65% 85%, #ffffff 100%, transparent),
+    radial-gradient(2px 2px at 75% 10%, #ffffff 30%, transparent),
+    radial-gradient(1px 1px at 85% 60%, #ffffff 70%, transparent),
+    radial-gradient(1.5px 1.5px at 95% 30%, #ffffff 50%, transparent),
+    radial-gradient(1px 1px at 15% 75%, #ffffff 80%, transparent),
+    radial-gradient(2px 2px at 45% 90%, #ffffff 20%, transparent),
+    radial-gradient(1px 1px at 70% 25%, #ffffff 90%, transparent);
+  opacity: 0.6;
 }
 
 .story-svg {
@@ -126,13 +149,14 @@ h1 {
 }
 
 .scene-title {
-  fill: var(--ink);
+  fill: #f8fafc;
   font-size: 16px;
   font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .scene-subtitle {
-  fill: var(--muted);
+  fill: #94a3b8;
   font-size: 12px;
 }
 
@@ -154,8 +178,8 @@ h1 {
 
 .globe-borders {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.7); /* Bright crisp lines for satellite view */
-  stroke-width: 0.5;
+  stroke: rgba(255, 255, 255, 0.4); /* Subtle borders against satellite view */
+  stroke-width: 0.4;
   pointer-events: none;
 }
 
@@ -248,7 +272,7 @@ h1 {
 
 .map-graticule {
   fill: none;
-  stroke: rgba(217, 223, 230, 0.05); /* Very subtle grid */
+  stroke: rgba(255, 255, 255, 0.1); /* Slightly visible grid */
   stroke-width: 0.5;
 }
 
@@ -304,18 +328,18 @@ h1 {
 
 .year-slider-wrap {
   position: absolute;
-  bottom: 6px;
+  bottom: 12px;
   left: 24px;
-  /* ... */
   right: 24px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 18, 25, 0.7);
+  backdrop-filter: blur(12px);
   padding: 10px 18px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   animation: slideUpFade 0.4s ease-out;
   z-index: 10;
+  color: #f1f5f9;
 }
 
 @keyframes slideUpFade {
@@ -350,8 +374,9 @@ h1 {
 }
 
 .year-slider-meta strong {
-  color: var(--ink);
-  font-size: 1rem;
+  color: var(--accent);
+  font-size: 1.1rem;
+  text-shadow: 0 0 10px rgba(10, 147, 150, 0.5);
 }
 
 .loading-text {
