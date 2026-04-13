@@ -93,7 +93,7 @@ const DataPreview = ({ onShowFullTable }) => {
 
   if (loading) {
     return (
-      <div className="kaggle-preview loading">
+      <div className="kaggle-preview loading scrolly-adapted">
         <div className="preview-spinner">📊</div>
         <span>Loading dataset...</span>
       </div>
@@ -103,8 +103,8 @@ const DataPreview = ({ onShowFullTable }) => {
   if (!stats) return null;
 
   return (
-    <div className="kaggle-preview">
-      {/* 1. 可点击的文件头部 */}
+    <div className="kaggle-preview scrolly-adapted">
+      {/* 文件头部 */}
       <div className="file-header clickable" onClick={onShowFullTable}>
         <div className="file-icon">📄</div>
         <div className="file-info">

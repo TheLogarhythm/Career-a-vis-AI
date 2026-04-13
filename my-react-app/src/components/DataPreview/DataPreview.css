@@ -1,0 +1,528 @@
+.kaggle-preview {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+/* 加载状态 */
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: #64748b;
+}
+
+.preview-spinner {
+  font-size: 32px;
+  animation: spin 2s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 文件头部 */
+.file-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.file-header:hover {
+  background: #e0f2fe;
+}
+
+.file-icon {
+  font-size: 28px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0ea5e9;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-meta {
+  font-size: 11px;
+  color: #64748b;
+  font-family: 'Courier New', monospace;
+}
+
+.click-hint {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: #0ea5e9;
+  background: rgba(14, 165, 233, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.file-header:hover .click-hint {
+  opacity: 1;
+}
+
+/* 详细统计区域 */
+.detailed-stats-section {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.click-hint-banner {
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #0369a1;
+  text-align: center;
+  font-weight: 500;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* 统计滚动容器 */
+.stats-scroll-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  padding-bottom: 4px;
+}
+
+.stats-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.stats-scroll-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.stats-scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.stats-row {
+  display: flex;
+  gap: 8px;
+  min-width: min-content;
+}
+
+/* 统计单元格 */
+.stat-cell {
+  flex-shrink: 0;
+  width: 140px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stat-cell:hover, .stat-cell.hovered {
+  background: #f0f9ff;
+  border-color: #0ea5e9;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+}
+
+.cell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cell-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.type-badge {
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.type-badge.categorical {
+  background: #dbeafe;
+  color: #0369a1;
+}
+
+.type-badge.numeric {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.type-badge.temporal {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.type-badge.text {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cell-viz {
+  height: 50px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-viz-container {
+  width: 100%;
+  height: 100%;
+}
+
+.cell-footer {
+  font-size: 10px;
+  color: #64748b;
+}
+
+.top-values-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.top-value-tag {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more-tag {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+.unique-count {
+  font-weight: 600;
+  color: #0ea5e9;
+}
+
+/* 预览表格 */
+.preview-table-container {
+  padding: 12px;
+  flex-shrink: 0;
+}
+
+.table-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-scroll-x {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.table-scroll-x::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-scroll-x::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.table-scroll-x::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.preview-table th {
+  background: #f8fafc;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+.preview-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  white-space: nowrap;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-table tr:hover td {
+  background: #f8fafc;
+}
+
+.preview-table tr:last-child td {
+  border-bottom: none;
+}
+
+.col-id { color: #94a3b8; font-family: monospace; }
+.col-year { color: #b45309; font-weight: 600; }
+.col-salary { color: #047857; font-weight: 600; }
+
+/* Tooltip */
+.enhanced-tooltip {
+  position: fixed;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  z-index: 10000;
+  max-width: 280px;
+  font-size: 12px;
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tooltip-header strong {
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.type-tag {
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.type-tag.categorical { background: #dbeafe; color: #0369a1; }
+.type-tag.numeric { background: #d1fae5; color: #047857; }
+.type-tag.temporal { background: #fef3c7; color: #b45309; }
+.type-tag.text { background: #f1f5f9; color: #475569; }
+
+.tooltip-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #475569;
+}
+
+.tooltip-stats .missing {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.tooltip-distribution {
+  margin-top: 4px;
+}
+
+.dist-title {
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.dist-value {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #475569;
+}
+
+.dist-bar-bg {
+  width: 60px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dist-bar {
+  height: 100%;
+  background: #0ea5e9;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.dist-pct {
+  width: 32px;
+  text-align: right;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.dist-more {
+  color: #94a3b8;
+  font-size: 10px;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.tooltip-numeric {
+  color: #475569;
+  font-weight: 500;
+}
+
+/* ============================================
+   Scrollytelling适配样式
+   ============================================ */
+
+.kaggle-preview.scrolly-adapted {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 在大屏幕上增加内边距 */
+@media (min-width: 1024px) {
+  .kaggle-preview.scrolly-adapted {
+    padding: 1.5rem;
+  }
+  
+  .kaggle-preview.scrolly-adapted .file-header {
+    padding: 1.5rem;
+  }
+  
+  .kaggle-preview.scrolly-adapted .file-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+  }
+  
+  .kaggle-preview.scrolly-adapted .file-name {
+    font-size: 16px;
+  }
+  
+  .kaggle-preview.scrolly-adapted .file-meta {
+    font-size: 13px;
+  }
+  
+  .kaggle-preview.scrolly-adapted .detailed-stats-section {
+    padding: 1.5rem;
+  }
+  
+  .kaggle-preview.scrolly-adapted .stat-cell {
+    width: 160px;
+    padding: 12px;
+  }
+  
+  .kaggle-preview.scrolly-adapted .preview-table-container {
+    padding: 1.5rem;
+  }
+}
+
+/* 确保统计卡片在大屏幕上排列更好 */
+@media (min-width: 768px) {
+  .kaggle-preview.scrolly-adapted .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  
+  .kaggle-preview.scrolly-adapted .stat-cell {
+    width: auto;
+  }
+}
+
+/* 适配深色背景上的展示（如果放在视差区域） */
+.parallax-section .kaggle-preview.scrolly-adapted {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* 加载状态适配 */
+.kaggle-preview.scrolly-adapted.loading {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

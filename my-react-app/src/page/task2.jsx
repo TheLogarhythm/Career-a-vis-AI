@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
+import { useScrolly } from '../context/ScrollyContext'; // 新增：导入ScrollyContext
 import "./task2.css";
 
 // 配色方案
@@ -22,6 +23,10 @@ const HEIGHT = 550 - MARGIN.top - MARGIN.bottom;
 
 const Task2 = () => {
   const svgRef = useRef(null);
+  const chartContainerRef = useRef(null);
+  const pcScrollRef = useRef(null);
+  const pcTooltipRef = useRef(null);
+  const pcTooltipContentRef = useRef(null);
   const [data, setData] = useState([]);
   const [currentYear, setCurrentYear] = useState(2010);
   const [selectedIndustries, setSelectedIndustries] = useState(new Set());
@@ -32,64 +37,70 @@ const Task2 = () => {
   const [hoveredPoint, setHoveredPoint] = useState(null);
   const [showGuide, setShowGuide] = useState(true);
 
-  // 根据模式获取引导内容
-  const getGuideContent = () => {
-    if (mode === "timeflow") {
-      return {
-        title: "🕐 Timeflow Mode Guide",
-        items: [
-          {
-            icon: "🎛️",
-            title: "Mode Switcher (Top Left)",
-            desc: "Switch between Timeflow (watch evolution) and Compare (side-by-side comparison) modes.",
-          },
-          {
-            icon: "🎨",
-            title: "Industry Filter (Right Side)",
-            desc: "Click colored boxes to filter industries. Click again to remove filter. Bubble size represents Job Count.",
-          },
-          {
-            icon: "⏱️",
-            title: "Timeline Control (Bottom)",
-            desc: "Drag the 🕐 clock icon to scrub through years. Click the ▶️ Play button to auto-play animation. Click any year tick to jump directly.",
-          },
-          {
-            icon: "👆",
-            title: "Data Interaction",
-            desc: "Click any bubble to see detailed stats. Solid circles = Current year, Hollow circles = Previous year. Dashed line shows year-over-year change.",
-          },
-        ],
-      };
-    } else {
-      return {
-        title: "⚖️ Compare Mode Guide",
-        items: [
-          {
-            icon: "🎛️",
-            title: "Mode Switcher (Top Left)",
-            desc: "Switch back to Timeflow mode to see animated evolution over time.",
-          },
-          {
-            icon: "🎨",
-            title: "Industry Filter (Right Side)",
-            desc: "Select 1-3 industries to see detailed comparison cards. Bubble size represents Job Count in that year.",
-          },
-          {
-            icon: "⏱️",
-            title: "Dual Timeline Control (Bottom)",
-            desc: "Drag ● blue marker (Left Year) and ○ orange marker (Right Year) to select comparison years. Solid circles = Left year data, Hollow circles = Right year data.",
-          },
-          {
-            icon: "📊",
-            title: "Comparison View",
-            desc: "When 1-3 industries filtered, see detailed cards showing both years side-by-side. Arrows show direction of change. Click any bubble for full details.",
-          },
-        ],
-      };
+  // 引导相关状态与 refs（补充缺失的定义以避免未定义错误）
+  const [guideState, setGuideState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('task2_guide_state_v4');
+      return saved ? JSON.parse(saved) : { timeflow: false, compare: false, parallel: false };
+    } catch (e) {
+      return { timeflow: false, compare: false, parallel: false };
     }
-  };
+  });
+  const [activeGuide, setActiveGuide] = useState(null);
+  const [guideStep, setGuideStep] = useState(0);
+  const [expandedChart, setExpandedChart] = useState(null);
+  const [pcHoveredIndustry, setPcHoveredIndustry] = useState(null);
 
-  // 数据加载
+  // 简单占位函数/数据，真实引导内容可在后续完善
+  const getGuideContent = () => ({ items: [] });
+  const currentSteps = [];
+  const currentStep = currentSteps[guideStep] || null;
+  const closeGuide = () => { setActiveGuide(null); setShowGuide(false); };
+  const nextStep = () => setGuideStep((s) => Math.min(s + 1, Math.max(0, currentSteps.length - 1)));
+  const getHighlightPosition = () => ({ top: 0, left: 0, width: 0, height: 0 });
+  const getGuidePosition = () => ({ top: 0, left: 0 });
+
+  // 新增：使用ScrollyContext
+  const { markTaskComplete } = useScrolly();
+
+  // 新增：监听重新播放事件
+  useEffect(() => {
+    const handleReplay = (e) => {
+      if (e.detail.sectionId === 3) { // Task 2是section-3
+        // 重置所有状态
+        setGuideState({ timeflow: false, compare: false, parallel: false });
+        setActiveGuide(null);
+        setGuideStep(0);
+        setSelectedPoint(null);
+        setSelectedIndustries(new Set());
+        setIsPlaying(false);
+        setExpandedChart(null);
+        
+        // 清除localStorage中的引导状态，让用户重新体验
+        localStorage.removeItem('task2_guide_completed_v4');
+        
+        // 重新加载数据或重置到初始状态
+        if (data.length > 0) {
+          const minYear = d3.min(data, d => d.year);
+          setCurrentYear(minYear);
+          setCompareYears({ left: minYear, right: d3.max(data, d => d.year) });
+        }
+      }
+    };
+    
+    window.addEventListener('replaySection', handleReplay);
+    return () => window.removeEventListener('replaySection', handleReplay);
+  }, [data]);
+
+  // 新增：当用户完成所有引导步骤后标记Task完成
+  useEffect(() => {
+    if (guideState.timeflow && guideState.compare && guideState.parallel) {
+      markTaskComplete(1); // Task 2的索引是1
+      // 触发自定义事件通知外部
+      window.dispatchEvent(new CustomEvent('task2-complete'));
+    }
+  }, [guideState, markTaskComplete]);
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -454,15 +465,242 @@ const Task2 = () => {
 
     const sizeScale = d3.scaleSqrt().domain([0, 100]).range([4, 20]);
     [20, 50, 100].forEach((count, i) => {
+      const cx = 10 + i * 25;
+      const r = sizeScale(count);
       sizeG
         .append("circle")
-        .attr("cx", 10 + i * 25)
+        .attr("cx", cx)
         .attr("cy", 25)
-        .attr("r", sizeScale(count))
+        .attr("r", r)
         .attr("fill", "none")
         .attr("stroke", "#64748b")
         .attr("stroke-width", 1.5)
         .attr("opacity", 0.6);
+
+      sizeG.append("text")
+        .attr("x", cx)
+        .attr("y", 25 + r + 12)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#64748b")
+        .attr("font-size", "9px")
+        .text(String(count));
+    });
+  };
+
+  const drawParallelCoordinates = () => {
+    d3.select(svgRef.current).style("display", "none");
+    const container = d3.select(pcScrollRef.current);
+    container.style("display", "block").selectAll("*").remove();
+
+    const grouped = d3.group(data, d => d.industry);
+    const industries = Array.from(grouped, ([industry, values]) => ({
+      industry,
+      values: values.sort((a, b) => a.year - b.year),
+      color: INDUSTRY_COLORS[industry] || INDUSTRY_COLORS.default
+    })).filter(d => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
+
+    const years = [...new Set(data.map(d => d.year))].sort();
+    
+    const isExpanded = expandedChart !== null;
+    const pcWidth = isExpanded ? Math.min(1200, window.innerWidth - 100) : 800;
+    const pcHeight = isExpanded ? 400 : 180;
+    const pcMargin = isExpanded 
+      ? { top: 50, right: 80, bottom: 60, left: 80 }
+      : { top: 30, right: 50, bottom: 40, left: 60 };
+
+    const metrics = [
+      { 
+        key: 'avgAIIntensity', 
+        label: 'AI Intensity Score', 
+        domain: d3.extent(data, d => d.avgAIIntensity),
+        format: d => d.toFixed(2) 
+      },
+      { 
+        key: 'avgSalary', 
+        label: 'Average Salary (USD)', 
+        domain: d3.extent(data, d => d.avgSalary),
+        format: d => `$${(d/1000).toFixed(0)}k` 
+      },
+      { 
+        key: 'avgAutomationRisk', 
+        label: 'Automation Risk Score', 
+        domain: d3.extent(data, d => d.avgAutomationRisk),
+        format: d => (d*100).toFixed(0) + '%' 
+      },
+      { 
+        key: 'jobCount', 
+        label: 'Job Count', 
+        domain: d3.extent(data, d => d.jobCount),
+        format: d => d.toString() 
+      }
+    ];
+
+    const chartsToRender = isExpanded ? [metrics[expandedChart]] : metrics;
+    const chartIndices = isExpanded ? [expandedChart] : [0, 1, 2, 3];
+
+    chartsToRender.forEach((metric, idx) => {
+      const actualIdx = chartIndices[idx];
+      const chartDiv = container.append("div")
+        .attr("class", `pc-chart-box ${isExpanded ? 'expanded' : ''}`);
+      
+      const headerDiv = chartDiv.append("div").attr("class", "pc-chart-header");
+      
+      headerDiv.append("div")
+        .attr("class", "pc-metric-title")
+        .text(metric.label);
+      
+      const expandBtn = headerDiv.append("button")
+        .attr("class", "pc-expand-btn")
+        .attr("title", isExpanded ? "Exit fullscreen" : "Fullscreen")
+        .html(isExpanded ? "⛶" : "⛶");
+      
+      expandBtn.on("click", () => {
+        if (isExpanded) {
+          setExpandedChart(null);
+        } else {
+          setExpandedChart(actualIdx);
+        }
+      });
+
+      const svg = chartDiv.append("svg")
+        .attr("width", pcWidth)
+        .attr("height", pcHeight);
+
+      const g = svg.append("g")
+        .attr("transform", `translate(${pcMargin.left},${pcMargin.top})`);
+
+      const yScale = d3.scaleLinear()
+        .domain(metric.domain)
+        .range([pcHeight - pcMargin.top - pcMargin.bottom, 0]);
+
+      const xScale = d3.scalePoint()
+        .domain(years)
+        .range([0, pcWidth - pcMargin.left - pcMargin.right]);
+
+      years.forEach(year => {
+        const x = xScale(year);
+        g.append("line")
+          .attr("x1", x).attr("x2", x)
+          .attr("y1", 0).attr("y2", pcHeight - pcMargin.top - pcMargin.bottom)
+          .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "2,2");
+        
+        g.append("text")
+          .attr("x", x)
+          .attr("y", pcHeight - pcMargin.top - pcMargin.bottom + 20)
+          .attr("text-anchor", "middle")
+          .attr("font-size", isExpanded ? "11px" : "9px")
+          .attr("fill", "#64748b")
+          .text(year);
+      });
+
+      const yAxis = g.append("g")
+        .call(d3.axisLeft(yScale).ticks(isExpanded ? 8 : 5).tickFormat(metric.format));
+      yAxis.selectAll("text")
+        .attr("font-size", isExpanded ? "11px" : "9px")
+        .attr("fill", "#64748b");
+
+      const line = d3.line()
+        .x(d => xScale(d.year))
+        .y(d => yScale(d[metric.key]))
+        .curve(d3.curveMonotoneX);
+
+      // 修复：使用 DOM 操作代替 React state，实现丝滑跟随
+      industries.forEach(ind => {
+        const isHovered = pcHoveredIndustry === ind.industry;
+        const isDimmed = pcHoveredIndustry && pcHoveredIndustry !== ind.industry;
+        
+        const path = g.append("path")
+          .datum(ind.values)
+          .attr("fill", "none")
+          .attr("stroke", ind.color)
+          .attr("stroke-width", isHovered ? (isExpanded ? 5 : 4) : (isExpanded ? 3 : 2))
+          .attr("opacity", isDimmed ? 0.1 : 0.7)
+          .attr("d", line)
+          .style("cursor", "pointer");
+        
+        // 修复：mouseenter 更新内容，mousemove 只更新位置
+        path.on("mouseenter", function(event) {
+          setPcHoveredIndustry(ind.industry);
+          
+          const [mouseX] = d3.pointer(event);
+          const closestYear = years.reduce((prev, curr) => 
+            Math.abs(xScale(curr) - mouseX) < Math.abs(xScale(prev) - mouseX) ? curr : prev
+          );
+          
+          const point = ind.values.find(v => v.year === closestYear);
+          if (!point) return;
+
+          const prevPoint = ind.values.find(v => v.year === closestYear - 1);
+          const change = prevPoint ? 
+            `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
+          
+          // 直接更新 DOM 内容，不触发 React 重渲染
+          if (pcTooltipContentRef.current) {
+            const header = pcTooltipContentRef.current.querySelector('.pc-tooltip-header');
+            const label = pcTooltipContentRef.current.querySelector('.pc-tooltip-label');
+            const value = pcTooltipContentRef.current.querySelector('.pc-tooltip-value');
+            
+            if (header) {
+              header.textContent = `${ind.industry} - ${closestYear}`;
+              header.style.color = ind.color;
+            }
+            if (label) label.textContent = metric.label;
+            if (value) {
+              value.innerHTML = `<strong>${metric.format(point[metric.key])}</strong>${change}`;
+            }
+            
+            pcTooltipContentRef.current.style.borderColor = ind.color;
+          }
+          
+          // 直接操作 DOM 显示和定位
+          if (pcTooltipRef.current) {
+            pcTooltipRef.current.style.opacity = '1';
+            pcTooltipRef.current.style.visibility = 'visible';
+            pcTooltipRef.current.style.left = `${event.clientX + 15}px`;
+            pcTooltipRef.current.style.top = `${event.clientY - 10}px`;
+          }
+        })
+        .on("mousemove", function(event) {
+          // 只更新位置，不更新内容
+          if (pcTooltipRef.current) {
+            pcTooltipRef.current.style.left = `${event.clientX + 15}px`;
+            pcTooltipRef.current.style.top = `${event.clientY - 10}px`;
+          }
+        })
+        .on("mouseleave", function() {
+          setPcHoveredIndustry(null);
+          if (pcTooltipRef.current) {
+            pcTooltipRef.current.style.opacity = '0';
+            pcTooltipRef.current.style.visibility = 'hidden';
+          }
+        });
+      });
+      
+      if (isExpanded) {
+        const backBtn = chartDiv.append("button")
+          .attr("class", "pc-back-btn")
+          .html("← Back to all charts")
+          .on("click", () => setExpandedChart(null));
+      }
+    });
+
+    const legendDiv = container.append("div").attr("class", "pc-global-legend");
+    legendDiv.append("div").attr("class", "pc-legend-title").text("Industries (Click to filter)");
+    
+    const allIndustries = [...new Set(data.map(d => d.industry))];
+    const legendItems = legendDiv.append("div").attr("class", "pc-legend-items");
+    
+    allIndustries.forEach(industry => {
+      const item = legendItems.append("div")
+        .attr("class", "pc-legend-item")
+        .style("opacity", selectedIndustries.size === 0 || selectedIndustries.has(industry) ? 1 : 0.3)
+        .on("click", () => toggleIndustry(industry));
+      
+      item.append("div")
+        .attr("class", "pc-legend-color")
+        .style("background-color", INDUSTRY_COLORS[industry]);
+      
+      item.append("span").text(industry);
     });
     sizeG.append("text").attr("x", 0).attr("y", 55).attr("fill", "#64748b").attr("font-size", "9px").text("Few");
     sizeG.append("text").attr("x", 55).attr("y", 55).attr("fill", "#64748b").attr("font-size", "9px").text("Many");
@@ -514,14 +752,29 @@ const Task2 = () => {
   const guideContent = getGuideContent();
 
   return (
-    <div className="task2-container">
-      {/* 引导层 */}
-      {showGuide && (
-        <div className="guide-overlay" onClick={() => setShowGuide(false)}>
-          <div className="guide-content" onClick={(e) => e.stopPropagation()}>
-            <div className="guide-header">
-              <h2>{guideContent.title}</h2>
-              <div className="mode-indicator">{mode === "timeflow" ? "⏱️ Timeflow Mode" : "⚖️ Compare Mode"}</div>
+    <div className="task2-container scrolly-adapted" ref={chartContainerRef}> {/* 修改：添加scrolly-adapted类 */}
+      {/* 引导系统 */}
+      {activeGuide && currentStep && (
+        <div className="guide-spotlight-overlay">
+          <div className="spotlight-backdrop" onClick={closeGuide} />
+          <div 
+            className="spotlight-highlight" 
+            style={getHighlightPosition(currentStep.target)}
+          >
+            <div className="spotlight-inner-glow" />
+          </div>
+          <div 
+            className={`spotlight-tooltip spotlight-${currentStep.position}`}
+            style={getGuidePosition(currentStep)}
+          >
+            <div className="spotlight-arrow" />
+            <h3>{currentStep.title}</h3>
+            <p>{currentStep.content}</p>
+            <div className="spotlight-actions">
+              <span>{guideStep + 1} / {currentSteps.length}</span>
+              <button onClick={nextStep}>
+                {guideStep === currentSteps.length - 1 ? 'Finish' : 'Next'}
+              </button>
             </div>
             <div className="guide-sections">
               {guideContent.items.map((item, idx) => (

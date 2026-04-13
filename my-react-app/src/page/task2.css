@@ -697,3 +697,428 @@ svg {
   font-size: 16px;
   font-weight: 500;
 }
+
+/* 拖拽样式 */
+.clock-draggable,
+.compare-handle {
+  cursor: grab !important;
+  user-select: none;
+  touch-action: none;
+}
+
+.clock-draggable:active,
+.compare-handle:active {
+  cursor: grabbing !important;
+}
+
+/* ============================================ */
+/* Parallel Coordinate 样式 - 优化版 */
+/* ============================================ */
+
+.pc-scroll-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  background: #f8fafc;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.pc-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.pc-scroll-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.pc-scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.pc-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* 放大模式遮罩层 */
+.pc-expanded-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+.pc-chart-box {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* 放大模式样式 */
+.pc-chart-box.expanded {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 1200px;
+  height: auto;
+  max-height: 80vh;
+  z-index: 101;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+  padding: 24px;
+  animation: expandIn 0.3s ease;
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.pc-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pc-metric-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.pc-chart-box.expanded .pc-metric-title {
+  font-size: 18px;
+}
+
+/* 放大/缩小按钮 */
+.pc-expand-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.pc-expand-btn:hover {
+  background: #e2e8f0;
+  color: #0ea5e9;
+  border-color: #0ea5e9;
+}
+
+/* 返回按钮（放大模式下） */
+.pc-back-btn {
+  position: absolute;
+  top: 24px;
+  right: 80px;
+  padding: 8px 16px;
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.pc-back-btn:hover {
+  background: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.pc-global-legend {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #e2e8f0;
+  position: sticky;
+  bottom: 20px;
+  z-index: 10;
+}
+
+.pc-legend-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pc-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #f8fafc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 11px;
+  color: #475569;
+}
+
+.pc-legend-item:hover {
+  background: #e2e8f0;
+}
+
+.pc-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* 图例容器 */
+.legend-svg-container {
+  /* 用于JS选择器定位 */
+}
+
+/* ============================================ */
+/* Tooltip 样式修复 (浅色调 + 解决无限闪烁问题) */
+/* ============================================ */
+
+/* 隐藏原来的 D3 tooltip */
+.pc-floating-tooltip {
+  display: none !important;
+}
+
+/* 丝滑跟随的 Tooltip - 无闪烁 */
+.pc-smooth-tooltip {
+  /* 1. 关键修复：禁止 Tooltip 捕获鼠标事件，让鼠标"穿透"弹窗，彻底解决疯狂闪烁 */
+  pointer-events: none !important; 
+  
+  /* 2. 浅色调主题修改 */
+  background: rgba(255, 255, 255, 0.95); /* 浅白色透明背景 */
+  color: #1e293b; /* 深灰文字为主，保证高对比度 */
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  /* 增加柔和的阴影，让浅色悬浮窗在图表上产生立体感，不至于和背景融为一体 */
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
+  border: 1px solid #e2e8f0; /* 浅灰色边框 */
+  z-index: 1000;
+}
+
+.pc-smooth-tooltip .pc-tooltip-header {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0; /* 浅色分割线 */
+  color: #0f172a; /* 标题颜色加深 */
+}
+
+.pc-smooth-tooltip .pc-tooltip-inner {
+  line-height: 1.5;
+}
+
+.pc-smooth-tooltip .pc-tooltip-label {
+  color: #64748b; /* 浅色模式下的副标题/标签颜色 */
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.pc-smooth-tooltip .pc-tooltip-value {
+  font-size: 15px;
+  color: #0f172a; /* 强调数值的颜色 */
+}
+
+.pc-smooth-tooltip .pc-tooltip-value strong {
+  font-weight: 600;
+  color: #0ea5e9; /* 可以将加粗的数值改为清新的蓝色，提升视觉质感 */
+}
+
+/* ============================================
+   Scrollytelling适配样式
+   ============================================ */
+
+/* 软定格容器适配 */
+.task2-container.scrolly-adapted {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 图表区域高度适配 */
+.scrolly-adapted .chart-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 0; /* 重要：防止flex子项溢出 */
+}
+
+.scrolly-adapted .chart-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* 确保SVG和图表正确缩放 */
+.scrolly-adapted svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* 时间轴区域适配 */
+.scrolly-adapted .timeline-section {
+  flex-shrink: 0;
+  height: 100px;
+  padding: 10px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* 控制栏适配 */
+.scrolly-adapted .control-bar {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Parallel坐标轴容器适配 */
+.scrolly-adapted .pc-scroll-container {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.scrolly-adapted .pc-chart-box {
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 右侧面板适配 */
+.scrolly-adapted .right-panel {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
+}
+
+/* 引导提示在软定格中的适配 */
+.scrolly-adapted .guide-spotlight-overlay {
+  position: fixed; /* 保持fixed以覆盖全屏 */
+  z-index: 9999;
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .scrolly-adapted .chart-wrapper {
+    overflow: auto; /* 小屏幕允许滚动 */
+  }
+  
+  .scrolly-adapted .right-panel {
+    position: relative;
+    right: auto;
+    top: auto;
+    width: 100%;
+    max-height: none;
+    margin-top: 20px;
+  }
+}
+
+/* 确保图表在软定格中居中显示 */
+.scrolly-adapted .chart-container > svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* 时间轴轨道适配 */
+.scrolly-adapted .timeline-track-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* 模式切换器在软定格中的位置 */
+.scrolly-adapted .mode-switcher {
+  display: flex;
+  gap: 8px;
+}
+
+.scrolly-adapted .mode-switcher button {
+  padding: 8px 16px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.scrolly-adapted .mode-switcher button.active {
+  background: #0ea5e9;
+  color: white;
+  border-color: #0ea5e9;
+}
+
+/* 帮助按钮样式 */
+.scrolly-adapted .help-btn {
+  padding: 8px 16px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #475569;
+  transition: all 0.2s;
+}
+
+.scrolly-adapted .help-btn:hover {
+  background: #e2e8f0;
+}

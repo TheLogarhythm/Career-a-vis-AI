@@ -1,0 +1,46 @@
+.robot-navigator {
+  user-select: none;
+  touch-action: none;
+}
+
+.robot-body {
+  transition: box-shadow 0.3s ease;
+}
+
+.robot-body:hover {
+  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.5);
+}
+
+.progress-ring circle {
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.menu-item:hover {
+  background: #f1f5f9 !important;
+  transform: translateX(4px);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* 磁吸效果 */
+.robot-navigator::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.robot-navigator:hover::before {
+  opacity: 1;
+}
