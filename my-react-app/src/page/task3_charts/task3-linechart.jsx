@@ -33,17 +33,25 @@ function Linechart() {
       setData(grouped.map(([year, vals]) => ({ posting_year: year, ...vals })).sort((a, b) => a.posting_year - b.posting_year));
     });
   }, []);
+useEffect(() => {
+  const handleScroll = () => {
+    if (!overlay || !chartRef.current) return;
+    const rect = chartRef.current.getBoundingClientRect();
+    
+    const triggerStart = 150; 
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!overlay || !chartRef.current) return;
-      const rect = chartRef.current.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, (250 - rect.top) / 200)); //  SCROLL
-      setScrollProgress(progress);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [overlay]);
+    const scrollWindow = 120; 
+
+    const currentScroll = triggerStart - rect.top;
+    const progress = Math.min(1, Math.max(0, currentScroll / scrollWindow));
+    
+    setScrollProgress(progress);
+  };
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [overlay]);
+
+  
 
   useEffect(() => {
     if (data.length === 0) return;
