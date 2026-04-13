@@ -13,7 +13,6 @@ const MARGIN = { top: 60, right: 200, bottom: 100, left: 100 };
 const WIDTH = 900 - MARGIN.left - MARGIN.right;
 const HEIGHT = 550 - MARGIN.top - MARGIN.bottom;
 
-// 英文引导步骤配置
 const GUIDE_STEPS = {
   timeflow: [
     { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between Timeflow, Compare, and Parallel Coordinate views', position: 'bottom' },
@@ -25,7 +24,6 @@ const GUIDE_STEPS = {
     { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between different visualization modes', position: 'bottom' },
     { target: '.compare-handle.left', title: 'Start Year', content: 'Drag the blue dot to select the comparison start year', position: 'top' },
     { target: '.compare-handle.right', title: 'End Year', content: 'Drag the orange dot to select the comparison end year', position: 'top' },
-    // 修复：改为bottom位置，避免右侧溢出
     { target: '.compare-detail-panel', title: 'Comparison Details', content: 'Selected industries show detailed side-by-side comparison here', position: 'bottom' }
   ],
   parallel: [
@@ -41,6 +39,7 @@ const Task2 = () => {
   const pcScrollRef = useRef(null);
   const timelineRef = useRef(null);
   const chartContainerRef = useRef(null);
+  
   const [data, setData] = useState([]);
   const [currentYear, setCurrentYear] = useState(2010);
   const [selectedIndustries, setSelectedIndustries] = useState(new Set());
@@ -58,7 +57,11 @@ const Task2 = () => {
   const [guideStep, setGuideStep] = useState(0);
   
   const [pcHoveredIndustry, setPcHoveredIndustry] = useState(null);
+  const [expandedChart, setExpandedChart] = useState(null);
+  
+  // 修复：使用 ref 直接操作 DOM，避免 React 重渲染导致的闪烁
   const pcTooltipRef = useRef(null);
+  const pcTooltipContentRef = useRef(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -226,7 +229,7 @@ const Task2 = () => {
     } else {
       drawMainChart();
     }
-  }, [data, currentYear, selectedIndustries, selectedPoint, mode, compareYears, scales, pcHoveredIndustry]);
+  }, [data, currentYear, selectedIndustries, selectedPoint, mode, compareYears, scales, pcHoveredIndustry, expandedChart]);
 
   const drawMainChart = () => {
     const svg = d3.select(svgRef.current);
@@ -466,11 +469,13 @@ const Task2 = () => {
     })).filter(d => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
 
     const years = [...new Set(data.map(d => d.year))].sort();
-    const pcWidth = 800;
-    const pcHeight = 180;
-    const pcMargin = { top: 30, right: 50, bottom: 40, left: 60 };
     
-    const xScale = d3.scalePoint().domain(years).range([0, pcWidth - pcMargin.left - pcMargin.right]);
+    const isExpanded = expandedChart !== null;
+    const pcWidth = isExpanded ? Math.min(1200, window.innerWidth - 100) : 800;
+    const pcHeight = isExpanded ? 400 : 180;
+    const pcMargin = isExpanded 
+      ? { top: 50, right: 80, bottom: 60, left: 80 }
+      : { top: 30, right: 50, bottom: 40, left: 60 };
 
     const metrics = [
       { 
@@ -499,12 +504,32 @@ const Task2 = () => {
       }
     ];
 
-    metrics.forEach((metric, idx) => {
-      const chartDiv = container.append("div").attr("class", "pc-chart-box");
+    const chartsToRender = isExpanded ? [metrics[expandedChart]] : metrics;
+    const chartIndices = isExpanded ? [expandedChart] : [0, 1, 2, 3];
+
+    chartsToRender.forEach((metric, idx) => {
+      const actualIdx = chartIndices[idx];
+      const chartDiv = container.append("div")
+        .attr("class", `pc-chart-box ${isExpanded ? 'expanded' : ''}`);
       
-      chartDiv.append("div")
+      const headerDiv = chartDiv.append("div").attr("class", "pc-chart-header");
+      
+      headerDiv.append("div")
         .attr("class", "pc-metric-title")
         .text(metric.label);
+      
+      const expandBtn = headerDiv.append("button")
+        .attr("class", "pc-expand-btn")
+        .attr("title", isExpanded ? "Exit fullscreen" : "Fullscreen")
+        .html(isExpanded ? "⛶" : "⛶");
+      
+      expandBtn.on("click", () => {
+        if (isExpanded) {
+          setExpandedChart(null);
+        } else {
+          setExpandedChart(actualIdx);
+        }
+      });
 
       const svg = chartDiv.append("svg")
         .attr("width", pcWidth)
@@ -517,6 +542,10 @@ const Task2 = () => {
         .domain(metric.domain)
         .range([pcHeight - pcMargin.top - pcMargin.bottom, 0]);
 
+      const xScale = d3.scalePoint()
+        .domain(years)
+        .range([0, pcWidth - pcMargin.left - pcMargin.right]);
+
       years.forEach(year => {
         const x = xScale(year);
         g.append("line")
@@ -528,19 +557,23 @@ const Task2 = () => {
           .attr("x", x)
           .attr("y", pcHeight - pcMargin.top - pcMargin.bottom + 20)
           .attr("text-anchor", "middle")
-          .attr("font-size", "9px")
+          .attr("font-size", isExpanded ? "11px" : "9px")
           .attr("fill", "#64748b")
           .text(year);
       });
 
-      const yAxis = g.append("g").call(d3.axisLeft(yScale).ticks(5).tickFormat(metric.format));
-      yAxis.selectAll("text").attr("font-size", "9px").attr("fill", "#64748b");
+      const yAxis = g.append("g")
+        .call(d3.axisLeft(yScale).ticks(isExpanded ? 8 : 5).tickFormat(metric.format));
+      yAxis.selectAll("text")
+        .attr("font-size", isExpanded ? "11px" : "9px")
+        .attr("fill", "#64748b");
 
       const line = d3.line()
         .x(d => xScale(d.year))
         .y(d => yScale(d[metric.key]))
         .curve(d3.curveMonotoneX);
 
+      // 修复：使用 DOM 操作代替 React state，实现丝滑跟随
       industries.forEach(ind => {
         const isHovered = pcHoveredIndustry === ind.industry;
         const isDimmed = pcHoveredIndustry && pcHoveredIndustry !== ind.industry;
@@ -549,19 +582,75 @@ const Task2 = () => {
           .datum(ind.values)
           .attr("fill", "none")
           .attr("stroke", ind.color)
-          .attr("stroke-width", isHovered ? 4 : 2)
+          .attr("stroke-width", isHovered ? (isExpanded ? 5 : 4) : (isExpanded ? 3 : 2))
           .attr("opacity", isDimmed ? 0.1 : 0.7)
           .attr("d", line)
-          .style("cursor", "pointer")
-          .on("mouseenter", (e) => {
-            setPcHoveredIndustry(ind.industry);
-            showPCTooltip(e, ind, metric, xScale, yScale);
-          })
-          .on("mouseleave", () => {
-            setPcHoveredIndustry(null);
-            hidePCTooltip();
-          });
+          .style("cursor", "pointer");
+        
+        // 修复：mouseenter 更新内容，mousemove 只更新位置
+        path.on("mouseenter", function(event) {
+          setPcHoveredIndustry(ind.industry);
+          
+          const [mouseX] = d3.pointer(event);
+          const closestYear = years.reduce((prev, curr) => 
+            Math.abs(xScale(curr) - mouseX) < Math.abs(xScale(prev) - mouseX) ? curr : prev
+          );
+          
+          const point = ind.values.find(v => v.year === closestYear);
+          if (!point) return;
+          
+          const prevPoint = ind.values.find(v => v.year === closestYear - 1);
+          const change = prevPoint ? 
+            `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
+          
+          // 直接更新 DOM 内容，不触发 React 重渲染
+          if (pcTooltipContentRef.current) {
+            const header = pcTooltipContentRef.current.querySelector('.pc-tooltip-header');
+            const label = pcTooltipContentRef.current.querySelector('.pc-tooltip-label');
+            const value = pcTooltipContentRef.current.querySelector('.pc-tooltip-value');
+            
+            if (header) {
+              header.textContent = `${ind.industry} - ${closestYear}`;
+              header.style.color = ind.color;
+            }
+            if (label) label.textContent = metric.label;
+            if (value) {
+              value.innerHTML = `<strong>${metric.format(point[metric.key])}</strong>${change}`;
+            }
+            
+            pcTooltipContentRef.current.style.borderColor = ind.color;
+          }
+          
+          // 直接操作 DOM 显示和定位
+          if (pcTooltipRef.current) {
+            pcTooltipRef.current.style.opacity = '1';
+            pcTooltipRef.current.style.visibility = 'visible';
+            pcTooltipRef.current.style.left = `${event.clientX + 15}px`;
+            pcTooltipRef.current.style.top = `${event.clientY - 10}px`;
+          }
+        })
+        .on("mousemove", function(event) {
+          // 只更新位置，不更新内容
+          if (pcTooltipRef.current) {
+            pcTooltipRef.current.style.left = `${event.clientX + 15}px`;
+            pcTooltipRef.current.style.top = `${event.clientY - 10}px`;
+          }
+        })
+        .on("mouseleave", function() {
+          setPcHoveredIndustry(null);
+          if (pcTooltipRef.current) {
+            pcTooltipRef.current.style.opacity = '0';
+            pcTooltipRef.current.style.visibility = 'hidden';
+          }
+        });
       });
+      
+      if (isExpanded) {
+        const backBtn = chartDiv.append("button")
+          .attr("class", "pc-back-btn")
+          .html("← Back to all charts")
+          .on("click", () => setExpandedChart(null));
+      }
     });
 
     const legendDiv = container.append("div").attr("class", "pc-global-legend");
@@ -583,45 +672,6 @@ const Task2 = () => {
       item.append("span").text(industry);
     });
   };
-
-  const showPCTooltip = (e, industry, metric, xScale, yScale) => {
-    hidePCTooltip();
-    
-    const mouseX = d3.pointer(e)[0];
-    const years = xScale.domain();
-    const closestYear = years.reduce((prev, curr) => 
-      Math.abs(xScale(curr) - mouseX) < Math.abs(xScale(prev) - mouseX) ? curr : prev
-    );
-    
-    const point = industry.values.find(v => v.year === closestYear);
-    if (!point) return;
-
-    const prevPoint = industry.values.find(v => v.year === closestYear - 1);
-    const change = prevPoint ? 
-      `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
-
-    const tooltip = d3.select("body").append("div")
-      .attr("class", "pc-floating-tooltip")
-      .style("left", (e.clientX + 15) + "px")
-      .style("top", (e.clientY - 10) + "px")
-      .style("opacity", 0)
-      .html(`
-        <div style="color:${industry.color};font-weight:600;margin-bottom:4px;">${industry.industry} - ${closestYear}</div>
-        <div>${metric.label}: <strong>${metric.format(point[metric.key])}</strong>${change}</div>
-      `);
-    
-    tooltip.transition().duration(200).style("opacity", 1);
-    
-    pcTooltipRef.current = tooltip;
-  };
-
-  const hidePCTooltip = useCallback(() => {
-    if (pcTooltipRef.current) {
-      pcTooltipRef.current.transition().duration(200).style("opacity", 0).remove();
-      pcTooltipRef.current = null;
-    }
-    d3.selectAll(".pc-floating-tooltip").transition().duration(200).style("opacity", 0).remove();
-  }, []);
 
   const toggleIndustry = (industry) => {
     const newSet = new Set(selectedIndustries);
@@ -657,7 +707,6 @@ const Task2 = () => {
   const getHighlightPosition = (selector) => {
     const element = document.querySelector(selector);
     if (!element) {
-      console.warn(`Guide target not found: ${selector}`);
       return { display: 'none' };
     }
     const rect = element.getBoundingClientRect();
@@ -671,7 +720,6 @@ const Task2 = () => {
     };
   };
 
-  // 修复：改进的引导位置计算，防止溢出视口，特别是右侧
   const getGuidePosition = (step) => {
     const highlight = getHighlightPosition(step.target);
     if (highlight.display === 'none') {
@@ -688,20 +736,14 @@ const Task2 = () => {
     
     let left, top, transform;
     
-    // 检测目标位置（左侧还是右侧）
-    const isRightSide = highlight.left > window.innerWidth / 2;
-    const isBottomSide = highlight.top > window.innerHeight / 2;
-    
     switch(step.position) {
       case 'bottom':
         left = highlight.left + highlight.width / 2;
         top = highlight.top + highlight.height + offset;
         transform = 'translate(-50%, 0)';
-        // 如果右侧空间不足，向左调整
         if (left + tooltipWidth/2 > window.innerWidth - 10) {
           left = window.innerWidth - tooltipWidth/2 - 10;
         }
-        // 如果底部空间不足，显示在顶部
         if (top + tooltipHeight > window.innerHeight) {
           top = highlight.top - offset;
           transform = 'translate(-50%, -100%)';
@@ -711,11 +753,9 @@ const Task2 = () => {
         left = highlight.left + highlight.width / 2;
         top = highlight.top - offset;
         transform = 'translate(-50%, -100%)';
-        // 右侧边界检测
         if (left + tooltipWidth/2 > window.innerWidth - 10) {
           left = window.innerWidth - tooltipWidth/2 - 10;
         }
-        // 如果顶部空间不足，显示在底部
         if (top < tooltipHeight) {
           top = highlight.top + highlight.height + offset;
           transform = 'translate(-50%, 0)';
@@ -725,7 +765,6 @@ const Task2 = () => {
         left = highlight.left - offset;
         top = highlight.top + highlight.height / 2;
         transform = 'translate(-100%, -50%)';
-        // 如果左侧空间不足，改到右侧
         if (left < tooltipWidth) {
           left = highlight.left + highlight.width + offset;
           transform = 'translate(0, -50%)';
@@ -735,7 +774,6 @@ const Task2 = () => {
         left = highlight.left + highlight.width + offset;
         top = highlight.top + highlight.height / 2;
         transform = 'translate(0, -50%)';
-        // 如果右侧空间不足，改到左侧
         if (left + tooltipWidth > window.innerWidth) {
           left = highlight.left - offset;
           transform = 'translate(-100%, -50%)';
@@ -747,7 +785,6 @@ const Task2 = () => {
         transform = 'translate(-50%, 0)';
     }
     
-    // 确保不超出视口边界
     left = Math.max(tooltipWidth/2 + 10, Math.min(window.innerWidth - tooltipWidth/2 - 10, left));
     top = Math.max(tooltipHeight, Math.min(window.innerHeight - 20, top));
     
@@ -762,6 +799,7 @@ const Task2 = () => {
 
   return (
     <div className="task2-container" ref={chartContainerRef}>
+      {/* 引导系统 */}
       {activeGuide && currentStep && (
         <div className="guide-spotlight-overlay">
           <div className="spotlight-backdrop" onClick={closeGuide} />
@@ -788,15 +826,44 @@ const Task2 = () => {
         </div>
       )}
 
+      {/* 放大模式遮罩层 */}
+      {expandedChart !== null && (
+        <div className="pc-expanded-overlay" onClick={() => setExpandedChart(null)} />
+      )}
+
+      {/* Parallel Tooltip - 使用 DOM 操作避免闪烁 */}
+      <div 
+        ref={pcTooltipRef}
+        className="pc-smooth-tooltip"
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          opacity: 0,
+          visibility: 'hidden',
+          pointerEvents: 'none',
+          zIndex: 10002,
+          transition: 'opacity 0.15s ease'
+        }}
+      >
+        <div ref={pcTooltipContentRef} className="pc-tooltip-inner">
+          <div className="pc-tooltip-header"></div>
+          <div className="pc-tooltip-label"></div>
+          <div className="pc-tooltip-value"></div>
+        </div>
+      </div>
+
+      {/* 控制栏 */}
       <div className="control-bar">
         <div className="mode-switcher">
-          <button className={mode === "timeflow" ? "active" : ""} onClick={() => setMode("timeflow")}>⏱️ Timeflow</button>
-          <button className={mode === "compare" ? "active" : ""} onClick={() => setMode("compare")}>⚖️ Compare</button>
+          <button className={mode === "timeflow" ? "active" : ""} onClick={() => { setMode("timeflow"); setExpandedChart(null); }}>⏱️ Timeflow</button>
+          <button className={mode === "compare" ? "active" : ""} onClick={() => { setMode("compare"); setExpandedChart(null); }}>⚖️ Compare</button>
           <button className={mode === "parallel" ? "active" : ""} onClick={() => setMode("parallel")}>📈 Parallel</button>
         </div>
         <button className="help-btn" onClick={() => startGuide(mode)}>❓ How to Use</button>
       </div>
 
+      {/* 图表区域 */}
       <div className="chart-wrapper">
         <div className="chart-container">
           <svg 
@@ -808,10 +875,11 @@ const Task2 = () => {
           
           <div 
             ref={pcScrollRef} 
-            className="pc-scroll-container"
+            className={`pc-scroll-container ${expandedChart !== null ? 'has-expanded' : ''}`}
             style={{ display: mode === 'parallel' ? 'block' : 'none' }}
           />
 
+          {/* Timeflow 详情面板 */}
           {mode === "timeflow" && selectedPoint && (
             <div className="detail-panel right-panel">
               <div className="panel-header" style={{ backgroundColor: INDUSTRY_COLORS[selectedPoint.industry] }}>
@@ -830,6 +898,7 @@ const Task2 = () => {
             </div>
           )}
 
+          {/* Compare 对比面板 */}
           {mode === "compare" && selectedIndustries.size > 0 && selectedIndustries.size <= 3 && (
             <div className="compare-detail-panel right-panel">
               <div className="compare-header">
@@ -876,6 +945,7 @@ const Task2 = () => {
         </div>
       </div>
 
+      {/* 时间轴区域（Parallel 模式隐藏） */}
       {mode !== 'parallel' && (
         <div className="timeline-section">
           {mode === "timeflow" && (

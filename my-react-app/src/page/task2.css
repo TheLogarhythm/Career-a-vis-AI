@@ -43,7 +43,6 @@
   z-index: 1;
   animation: pulse-highlight 2s infinite;
   background: transparent;
-  /* 确保高亮区域不会超出视口 */
   max-width: 100vw;
   max-height: 100vh;
 }
@@ -77,9 +76,8 @@
   max-width: 320px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   pointer-events: auto;
-  z-index: 10000;  /* 提高z-index确保在最上层 */
+  z-index: 10000;
   animation: slideIn 0.3s ease;
-  /* 防止文本溢出 */
   word-wrap: break-word;
   hyphens: auto;
 }
@@ -235,6 +233,7 @@
   padding: 20px;
   overflow: hidden;
   position: relative;
+  min-height: 0;
 }
 
 .chart-container {
@@ -245,12 +244,13 @@
   border: 1px solid #e2e8f0;
   position: relative;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
-/* Timeflow 详情面板 - 修复：更靠近图表 */
+/* Timeflow 详情面板 */
 .detail-panel {
   position: absolute;
-  width: 200px;  /* 稍微减小宽度 */
+  width: 200px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -258,15 +258,16 @@
   overflow: hidden;
   z-index: 50;
   animation: slideIn 0.2s ease;
-  /* 修复：更靠近图表，而不是紧贴右边 */
-  right: 240px;  /* 给legend留出空间 */
+  right: 20px;
   top: 20px;
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
 }
 
-/* Compare 对比面板 - 修复：更靠近图表且显示完整数据 */
+/* Compare 对比面板 */
 .compare-detail-panel {
   position: absolute;
-  width: 220px;  /* 增加宽度以适应更多内容 */
+  width: 220px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -274,9 +275,9 @@
   z-index: 50;
   overflow: hidden;
   top: 20px;
-  right: 240px;  /* 修复：更靠近图表 */
-  max-height: 80%;  /* 限制最大高度 */
-  overflow-y: auto;  /* 允许滚动如果内容太多 */
+  right: 20px;
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
 }
 
 .compare-header {
@@ -741,18 +742,18 @@ svg {
 }
 
 /* ============================================ */
-/* Parallel Coordinate 样式 - 修复版 */
+/* Parallel Coordinate 样式 - 优化版 */
 /* ============================================ */
 
 .pc-scroll-container {
   width: 100%;
-  height: calc(100vh - 200px);
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 20px;
   background: #f8fafc;
   box-sizing: border-box;
-  position: relative;  /* 新增：确保子元素定位正确 */
+  position: relative;
 }
 
 .pc-scroll-container::-webkit-scrollbar {
@@ -773,6 +774,18 @@ svg {
   background: #94a3b8;
 }
 
+/* 放大模式遮罩层 */
+.pc-expanded-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
 .pc-chart-box {
   background: white;
   border-radius: 12px;
@@ -781,16 +794,99 @@ svg {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   border: 1px solid #e2e8f0;
   flex-shrink: 0;
-  position: relative;  /* 新增：确保内部SVG定位正确 */
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* 放大模式样式 */
+.pc-chart-box.expanded {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 1200px;
+  height: auto;
+  max-height: 80vh;
+  z-index: 101;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+  padding: 24px;
+  animation: expandIn 0.3s ease;
+}
+
+@keyframes expandIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.pc-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .pc-metric-title {
   font-size: 14px;
   font-weight: 600;
   color: #1e293b;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
+}
+
+.pc-chart-box.expanded .pc-metric-title {
+  font-size: 18px;
+}
+
+/* 放大/缩小按钮 */
+.pc-expand-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.pc-expand-btn:hover {
+  background: #e2e8f0;
+  color: #0ea5e9;
+  border-color: #0ea5e9;
+}
+
+/* 返回按钮（放大模式下） */
+.pc-back-btn {
+  position: absolute;
+  top: 24px;
+  right: 80px;
+  padding: 8px 16px;
+  background: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.pc-back-btn:hover {
+  background: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 
 .pc-global-legend {
@@ -802,7 +898,7 @@ svg {
   border: 1px solid #e2e8f0;
   position: sticky;
   bottom: 20px;
-  z-index: 10;  /* 确保在最上层 */
+  z-index: 10;
 }
 
 .pc-legend-title {
@@ -843,25 +939,86 @@ svg {
   border-radius: 2px;
 }
 
-/* Floating Tooltip - 修复：确保单一实例和正确z-index */
-.pc-floating-tooltip {
-  position: fixed;
-  background: rgba(15, 23, 42, 0.95);
-  color: white;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 12px;
-  pointer-events: none;
-  z-index: 10001;  /* 提高z-index确保在最上层 */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.1);
-  max-width: 220px;
-  line-height: 1.4;
-  /* 防止快速移动时的闪烁 */
-  will-change: transform, opacity;
+/* 图例容器 */
+.legend-svg-container {
+  /* 用于JS选择器定位 */
 }
 
-/* 图例容器 - 新增：用于引导系统定位 */
-.legend-svg-container {
-  /* 这个类主要用于JS选择器定位，不需要额外样式 */
+/* ============================================ */
+/* Tooltip 样式修复 (浅色调 + 解决无限闪烁问题) */
+/* ============================================ */
+
+/* 隐藏原来的 D3 tooltip */
+.pc-floating-tooltip {
+  display: none !important;
+}
+
+/* 丝滑跟随的 Tooltip - 无闪烁 */
+.pc-smooth-tooltip {
+  /* 1. 关键修复：禁止 Tooltip 捕获鼠标事件，让鼠标"穿透"弹窗，彻底解决疯狂闪烁 */
+  pointer-events: none !important; 
+  
+  /* 2. 浅色调主题修改 */
+  background: rgba(255, 255, 255, 0.95); /* 浅白色透明背景 */
+  color: #1e293b; /* 深灰文字为主，保证高对比度 */
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  /* 增加柔和的阴影，让浅色悬浮窗在图表上产生立体感，不至于和背景融为一体 */
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
+  border: 1px solid #e2e8f0; /* 浅灰色边框 */
+  z-index: 1000;
+}
+
+.pc-smooth-tooltip .pc-tooltip-header {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0; /* 浅色分割线 */
+  color: #0f172a; /* 标题颜色加深 */
+}
+
+.pc-smooth-tooltip .pc-tooltip-inner {
+  line-height: 1.5;
+}
+
+.pc-smooth-tooltip .pc-tooltip-label {
+  color: #64748b; /* 浅色模式下的副标题/标签颜色 */
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.pc-smooth-tooltip .pc-tooltip-value {
+  font-size: 15px;
+  color: #0f172a; /* 强调数值的颜色 */
+}
+
+.pc-smooth-tooltip .pc-tooltip-value strong {
+  font-weight: 600;
+  color: #0ea5e9; /* 可以将加粗的数值改为清新的蓝色，提升视觉质感 */
+}
+
+/* ============================================ */
+/* 修复：强制隐藏所有旧的 tooltip，防止冲突 */
+/* ============================================ */
+
+/* 隐藏所有可能冲突的 tooltip */
+.pc-floating-tooltip,
+.pc-tooltip,
+.pc-react-tooltip {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* 确保 pc-smooth-tooltip 初始完全隐藏 */
+.pc-smooth-tooltip {
+  /* 如果 Gemini 给的代码里没有这行，加上： */
+  visibility: hidden;
+  /* 确保最小尺寸，防止内容为空时折叠 */
+  min-width: 180px;
+  min-height: 60px;
 }

@@ -648,3 +648,36 @@
     width: 220px;
   }
 }
+
+.dataset-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.kaggle-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #20beff;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.kaggle-link:hover {
+  background: #0ea5e9;
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+}
+
+.kaggle-link svg {
+  width: 14px;
+  height: 14px;
+}
