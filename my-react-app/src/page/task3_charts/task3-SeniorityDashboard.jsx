@@ -36,7 +36,6 @@ function IndustryDashboard() {
 
   useEffect(() => {
     d3.csv("/ai_impact_jobs_2010_2025.csv").then((raw) => {
-      // 1. Group by 'industry' instead of seniority
       const rolled = d3.rollups(
         raw,
         (v) => ({
@@ -51,7 +50,6 @@ function IndustryDashboard() {
       const keys = charts.map((c) => c.key);
       const stats = rolled.map(([industry, values]) => ({ industry, ...values }));
 
-      // Normalize for stacking
       const normalizedStats = stats.map((d) => {
         const norm = { ...d };
         keys.forEach((k) => (norm[`${k}_norm`] = d[k] / (d3.max(stats, (s) => s[k]) || 1)));
@@ -113,7 +111,6 @@ function IndustryDashboard() {
       const isVisible = visibleKeys[chart.key];
       const series = stackedData.find((s) => s.key === `${chart.key}_norm`);
 
-      // 2. Map domain to 'industry'
       const industries = data.map((d) => d.industry);
       const x = d3.scaleBand().domain(industries).range([0, width]).padding(0.3);
       const y = d3
@@ -163,7 +160,6 @@ function IndustryDashboard() {
         )
         .style("opacity", isVisible ? (overlay ? 0.8 : 1) : overlay ? 0 : 0.3);
 
-      // 3. Rotate labels to fit long industry names
       g.select(".x-axis")
         .attr("transform", `translate(0, ${height})`)
         .transition(t)
@@ -199,7 +195,7 @@ function IndustryDashboard() {
         onClick={() => setOverlay(!overlay)}
         style={{ padding: "10px 20px", cursor: "pointer", marginBottom: "20px" }}
       >
-        {overlay ? "⬅ Back to Grid" : "📊 View Stacked Comparison"}
+        {overlay ? "⬅ Back to Grid" : " View Stacked Comparison"}
       </button>
       <div ref={chartRef} style={{ background: "white", borderRadius: "12px", padding: "20px" }}></div>
     </div>

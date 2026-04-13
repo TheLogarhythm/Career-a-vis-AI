@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import "./task3.css";
-import Task3_linechart from "./task3_charts/task3-linechart";
+import Linechart from "./task3_charts/task3-linechart";
 import SeniorityDashboard from "./task3_charts/task3-SeniorityDashboard";
+import SalaryTrendChart from "./task3_charts/task3-salary";
 
 function Task3() {
   return (
@@ -10,7 +11,8 @@ function Task3() {
       {" "}
       <h2>AI Impact Analysis</h2>
       <SeniorityDashboard />
-      <Task3_linechart />
+      <Linechart />
+      <SalaryTrendChart />
     </div>
   );
 }
