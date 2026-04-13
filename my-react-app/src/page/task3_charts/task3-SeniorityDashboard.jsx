@@ -35,7 +35,9 @@ function IndustryDashboard() {
   }, [overlay]);
 
   useEffect(() => {
-    d3.csv("/ai_impact_jobs_2010_2025.csv").then((raw) => {
+    const baseUrl = import.meta.env.BASE_URL;
+    d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
+      // 1. Group by 'industry' instead of seniority
       const rolled = d3.rollups(
         raw,
         (v) => ({
