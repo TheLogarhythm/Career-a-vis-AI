@@ -23,9 +23,9 @@ function DetailedDistribution({ metric, data, onClose }) {
         return {
           type: "country",
           data: sortedCountries,
-          title: "地区分布 (Top 15)",
-          description: `共涵盖 ${Object.keys(countryCounts).length} 个国家`,
-          details: sortedCountries.slice(0, 5).map((c) => `${c[0]}: ${c[1]} 个职位`),
+          title: "Regional Distribution (Top 15)",
+          description: `Covers ${Object.keys(countryCounts).length} countries`,
+          details: sortedCountries.slice(0, 5).map((c) => `${c[0]}: ${c[1]} jobs`),
         };
 
       case "ai_intensity":
@@ -36,9 +36,9 @@ function DetailedDistribution({ metric, data, onClose }) {
           return {
             type: "ai_histogram",
             data: [],
-            title: "AI 强度分布",
-            description: "无有效数据",
-            details: ["无数据"],
+            title: "AI Intensity Distribution",
+            description: "No valid data",
+            details: ["No data"],
           };
         }
 
@@ -61,10 +61,10 @@ function DetailedDistribution({ metric, data, onClose }) {
         return {
           type: "ai_histogram",
           data: bins,
-          title: "AI 强度分布 (直方图)",
-          description: `显示职位AI强度的分布情况`,
+          title: "AI Intensity Distribution (Histogram)",
+          description: `Shows AI intensity distribution of jobs`,
           stats: { avg, max, min },
-          details: [`总样本数: ${intensities.length}`, `平均值: ${avg}%`, `最大值: ${max}%`, `最小值: ${min}%`],
+          details: [`Total samples: ${intensities.length}`, `Average: ${avg}%`, `Max: ${max}%`, `Min: ${min}%`],
         };
 
       case "automation_risk":
@@ -75,9 +75,9 @@ function DetailedDistribution({ metric, data, onClose }) {
           return {
             type: "risk_histogram",
             data: [],
-            title: "自动化风险分布",
-            description: "无有效数据",
-            details: ["无数据"],
+            title: "Automation Risk Distribution",
+            description: "No valid data",
+            details: ["No data"],
           };
         }
 
@@ -100,14 +100,14 @@ function DetailedDistribution({ metric, data, onClose }) {
         return {
           type: "risk_histogram",
           data: riskBins,
-          title: "自动化风险分布 (直方图)",
-          description: `展示职位自动化风险的分布`,
+          title: "Automation Risk Distribution (Histogram)",
+          description: `Shows automation risk distribution of jobs`,
           stats: { avg: riskAvg, high: highRiskCount },
           details: [
-            `总样本数: ${risks.length}`,
-            `平均风险: ${riskAvg}%`,
-            `高风险职位 (>0.6): ${highRiskCount} 个`,
-            `高风险占比: ${((highRiskCount / risks.length) * 100).toFixed(1)}%`,
+            `Total samples: ${risks.length}`,
+            `Avg Risk: ${riskAvg}%`,
+            `High risk jobs (>0.6): ${highRiskCount}`,
+            `High risk percentage: ${((highRiskCount / risks.length) * 100).toFixed(1)}%`,
           ],
         };
 
@@ -144,9 +144,9 @@ function DetailedDistribution({ metric, data, onClose }) {
         return {
           type: "industry_pie",
           data: industryData,
-          title: "行业自动化风险分布 (饼图)",
-          description: `按行业统计的平均自动化风险水平`,
-          details: industryData.slice(0, 8).map((d) => `${d.label}: ${d.percentage}% (${d.count}个职位)`),
+          title: "Industry Automation Risk Distribution (Pie Chart)",
+          description: `Avg automation risk level by industry`,
+          details: industryData.slice(0, 8).map((d) => `${d.label}: ${d.percentage}% (${d.count} jobs)`),
         };
 
       default:
@@ -196,7 +196,7 @@ function DetailedDistribution({ metric, data, onClose }) {
         .attr("fill", "#0a9396")
         .attr("opacity", 0.7)
         .on("mouseenter", (event, d) => {
-          setTooltip({ x: event.pageX, y: event.pageY, text: `${d[0]}: ${d[1]} 个职位` });
+          setTooltip({ x: event.pageX, y: event.pageY, text: `${d[0]}: ${d[1]} jobs` });
         })
         .on("mouseleave", () => setTooltip(null));
 
@@ -240,7 +240,7 @@ function DetailedDistribution({ metric, data, onClose }) {
         .attr("fill", color)
         .attr("opacity", 0.8)
         .on("mouseenter", (event, d) => {
-          setTooltip({ x: event.pageX, y: event.pageY, text: `${d.range}: ${d.count} 个职位` });
+          setTooltip({ x: event.pageX, y: event.pageY, text: `${d.range}: ${d.count} jobs` });
         })
         .on("mouseleave", () => setTooltip(null));
 
@@ -305,7 +305,7 @@ function DetailedDistribution({ metric, data, onClose }) {
       <div className="chart-container" ref={chartRef}></div>
 
       <div className="detail-stats">
-        <div className="detail-label">详情统计:</div>
+        <div className="detail-label">Detailed Statistics:</div>
         {stats.details.map((detail, idx) => (
           <div key={idx} className="detail-item">
             • {detail}

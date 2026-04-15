@@ -16,7 +16,8 @@ function Linechart( { scrollParentRef } ) {
   const bottomChartY = fullH + 100;
 
   useEffect(() => {
-    d3.csv("/ai_impact_jobs_2010_2025.csv").then((raw) => {
+    const baseUrl = import.meta.env.BASE_URL;
+    d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
       const grouped = d3.rollups(raw, (v) => {
           const aiJobs = v.filter(d => String(d.ai_mentioned).toLowerCase() === "true");
           const nonAiJobs = v.filter(d => String(d.ai_mentioned).toLowerCase() === "false");

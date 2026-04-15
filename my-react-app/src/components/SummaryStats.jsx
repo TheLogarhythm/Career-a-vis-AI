@@ -80,7 +80,7 @@ function SummaryStats({ selectedTask }) {
   };
 
   if (!stats) {
-    return <div className="summary-stats loading">加载中...</div>;
+    return <div className="summary-stats loading">Loading...</div>;
   }
 
   // Show detailed distribution when a metric is selected
@@ -92,30 +92,30 @@ function SummaryStats({ selectedTask }) {
     <div className="summary-stats-container">
       <div className="summary-stats">
         <div className="stat-card" onClick={() => setSelectedMetric("country")}>
-          <div className="stat-label">地区分布</div>
+          <div className="stat-label">Regional Distribution</div>
           <div className="stat-value">{stats.countries}</div>
-          <div className="stat-unit">个国家</div>
+          <div className="stat-unit">Countries</div>
         </div>
 
         <div className="stat-card" onClick={() => setSelectedMetric("ai_intensity")}>
-          <div className="stat-label">AI 强度</div>
+          <div className="stat-label">AI Intensity</div>
           <div className="stat-value">{stats.avgAiIntensity}%</div>
-          <div className="stat-unit">平均值</div>
+          <div className="stat-unit">Average</div>
         </div>
 
         <div className="stat-card" onClick={() => setSelectedMetric("automation_risk")}>
-          <div className="stat-label">自动化风险</div>
+          <div className="stat-label">Automation Risk</div>
           <div className="stat-value">{stats.avgAutomationRisk}%</div>
-          <div className="stat-unit">平均值</div>
+          <div className="stat-unit">Average</div>
         </div>
 
         <div className="stat-card" onClick={() => setSelectedMetric("displacement_risk")}>
-          <div className="stat-label">高风险职位</div>
+          <div className="stat-label">High Risk Jobs</div>
           <div className="stat-value">{stats.highRiskPercentage}%</div>
-          <div className="stat-unit">占比</div>
+          <div className="stat-unit">Percentage</div>
         </div>
       </div>
-      <div className="stat-hint">💡 点击任何卡片查看详细分布</div>
+      <div className="stat-hint">💡 Click any card for detailed distribution</div>
     </div>
   );
 }

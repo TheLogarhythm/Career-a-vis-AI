@@ -93,8 +93,8 @@ const Task2 = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 在useEffect中替换generateMockData()为：
-        const rawData = await d3.csv("/ai_impact_jobs_2010_2025.csv");
+        const baseUrl = import.meta.env.BASE_URL;
+        const rawData = await d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`);
 
         const processed = d3
           .rollups(

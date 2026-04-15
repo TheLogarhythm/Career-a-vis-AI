@@ -103,14 +103,37 @@ h1 {
   right: 0;
   bottom: 0;
   width: 61.8%;
-  border-left: 1px solid var(--line);
-  background: var(--panel);
+  background: radial-gradient(circle at 60% 40%, #001219 0%, #000000 100%);
   box-shadow: var(--shadow);
   padding: 24px;
   height: 100vh;
   display: flex;
   flex-direction: column;
   z-index: 2;
+  overflow: hidden;
+}
+
+/* Starfield effect */
+.viz-sticky::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 10% 20%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 20% 35%, #ffffff 80%, transparent),
+    radial-gradient(2px 2px at 30% 15%, #ffffff 40%, transparent),
+    radial-gradient(1px 1px at 40% 70%, #ffffff 90%, transparent),
+    radial-gradient(1.5px 1.5px at 55% 45%, #ffffff 60%, transparent),
+    radial-gradient(1px 1px at 65% 85%, #ffffff 100%, transparent),
+    radial-gradient(2px 2px at 75% 10%, #ffffff 30%, transparent),
+    radial-gradient(1px 1px at 85% 60%, #ffffff 70%, transparent),
+    radial-gradient(1.5px 1.5px at 95% 30%, #ffffff 50%, transparent),
+    radial-gradient(1px 1px at 15% 75%, #ffffff 80%, transparent),
+    radial-gradient(2px 2px at 45% 90%, #ffffff 20%, transparent),
+    radial-gradient(1px 1px at 70% 25%, #ffffff 90%, transparent);
+  opacity: 0.6;
 }
 
 .story-svg {
@@ -126,19 +149,26 @@ h1 {
 }
 
 .scene-title {
-  fill: var(--ink);
+  fill: #f8fafc;
   font-size: 16px;
   font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .scene-subtitle {
-  fill: var(--muted);
+  fill: #94a3b8;
   font-size: 12px;
 }
 
 .globe-water {
   fill: transparent;
   stroke: none;
+  pointer-events: all;
+  cursor: grab;
+}
+
+.globe-water:active {
+  cursor: grabbing;
 }
 
 .globe-graticule {
@@ -154,9 +184,40 @@ h1 {
 
 .globe-borders {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.7); /* Bright crisp lines for satellite view */
-  stroke-width: 0.5;
+  stroke: rgba(255, 255, 255, 0.4); /* Subtle borders against satellite view */
+  stroke-width: 0.4;
   pointer-events: none;
+}
+
+.region-marker {
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.ring-outer {
+  animation: holographic-pulse 4s infinite ease-in-out;
+}
+
+.ring-middle {
+  animation: holographic-pulse 3.2s infinite ease-in-out 0.5s;
+}
+
+.ring-inner {
+  animation: holographic-pulse 2.5s infinite ease-in-out reverse;
+}
+
+.beacon-dot {
+  animation: beacon-blink 1.5s infinite ease-in-out;
+}
+
+@keyframes holographic-pulse {
+  0%, 100% { stroke-opacity: 0.2; transform: scale(0.95); }
+  50% { stroke-opacity: 0.6; transform: scale(1.05); }
+}
+
+@keyframes beacon-blink {
+  0%, 100% { fill-opacity: 0.5; filter: brightness(1); }
+  50% { fill-opacity: 1; filter: brightness(2); }
 }
 
 .three-globe-container {
@@ -186,7 +247,27 @@ h1 {
 }
 
 .story-svg * {
-  pointer-events: all;
+  pointer-events: none;
+}
+
+.region-marker,
+.map-dots circle,
+.star-dot,
+.star-axis {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.region-marker {
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.region-marker:hover {
+  filter: brightness(1.4) drop-shadow(0 0 12px var(--accent));
+}
+
+.region-marker:hover .marker-visuals {
+  transform: scale(1.15);
 }
 
 .mini-globe-wrap {
@@ -248,7 +329,7 @@ h1 {
 
 .map-graticule {
   fill: none;
-  stroke: rgba(217, 223, 230, 0.05); /* Very subtle grid */
+  stroke: rgba(255, 255, 255, 0.1); /* Slightly visible grid */
   stroke-width: 0.5;
 }
 
@@ -304,18 +385,18 @@ h1 {
 
 .year-slider-wrap {
   position: absolute;
-  bottom: 6px;
-  left: 24px;
-  /* ... */
-  right: 24px;
-  border: 1px solid var(--line);
+  bottom: 20px;
+  left: 175px;
+  right: 120px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  padding: 10px 18px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: rgba(0, 18, 25, 0.7);
+  backdrop-filter: blur(12px);
+  padding: 2px 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   animation: slideUpFade 0.4s ease-out;
   z-index: 10;
+  color: #f1f5f9;
 }
 
 @keyframes slideUpFade {
@@ -331,9 +412,9 @@ h1 {
 
 .year-slider-wrap label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 1px;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.75rem;
 }
 
 .year-slider-wrap input[type="range"] {
@@ -341,17 +422,46 @@ h1 {
 }
 
 .year-slider-meta {
-  margin-top: 4px;
+  margin-top: 1px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
 }
 
-.year-slider-meta strong {
-  color: var(--ink);
+.year-input {
+  background: rgba(10, 147, 150, 0.1);
+  border: 1px solid rgba(10, 147, 150, 0.4);
+  border-radius: 4px;
+  color: var(--accent);
+  font-family: inherit;
   font-size: 1rem;
+  font-weight: 700;
+  width: 70px;
+  text-align: center;
+  padding: 0;
+  outline: none;
+  transition: all 0.2s ease;
+  cursor: text;
+}
+
+.year-input:focus {
+  background: rgba(10, 147, 150, 0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(10, 147, 150, 0.4);
+}
+
+/* Remove number spinners for a cleaner FUI look */
+.year-input::-webkit-inner-spin-button,
+.year-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+.year-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .loading-text {
@@ -391,4 +501,157 @@ h1 {
     min-height: 50vh;
     padding: 16px;
   }
+}
+
+/* Encoding Legend */
+.viz-legend {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(0, 18, 25, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 10;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: fadeInRight 0.5s ease-out;
+  color: #f1f5f9;
+  min-width: 180px;
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.legend-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.intensity-ramp {
+  height: 8px;
+  width: 100%;
+  border-radius: 4px;
+  background: linear-gradient(to right, #00e5ff, #00b0ff, #7c4dff, #ff00ff, #ff006e);
+  margin-bottom: 4px;
+}
+
+.legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.legend-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 4px 0;
+}
+
+.salary-circles {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 40px;
+  position: relative;
+}
+
+.salary-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+}
+
+.salary-circle.s1 { width: 34px; height: 34px; opacity: 0.4; }
+.salary-circle.s2 { width: 22px; height: 22px; opacity: 0.7; }
+.salary-circle.s3 { width: 8px; height: 8px; background: #fff; border: none; }
+
+/* Drill-down Controls */
+.drilldown-controls {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.back-btn {
+  background: rgba(10, 147, 150, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  width: fit-content;
+  box-shadow: 0 4px 15px rgba(10, 147, 150, 0.2);
+}
+
+.back-btn:hover {
+  background: rgba(10, 147, 150, 0.3);
+  box-shadow: 0 0 20px rgba(10, 147, 150, 0.4);
+  transform: translateY(-1px);
+}
+
+.back-btn .icon {
+  font-size: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.back-btn:hover .icon {
+  transform: translateX(-4px);
+}
+
+.drilldown-title {
+  background: rgba(0, 18, 25, 0.6);
+  padding: 12px 20px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+}
+
+.region-indicator {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.drilldown-title h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #fff;
+  font-family: "Fraunces", serif;
+}
+
+.drilldown-title p {
+  margin: 4px 0 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
 }
