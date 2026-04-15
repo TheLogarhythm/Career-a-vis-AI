@@ -27,9 +27,25 @@ const ParallaxSection = ({
       },
     });
 
+    // 背景图淡入效果
+    gsap.fromTo(bgRef.current,
+      { opacity: 0 },
+      {
+        opacity: 1,
+        duration: 1,
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 60%',
+          end: 'top 20%',
+          scrub: true
+        }
+      }
+    );
+
     return () => {
+      const currentTrigger = sectionRef.current;
       ScrollTrigger.getAll().forEach(st => {
-        if (st.trigger === sectionRef.current) st.kill();
+        if (st.trigger === currentTrigger) st.kill();
       });
     };
   }, [parallaxSpeed]);

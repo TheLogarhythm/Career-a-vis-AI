@@ -1,4 +1,4 @@
-/* TransitionSection.css */
+/* TransitionSection.css - Enhanced */
 
 .transition-section {
   min-height: 60vh;
@@ -10,44 +10,154 @@
   color: white;
 }
 
+/* 视差背景层 */
+.transition-parallax-bg {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 100%;
+  height: 140%;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.7) saturate(1.2);
+  z-index: 0;
+}
+
+/* 粒子效果层 */
+.transition-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.particle:nth-child(1) { top: 10%; left: 15%; }
+.particle:nth-child(2) { top: 20%; left: 80%; }
+.particle:nth-child(3) { top: 60%; left: 10%; }
+.particle:nth-child(4) { top: 70%; left: 85%; }
+.particle:nth-child(5) { top: 30%; left: 50%; }
+.particle:nth-child(6) { top: 80%; left: 40%; }
+.particle:nth-child(7) { top: 15%; left: 65%; }
+.particle:nth-child(8) { top: 50%; left: 25%; }
+.particle:nth-child(9) { top: 40%; left: 90%; }
+.particle:nth-child(10) { top: 85%; left: 60%; }
+.particle:nth-child(11) { top: 25%; left: 35%; }
+.particle:nth-child(12) { top: 65%; left: 70%; }
+
+/* 光晕效果 */
+.glow-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 窗框装饰 */
+.window-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.frame-corner {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.frame-tl { 
+  top: 20px; 
+  left: 20px; 
+  border-right: none; 
+  border-bottom: none; 
+}
+
+.frame-tr { 
+  top: 20px; 
+  right: 20px; 
+  border-left: none; 
+  border-bottom: none; 
+}
+
+.frame-bl { 
+  bottom: 20px; 
+  left: 20px; 
+  border-right: none; 
+  border-top: none; 
+}
+
+.frame-br { 
+  bottom: 20px; 
+  right: 20px; 
+  border-left: none; 
+  border-top: none; 
+}
+
 .transition-content {
   text-align: center;
-  z-index: 2;
+  z-index: 3;
   padding: 2rem;
+  position: relative;
+  will-change: transform, opacity;
 }
 
 .transition-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
   display: inline-block;
-  animation: float-icon 3s ease-in-out infinite;
-}
-
-@keyframes float-icon {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
 .transition-title {
-  font-size: 2.5rem;
+  font-size: clamp(2rem, 5vw, 2.8rem);
   font-weight: 700;
   margin: 0 0 1rem 0;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
 }
 
 .transition-subtitle {
-  font-size: 1.2rem;
-  opacity: 0.9;
-  margin: 0;
-  max-width: 500px;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  opacity: 0.95;
+  margin: 0 auto;
+  max-width: 600px;
+  line-height: 1.6;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
 }
 
 .transition-line {
-  width: 100px;
+  width: 120px;
   height: 3px;
-  background: rgba(255, 255, 255, 0.5);
-  margin: 2rem auto 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  margin: 2.5rem auto 0;
   border-radius: 2px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 /* 背景装饰 */
@@ -59,13 +169,14 @@
   height: 100%;
   overflow: hidden;
   pointer-events: none;
+  z-index: 1;
 }
 
 .shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  animation: float 6s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(2px);
 }
 
 .shape-1 {
@@ -73,7 +184,6 @@
   height: 300px;
   top: -100px;
   right: -100px;
-  animation-delay: 0s;
 }
 
 .shape-2 {
@@ -81,7 +191,6 @@
   height: 200px;
   bottom: -50px;
   left: -50px;
-  animation-delay: 2s;
 }
 
 .shape-3 {
@@ -89,12 +198,72 @@
   height: 150px;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  animation-delay: 4s;
 }
 
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -30px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .transition-section {
+    min-height: 50vh;
+  }
+
+  .transition-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .frame-corner {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+
+  .frame-tl, .frame-tr { top: 15px; }
+  .frame-bl, .frame-br { bottom: 15px; }
+  .frame-tl, .frame-bl { left: 15px; }
+  .frame-tr, .frame-br { right: 15px; }
+
+  .glow-effect {
+    width: 250px;
+    height: 250px;
+  }
+
+  .shape-1 {
+    width: 200px;
+    height: 200px;
+    top: -60px;
+    right: -60px;
+  }
+
+  .shape-2 {
+    width: 150px;
+    height: 150px;
+    bottom: -40px;
+    left: -40px;
+  }
+
+  .shape-3 {
+    width: 100px;
+    height: 100px;
+  }
+
+  .particle {
+    width: 3px;
+    height: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .transition-title {
+    font-size: 1.8rem;
+  }
+
+  .transition-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .transition-line {
+    width: 80px;
+    height: 2px;
+    margin-top: 1.5rem;
+  }
 }

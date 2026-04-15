@@ -1,68 +1,63 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 
 const PinnedSection = ({ 
   children, 
   taskId,
-  onEnter,
-  onLeave,
   className = '' 
 }) => {
   const sectionRef = useRef(null);
   const contentRef = useRef(null);
 
-  useEffect(() => {
-    // Task进入动画
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top top',
-        end: '+=150%',
-        pin: true,
-        pinSpacing: true,
-        onEnter: () => onEnter?.(),
-        onLeave: () => onLeave?.(),
-      }
-    });
+  useGSAP(() => {
+    const section = sectionRef.current;
+    if (!section || !contentRef.current) return;
 
-    // 3阶段动画：进入 → 展示 → 退出
-    tl.fromTo(contentRef.current, 
-      { opacity: 0, y: 100, scale: 0.9 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: 'power2.out' }
-    )
-    .to({}, { duration: 1 }) // 停留阶段
-    .to(contentRef.current, 
-      { opacity: 0, y: -50, scale: 0.95, duration: 0.5, ease: 'power2.in' }
-    );
-
-    return () => {
-      tl.kill();
-      ScrollTrigger.getAll().forEach(st => {
-        if (st.trigger === sectionRef.current) st.kill();
+    // Force opacity to 1 immediately on mount to prevent pale rendering
+    gsap.set(contentRef.current, { opacity: 1, y: 0, scale: 1, clearProps: "opacity" });
+    
+    // Listen for enter events from ScrollyContainer
+    const handleEnter = () => {
+      gsap.to(contentRef.current, {
+        opacity: 1, 
+        y: 0, 
+        scale: 1, 
+        duration: 0.6, 
+        ease: 'power2.out'
       });
     };
-  }, [onEnter, onLeave]);
+    
+    // Listen for leave events from ScrollyContainer
+    const handleLeave = () => {
+      gsap.to(contentRef.current, {
+        opacity: 0.3, 
+        y: -10, 
+        scale: 0.98, 
+        duration: 0.4, 
+        ease: 'power2.in'
+      });
+    };
+    
+    section.addEventListener('sectionEnter', handleEnter);
+    section.addEventListener('sectionLeave', handleLeave);
+    
+    return () => {
+      section.removeEventListener('sectionEnter', handleEnter);
+      section.removeEventListener('sectionLeave', handleLeave);
+      gsap.killTweensOf(contentRef.current);
+    };
+  }, { scope: sectionRef });
 
   return (
     <section 
       ref={sectionRef}
       className={`scrolly-section pinned-section ${className}`}
-      style={{ 
-        height: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
+      data-task-id={taskId}
     >
       <div 
         ref={contentRef}
         className="pinned-content"
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
       >
         {children}
       </div>

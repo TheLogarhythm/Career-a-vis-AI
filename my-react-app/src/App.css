@@ -15,7 +15,7 @@ html {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f8fafc;
+  background: #ffffff;
   color: #1e293b;
   overflow-x: hidden;
   line-height: 1.6;
@@ -51,6 +51,25 @@ body {
   overflow: hidden;
 }
 
+/* Modern dark gradient background (replaces background images) */
+.parallax-section {
+  background: linear-gradient(160deg, #0f172a 0%, #1e293b 40%, #334155 100%);
+}
+
+/* Subtle dot pattern overlay for visual interest */
+.parallax-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .parallax-bg {
   position: absolute;
   top: -20%;
@@ -59,7 +78,9 @@ body {
   height: 140%;
   background-size: cover;
   background-position: center;
-  will-change: transform;
+  will-change: transform, opacity;
+  opacity: 0; /* 初始透明，通过GSAP淡入 */
+  z-index: -1;
 }
 
 .parallax-bg::after {
@@ -69,7 +90,8 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.1); /* 浅色遮罩适配白色主题 */
+  backdrop-filter: blur(2px); /* 轻微模糊增加深度感 */
 }
 
 .section-content {
@@ -95,6 +117,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  pointer-events: auto;
 }
 
 /* ============================================
@@ -240,104 +263,8 @@ body {
 }
 
 /* ============================================
-   Task Sections
+   Task Sections (样式已移至 SectionTask.css)
    ============================================ */
-
-.section-task {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #f8fafc;
-}
-
-.task-header {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  flex-shrink: 0;
-}
-
-.task-number {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.25rem;
-}
-
-.task-header h3 {
-  font-size: 1.25rem;
-  margin: 0;
-  font-weight: 600;
-}
-
-.task-desc {
-  margin: 0;
-  opacity: 0.9;
-  font-size: 0.85rem;
-}
-
-.task-content-wrapper {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-}
-
-.task2-wrapper {
-  height: calc(100vh - 70px);
-}
-
-.task-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f1f5f9;
-  height: 100%;
-}
-
-.placeholder-content {
-  text-align: center;
-  color: #94a3b8;
-}
-
-.placeholder-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-}
-
-.placeholder-content h4 {
-  font-size: 1.5rem;
-  color: #475569;
-  margin: 0 0 0.5rem 0;
-}
-
-.task-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: #64748b;
-}
-
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #0ea5e9;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 /* ============================================
    Conclusion Section
@@ -491,6 +418,114 @@ body {
 }
 
 /* ============================================
+   Narrative Section (Story breaks between tasks)
+   ============================================ */
+
+.narrative-section {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  position: relative;
+}
+
+.narrative-light {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.narrative-content {
+  text-align: center;
+  max-width: 700px;
+}
+
+.narrative-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.1));
+}
+
+.narrative-title {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+
+.narrative-subtitle {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.narrative-body {
+  font-size: 1rem;
+  color: #475569;
+  line-height: 1.8;
+}
+
+.narrative-body p {
+  margin: 0;
+}
+
+.narrative-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2rem;
+}
+
+.divider-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0ea5e9, #10b981);
+  box-shadow: 0 0 8px rgba(14, 165, 233, 0.3);
+}
+
+.divider-line {
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+  border-radius: 1px;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .narrative-section {
+    padding: 2rem 1.5rem;
+    min-height: 35vh;
+  }
+
+  .narrative-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .narrative-title {
+    font-size: 1.4rem;
+  }
+
+  .narrative-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .narrative-body {
+    font-size: 0.9rem;
+  }
+
+  .divider-line {
+    width: 30px;
+  }
+}
+
+/* ============================================
    Transition Section
    ============================================ */
 
@@ -580,5 +615,43 @@ body {
   
   .findings-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   Global Animation Enhancements
+   ============================================ */
+
+/* Smooth page transitions */
+.scrolly-section {
+  will-change: transform, opacity;
+}
+
+/* Enhanced focus states for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(14, 165, 233, 0.2);
+  color: #0f172a;
+}
+
+::-moz-selection {
+  background: rgba(14, 165, 233, 0.2);
+  color: #0f172a;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

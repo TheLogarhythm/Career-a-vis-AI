@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-import { gsap } from "gsap";
-import { useScrolly } from '../context/ScrollyContext';
 import "./task2.css";
 
-// Color palette
 const INDUSTRY_COLORS = {
   Tech: "#dc2626", Finance: "#d97706", Healthcare: "#db2777",
   Education: "#0891b2", Manufacturing: "#7c3aed", Retail: "#ea580c",
@@ -12,11 +9,11 @@ const INDUSTRY_COLORS = {
   default: "#64748b",
 };
 
-const MARGIN = { top: 60, right: 280, bottom: 100, left: 100 };
+const MARGIN = { top: 60, right: 200, bottom: 100, left: 100 };
 const WIDTH = 900 - MARGIN.left - MARGIN.right;
 const HEIGHT = 550 - MARGIN.top - MARGIN.bottom;
 
-// Guide steps per mode
+// 英文引导步骤配置
 const GUIDE_STEPS = {
   timeflow: [
     { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between Timeflow, Compare, and Parallel Coordinate views', position: 'bottom' },
@@ -40,7 +37,7 @@ const GUIDE_STEPS = {
 
 const Task2 = () => {
   const svgRef = useRef(null);
-  const chartContainerRef = useRef(null);
+  const pcScrollRef = useRef(null);
   const timelineRef = useRef(null);
   const [data, setData] = useState([]);
   const [currentYear, setCurrentYear] = useState(2010);
@@ -50,56 +47,18 @@ const Task2 = () => {
   const [compareYears, setCompareYears] = useState({ left: 2010, right: 2024 });
   const [isPlaying, setIsPlaying] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState(null);
-  const [showGuide, setShowGuide] = useState(true);
-  const [prevMode, setPrevMode] = useState("timeflow");
-  const [prevYear, setPrevYear] = useState(2010);
-  const [transitioning, setTransitioning] = useState(false);
-
-  // Guide system
+  
+  // 引导状态
   const [guideState, setGuideState] = useState(() => {
-    try {
-      const saved = localStorage.getItem('task2_guide_completed_v2');
-      return saved ? JSON.parse(saved) : { timeflow: false, compare: false, parallel: false };
-    } catch (e) {
-      return { timeflow: false, compare: false, parallel: false };
-    }
+    const saved = localStorage.getItem('task2_guide_completed_v2');
+    return saved ? JSON.parse(saved) : { timeflow: false, compare: false, parallel: false };
   });
   const [activeGuide, setActiveGuide] = useState(null);
   const [guideStep, setGuideStep] = useState(0);
+  
+  const [pcHoveredIndustry, setPcHoveredIndustry] = useState(null);
 
-  const { markTaskComplete } = useScrolly();
-
-  // Replay handler
-  useEffect(() => {
-    const handleReplay = (e) => {
-      if (e.detail.sectionId === 3) {
-        setGuideState({ timeflow: false, compare: false, parallel: false });
-        setActiveGuide(null);
-        setGuideStep(0);
-        setSelectedPoint(null);
-        setSelectedIndustries(new Set());
-        setIsPlaying(false);
-        localStorage.removeItem('task2_guide_completed_v2');
-        if (data.length > 0) {
-          const minY = d3.min(data, d => d.year);
-          setCurrentYear(minY);
-          setCompareYears({ left: minY, right: d3.max(data, d => d.year) });
-        }
-      }
-    };
-    window.addEventListener('replaySection', handleReplay);
-    return () => window.removeEventListener('replaySection', handleReplay);
-  }, [data]);
-
-  // Mark complete on all guide steps done
-  useEffect(() => {
-    if (guideState.timeflow && guideState.compare && guideState.parallel) {
-      markTaskComplete(1);
-      window.dispatchEvent(new CustomEvent('task2-complete'));
-    }
-  }, [guideState, markTaskComplete]);
-
-  // Data loading
+  // 数据加载
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -133,7 +92,14 @@ const Task2 = () => {
     loadData();
   }, []);
 
-  // Play control
+  // 检查是否需要显示引导
+  useEffect(() => {
+    if (!guideState[mode]) {
+      setTimeout(() => startGuide(mode), 500);
+    }
+  }, [mode, guideState]);
+
+  // 播放控制
   useEffect(() => {
     let timer;
     if (isPlaying && mode === "timeflow") {
@@ -151,184 +117,177 @@ const Task2 = () => {
     return () => clearInterval(timer);
   }, [isPlaying, data, mode]);
 
-  // Update selected point with current year
-  useEffect(() => {
-    if (selectedPoint && mode === "timeflow") {
-      const currentData = data.find((d) => d.industry === selectedPoint.industry && d.year === currentYear);
-      if (currentData && selectedPoint.type === "current") {
-        setSelectedPoint({ ...currentData, type: "current" });
-      }
-    }
-  }, [currentYear, data, mode]);
-
-  // Guide check on mode change
-  useEffect(() => {
-    if (!guideState[mode] && data.length > 0) {
-      const t = setTimeout(() => startGuide(mode), 600);
-      return () => clearTimeout(t);
-    }
-  }, [mode, guideState, data]);
-
-  // D3 drag binding for timeline
+  // 绑定拖拽事件到时间轴
   useEffect(() => {
     if (!timelineRef.current || data.length === 0) return;
+    
     const yearRange = [d3.min(data, d => d.year), d3.max(data, d => d.year)];
     const trackWidth = timelineRef.current.clientWidth;
-
+    
     if (mode === 'timeflow') {
       const clock = d3.select(timelineRef.current).select('.clock-draggable');
       if (!clock.empty()) {
         const dragBehavior = d3.drag()
-          .on('start', function() { d3.select(this).style('cursor', 'grabbing'); })
+          .on('start', function() {
+            d3.select(this).style('cursor', 'grabbing');
+          })
           .on('drag', function(event) {
             const x = Math.max(0, Math.min(trackWidth, event.x));
-            const pct = x / trackWidth;
-            const yr = Math.round(yearRange[0] + pct * (yearRange[1] - yearRange[0]));
-            setCurrentYear(yr);
+            const percentage = x / trackWidth;
+            const newYear = Math.round(yearRange[0] + percentage * (yearRange[1] - yearRange[0]));
+            setCurrentYear(newYear);
             setIsPlaying(false);
           })
-          .on('end', function() { d3.select(this).style('cursor', 'grab'); });
+          .on('end', function() {
+            d3.select(this).style('cursor', 'grab');
+          });
         clock.call(dragBehavior);
       }
     }
-
+    
     if (mode === 'compare') {
       const leftHandle = d3.select(timelineRef.current).select('.compare-handle.left');
       if (!leftHandle.empty()) {
         const dragLeft = d3.drag()
-          .on('start', function() { d3.select(this).style('cursor', 'grabbing'); })
+          .on('start', function() {
+            d3.select(this).style('cursor', 'grabbing');
+          })
           .on('drag', function(event) {
             const x = Math.max(0, Math.min(trackWidth, event.x));
-            const pct = x / trackWidth;
-            const yr = Math.round(yearRange[0] + pct * (yearRange[1] - yearRange[0]));
-            setCompareYears(prev => ({ ...prev, left: Math.min(yr, prev.right - 1) }));
+            const percentage = x / trackWidth;
+            const newYear = Math.round(yearRange[0] + percentage * (yearRange[1] - yearRange[0]));
+            setCompareYears(prev => ({ 
+              ...prev, 
+              left: Math.min(newYear, prev.right - 1) 
+            }));
           })
-          .on('end', function() { d3.select(this).style('cursor', 'grab'); });
+          .on('end', function() {
+            d3.select(this).style('cursor', 'grab');
+          });
         leftHandle.call(dragLeft);
       }
-
+      
       const rightHandle = d3.select(timelineRef.current).select('.compare-handle.right');
       if (!rightHandle.empty()) {
         const dragRight = d3.drag()
-          .on('start', function() { d3.select(this).style('cursor', 'grabbing'); })
+          .on('start', function() {
+            d3.select(this).style('cursor', 'grabbing');
+          })
           .on('drag', function(event) {
             const x = Math.max(0, Math.min(trackWidth, event.x));
-            const pct = x / trackWidth;
-            const yr = Math.round(yearRange[0] + pct * (yearRange[1] - yearRange[0]));
-            setCompareYears(prev => ({ ...prev, right: Math.max(yr, prev.left + 1) }));
+            const percentage = x / trackWidth;
+            const newYear = Math.round(yearRange[0] + percentage * (yearRange[1] - yearRange[0]));
+            setCompareYears(prev => ({ 
+              ...prev, 
+              right: Math.max(newYear, prev.left + 1) 
+            }));
           })
-          .on('end', function() { d3.select(this).style('cursor', 'grab'); });
+          .on('end', function() {
+            d3.select(this).style('cursor', 'grab');
+          });
         rightHandle.call(dragRight);
       }
     }
   }, [mode, data, currentYear, compareYears.left, compareYears.right]);
 
-  // Scales — use actual data range, no forced zero
+  // 根据实际数据计算比例尺范围
   const scales = useMemo(() => {
     if (data.length === 0) return null;
+    
+    // X轴 (AI Intensity): 使用数据实际范围，留出5%的padding
     const xExtent = d3.extent(data, d => d.avgAIIntensity);
-    const xPad = (xExtent[1] - xExtent[0]) * 0.05;
+    const xPadding = (xExtent[1] - xExtent[0]) * 0.05;
+    
+    // Y轴 (Salary): 使用数据实际范围
     const yExtent = d3.extent(data, d => d.avgSalary);
-    const yPad = (yExtent[1] - yExtent[0]) * 0.1;
+    const yPadding = (yExtent[1] - yExtent[0]) * 0.1;
+    
+    // Size (Job Count): 根据实际数据范围调整
     const sizeExtent = d3.extent(data, d => d.jobCount);
-
+    
     return {
       x: d3.scaleLinear()
-        .domain([xExtent[0] - xPad, xExtent[1] + xPad])
-        .range([0, WIDTH]).nice(),
+        .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
+        .range([0, WIDTH])
+        .nice(),
       y: d3.scaleLinear()
-        .domain([yExtent[0] - yPad, yExtent[1] + yPad * 2])
-        .range([HEIGHT, 0]).nice(),
+        .domain([yExtent[0] - yPadding, yExtent[1] + yPadding * 2])
+        .range([HEIGHT, 0])
+        .nice(),
       size: d3.scaleSqrt()
         .domain(sizeExtent)
         .range([6, 35]),
-      opacity: d3.scaleLinear().domain([0.0, 1.0]).range([0.5, 1.0]).clamp(true),
+      opacity: d3.scaleLinear().domain([0.4, 0.8]).range([0.35, 1.0]).clamp(true),
     };
   }, [data]);
 
-  // Mode transition - ensure chart is always visible
-  useEffect(() => {
-    if (chartContainerRef.current) {
-      gsap.set(chartContainerRef.current, { opacity: 1, scale: 1 });
-    }
-    setPrevMode(mode);
-  }, [mode]);
-
-  // Year smooth transition
-  useEffect(() => {
-    if (currentYear !== prevYear && chartContainerRef.current && mode === "timeflow") {
-      gsap.to(chartContainerRef.current, {
-        opacity: 1, duration: 0.15, ease: 'power2.out'
-      });
-    }
-    setPrevYear(currentYear);
-  }, [currentYear, prevYear, mode]);
-
-  // Main draw - always run when dependencies change
+  // 主绘制函数
   useEffect(() => {
     if (!scales || data.length === 0) return;
-    // Ensure chart is always visible
-    gsap.set(chartContainerRef.current, { opacity: 1, scale: 1 });
+    
     if (mode === 'parallel') {
       drawParallelCoordinates();
     } else {
       drawMainChart();
     }
-  }, [data, currentYear, selectedIndustries, selectedPoint, mode, compareYears, scales]);
+  }, [data, currentYear, selectedIndustries, selectedPoint, mode, compareYears, scales, pcHoveredIndustry]);
 
   const drawMainChart = () => {
     const svg = d3.select(svgRef.current);
     svg.style("display", "block");
-    const pcContainer = document.querySelector('.pc-scroll-container');
-    if (pcContainer) pcContainer.style.display = "none";
+    if (pcScrollRef.current) pcScrollRef.current.style.display = "none";
+    
     svg.selectAll("*").remove();
     const g = svg.append("g").attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
-    // Arrow marker
+    // 箭头标记
     svg.append("defs").append("marker")
       .attr("id", "arrowhead").attr("viewBox", "0 -5 10 10")
       .attr("refX", 8).attr("refY", 0)
-      .attr("markerWidth", 6).attr("markerHeight", 6).attr("orient", "auto")
+      .attr("markerWidth", 6).attr("markerHeight", 6)
+      .attr("orient", "auto")
       .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#64748b");
 
-    // Grid
+    // 网格线
     g.append("g").attr("transform", `translate(0,${HEIGHT})`)
       .call(d3.axisBottom(scales.x).tickSize(-HEIGHT).tickFormat(""))
       .selectAll("line").style("stroke", "#e2e8f0").style("stroke-dasharray", "2,2");
-    g.append("g").call(d3.axisLeft(scales.y).tickSize(-WIDTH).tickFormat(""))
+    g.append("g")
+      .call(d3.axisLeft(scales.y).tickSize(-WIDTH).tickFormat(""))
       .selectAll("line").style("stroke", "#e2e8f0").style("stroke-dasharray", "2,2");
 
-    // X axis
+    // X轴
     const xAxis = g.append("g").attr("transform", `translate(0,${HEIGHT})`)
       .call(d3.axisBottom(scales.x).ticks(8).tickFormat((d) => d.toFixed(2)));
     xAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
     xAxis.selectAll("text").attr("fill", "#475569").style("font-size", "11px");
     xAxis.append("text").attr("x", WIDTH / 2).attr("y", 40)
       .attr("fill", "#1e293b").style("text-anchor", "middle")
-      .style("font-size", "13px").style("font-weight", "600").text("AI Intensity Score");
+      .style("font-size", "13px").style("font-weight", "600")
+      .text("AI Intensity Score");
 
-    // Y axis
-    const yAxis = g.append("g").call(
-      d3.axisLeft(scales.y).ticks(8).tickFormat((d) => `$${(d / 1000).toFixed(0)}k`)
-    );
+    // Y轴
+    const yAxis = g.append("g").call(d3.axisLeft(scales.y).ticks(8).tickFormat((d) => `$${(d / 1000).toFixed(0)}k`));
     yAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
     yAxis.selectAll("text").attr("fill", "#475569").style("font-size", "11px");
     yAxis.append("text").attr("transform", "rotate(-90)").attr("y", -50).attr("x", -HEIGHT / 2)
       .attr("fill", "#1e293b").style("text-anchor", "middle")
-      .style("font-size", "13px").style("font-weight", "600").text("Average Salary (USD)");
+      .style("font-size", "13px").style("font-weight", "600")
+      .text("Average Salary (USD)");
 
     if (mode === "timeflow") drawTimeflowMode(g);
     else drawCompareMode(g);
+    
     drawLegend(svg);
   };
 
   const drawTimeflowMode = (g) => {
-    const prevYr = currentYear - 1;
+    const prevYear = currentYear - 1;
     const currentData = data.filter((d) => d.year === currentYear);
-    const prevData = data.filter((d) => d.year === prevYr);
+    const prevData = data.filter((d) => d.year === prevYear);
     const isHighlighted = selectedPoint !== null;
 
-    if (prevYr >= d3.min(data, (d) => d.year)) {
+    if (prevYear >= d3.min(data, (d) => d.year)) {
       g.selectAll(".prev-circle")
         .data(prevData.filter((d) => selectedIndustries.size === 0 || selectedIndustries.has(d.industry)))
         .join("circle")
@@ -340,8 +299,7 @@ const Task2 = () => {
         .attr("stroke", (d) => INDUSTRY_COLORS[d.industry])
         .attr("stroke-width", 2)
         .attr("stroke-dasharray", "4,2")
-        .attr("opacity", (d) => isHighlighted && selectedPoint?.industry !== d.industry
-          ? 0.1 : scales.opacity(d.avgAutomationRisk) * 0.5)
+        .attr("opacity", (d) => isHighlighted && selectedPoint?.industry !== d.industry ? 0.1 : scales.opacity(d.avgAutomationRisk) * 0.5)
         .style("cursor", "pointer")
         .on("click", (e, d) => { e.stopPropagation(); setSelectedPoint({ ...d, type: "prev" }); })
         .on("mouseenter", (e, d) => setHoveredPoint(d))
@@ -356,18 +314,16 @@ const Task2 = () => {
       .attr("cy", (d) => scales.y(d.avgSalary))
       .attr("r", (d) => scales.size(d.jobCount))
       .attr("fill", (d) => INDUSTRY_COLORS[d.industry])
-      .attr("stroke", (d) => selectedPoint?.id === d.id
-        ? "#ffffff" : hoveredPoint?.id === d.id ? "#000000" : "none")
-      .attr("stroke-width", (d) => selectedPoint?.id === d.id || hoveredPoint?.id === d.id ? 3 : 0)
-      .attr("opacity", (d) => isHighlighted && selectedPoint?.industry !== d.industry
-        ? 0.1 : scales.opacity(d.avgAutomationRisk))
+      .attr("stroke", (d) => (selectedPoint?.id === d.id ? "#ffffff" : hoveredPoint?.id === d.id ? "#000000" : "none"))
+      .attr("stroke-width", (d) => (selectedPoint?.id === d.id || hoveredPoint?.id === d.id ? 3 : 0))
+      .attr("opacity", (d) => isHighlighted && selectedPoint?.industry !== d.industry ? 0.1 : scales.opacity(d.avgAutomationRisk))
       .style("cursor", "pointer")
       .on("click", (e, d) => { e.stopPropagation(); setSelectedPoint({ ...d, type: "current" }); })
       .on("mouseenter", (e, d) => setHoveredPoint(d))
       .on("mouseleave", () => setHoveredPoint(null));
 
     if (selectedPoint) {
-      const targetYear = selectedPoint.type === "current" ? prevYr : currentYear;
+      const targetYear = selectedPoint.type === "current" ? prevYear : currentYear;
       const targetData = data.find((d) => d.industry === selectedPoint.industry && d.year === targetYear);
       if (targetData) {
         g.append("line")
@@ -386,11 +342,12 @@ const Task2 = () => {
   const drawCompareMode = (g) => {
     const leftData = data.filter((d) => d.year === compareYears.left);
     const rightData = data.filter((d) => d.year === compareYears.right);
-    const fLeft = leftData.filter((d) => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
-    const fRight = rightData.filter((d) => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
+    const filteredLeft = leftData.filter((d) => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
+    const filteredRight = rightData.filter((d) => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
 
     g.selectAll(".compare-right")
-      .data(fRight).join("circle")
+      .data(filteredRight)
+      .join("circle")
       .attr("class", "compare-right")
       .attr("cx", (d) => scales.x(d.avgAIIntensity))
       .attr("cy", (d) => scales.y(d.avgSalary))
@@ -400,8 +357,8 @@ const Task2 = () => {
       .attr("stroke-width", 2)
       .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk) * 0.6);
 
-    fLeft.forEach((left) => {
-      const right = fRight.find((d) => d.industry === left.industry);
+    filteredLeft.forEach((left) => {
+      const right = filteredRight.find((d) => d.industry === left.industry);
       if (right) {
         g.append("line")
           .attr("x1", scales.x(left.avgAIIntensity))
@@ -409,80 +366,105 @@ const Task2 = () => {
           .attr("x2", scales.x(right.avgAIIntensity))
           .attr("y2", scales.y(right.avgSalary))
           .attr("stroke", INDUSTRY_COLORS[left.industry])
-          .attr("stroke-width", 2).attr("opacity", 0.6)
+          .attr("stroke-width", 2)
+          .attr("opacity", 0.6)
           .attr("marker-end", "url(#arrowhead)");
       }
     });
 
     g.selectAll(".compare-left")
-      .data(fLeft).join("circle")
+      .data(filteredLeft)
+      .join("circle")
       .attr("class", "compare-left")
       .attr("cx", (d) => scales.x(d.avgAIIntensity))
       .attr("cy", (d) => scales.y(d.avgSalary))
       .attr("r", (d) => scales.size(d.jobCount))
       .attr("fill", (d) => INDUSTRY_COLORS[d.industry])
-      .attr("stroke", "#fff").attr("stroke-width", 3)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 3)
       .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk));
   };
 
+  // 改进的Legend，包含具体的Size标注
   const drawLegend = (svg) => {
     const industries = [...new Set(data.map((d) => d.industry))];
-    const legendG = svg.append("g")
-      .attr("class", "legend-container")
-      .attr("transform", `translate(${WIDTH + MARGIN.left + 20}, ${MARGIN.top})`);
-    legendG.append("text").attr("x", 0).attr("y", -10)
-      .attr("fill", "#1e293b").style("font-size", "13px").style("font-weight", "bold").text("Industry Filter");
+    const legendG = svg.append("g").attr("transform", `translate(${WIDTH + MARGIN.left + 20}, ${MARGIN.top})`);
+
+    legendG.append("text").attr("x", 0).attr("y", -10).attr("fill", "#1e293b")
+      .style("font-size", "13px").style("font-weight", "bold").text("Industry Filter");
 
     industries.forEach((industry, i) => {
-      const row = legendG.append("g").attr("transform", `translate(0, ${i * 26})`).style("cursor", "pointer")
+      const row = legendG.append("g")
+        .attr("transform", `translate(0, ${i * 26})`)
+        .style("cursor", "pointer")
         .on("click", () => toggleIndustry(industry));
-      row.append("rect").attr("width", 14).attr("height", 14).attr("rx", 3)
+      
+      row.append("rect")
+        .attr("width", 14).attr("height", 14).attr("rx", 3)
         .attr("fill", INDUSTRY_COLORS[industry])
         .attr("opacity", selectedIndustries.size === 0 || selectedIndustries.has(industry) ? 1 : 0.3)
         .attr("stroke", selectedIndustries.has(industry) ? "#1e293b" : "none")
         .attr("stroke-width", 2);
+      
       row.append("text").attr("x", 22).attr("y", 11).text(industry)
         .attr("fill", "#1e293b").attr("font-size", "12px")
         .attr("opacity", selectedIndustries.size === 0 || selectedIndustries.has(industry) ? 1 : 0.3);
     });
 
+    // Opacity说明
     const opacityG = legendG.append("g").attr("transform", `translate(0, ${industries.length * 26 + 15})`);
     opacityG.append("text").attr("fill", "#64748b").attr("font-size", "10px").text("Opacity = Risk (40%-80%)");
-    const gradId = "opacity-gradient";
+    const gradientId = "opacity-gradient";
     const defs = svg.append("defs");
-    const grad = defs.append("linearGradient").attr("id", gradId).attr("x1", "0%").attr("x2", "100%");
-    grad.append("stop").attr("offset", "0%").attr("stop-color", "#64748b").attr("stop-opacity", 0.35);
-    grad.append("stop").attr("offset", "100%").attr("stop-color", "#64748b").attr("stop-opacity", 1);
-    opacityG.append("rect").attr("y", 15).attr("width", 80).attr("height", 6).attr("rx", 3)
-      .attr("fill", `url(#${gradId})`);
+    const gradient = defs.append("linearGradient").attr("id", gradientId).attr("x1", "0%").attr("x2", "100%");
+    gradient.append("stop").attr("offset", "0%").attr("stop-color", "#64748b").attr("stop-opacity", 0.35);
+    gradient.append("stop").attr("offset", "100%").attr("stop-color", "#64748b").attr("stop-opacity", 1);
+    opacityG.append("rect").attr("y", 15).attr("width", 80).attr("height", 6).attr("rx", 3).attr("fill", `url(#${gradientId})`);
     opacityG.append("text").attr("y", 32).attr("fill", "#64748b").attr("font-size", "9px").text("Low → High");
 
+    // Size说明 - 显示具体数值
     const sizeG = legendG.append("g").attr("transform", `translate(0, ${industries.length * 26 + 55})`);
     sizeG.append("text").attr("fill", "#64748b").attr("font-size", "10px").text("Size = Job Count");
-    const jobExtent = d3.extent(data, d => d.jobCount);
-    const sizeS = d3.scaleSqrt().domain(jobExtent).range([6, 35]);
-    const examples = [
-      { count: jobExtent[0], label: jobExtent[0].toString(), x: 10 },
-      { count: Math.round((jobExtent[0] + jobExtent[1]) / 2), label: Math.round((jobExtent[0] + jobExtent[1]) / 2).toString(), x: 50 },
-      { count: jobExtent[1], label: jobExtent[1].toString(), x: 90 }
+    
+    const jobCountExtent = d3.extent(data, d => d.jobCount);
+    const sizeScale = d3.scaleSqrt().domain(jobCountExtent).range([6, 35]);
+    
+    const minCount = jobCountExtent[0];
+    const maxCount = jobCountExtent[1];
+    const midCount = Math.round((minCount + maxCount) / 2);
+    
+    const sizeExamples = [
+      { count: minCount, label: minCount.toString(), x: 10 },
+      { count: midCount, label: midCount.toString(), x: 50 },
+      { count: maxCount, label: maxCount.toString(), x: 90 }
     ];
-    examples.forEach((ex) => {
-      const r = sizeS(ex.count);
-      sizeG.append("circle").attr("cx", ex.x).attr("cy", 35).attr("r", r)
-        .attr("fill", "none").attr("stroke", "#64748b").attr("stroke-width", 1.5).attr("opacity", 0.6);
-      sizeG.append("text").attr("x", ex.x).attr("y", 35 + r + 12)
-        .attr("text-anchor", "middle").attr("fill", "#64748b").attr("font-size", "9px").text(ex.label);
+    
+    sizeExamples.forEach((example, i) => {
+      const r = sizeScale(example.count);
+      sizeG.append("circle")
+        .attr("cx", example.x)
+        .attr("cy", 35)
+        .attr("r", r)
+        .attr("fill", "none")
+        .attr("stroke", "#64748b")
+        .attr("stroke-width", 1.5)
+        .attr("opacity", 0.6);
+      
+      sizeG.append("text")
+        .attr("x", example.x)
+        .attr("y", 35 + r + 12)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#64748b")
+        .attr("font-size", "9px")
+        .text(example.label);
     });
   };
 
+  // Parallel Coordinates绘制
   const drawParallelCoordinates = () => {
     d3.select(svgRef.current).style("display", "none");
-    const pcContainer = document.querySelector('.pc-scroll-container');
-    if (!pcContainer) return;
-    pcContainer.style.display = "block";
-
-    const container = d3.select(pcContainer);
-    container.selectAll("*").remove();
+    const container = d3.select(pcScrollRef.current);
+    container.style("display", "block").selectAll("*").remove();
 
     const grouped = d3.group(data, d => d.industry);
     const industries = Array.from(grouped, ([industry, values]) => ({
@@ -492,45 +474,56 @@ const Task2 = () => {
     })).filter(d => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
 
     const years = [...new Set(data.map(d => d.year))].sort();
-    const pcWidth = 760;
+    const pcWidth = 800;
     const pcHeight = 180;
     const pcMargin = { top: 30, right: 50, bottom: 40, left: 60 };
-
+    
     const xScale = d3.scalePoint().domain(years).range([0, pcWidth - pcMargin.left - pcMargin.right]);
 
     const metrics = [
-      { key: 'avgAIIntensity', label: 'AI Intensity Score', domain: d3.extent(data, d => d.avgAIIntensity), format: d => d.toFixed(2) },
-      { key: 'avgSalary', label: 'Average Salary (USD)', domain: d3.extent(data, d => d.avgSalary), format: d => `$${(d / 1000).toFixed(0)}k` },
-      { key: 'avgAutomationRisk', label: 'Automation Risk Score', domain: d3.extent(data, d => d.avgAutomationRisk), format: d => (d * 100).toFixed(0) + '%' },
-      { key: 'jobCount', label: 'Job Count', domain: d3.extent(data, d => d.jobCount), format: d => d.toString() }
+      { 
+        key: 'avgAIIntensity', 
+        label: 'AI Intensity Score', 
+        domain: d3.extent(data, d => d.avgAIIntensity),
+        format: d => d.toFixed(2) 
+      },
+      { 
+        key: 'avgSalary', 
+        label: 'Average Salary (USD)', 
+        domain: d3.extent(data, d => d.avgSalary),
+        format: d => `$${(d/1000).toFixed(0)}k` 
+      },
+      { 
+        key: 'avgAutomationRisk', 
+        label: 'Automation Risk Score', 
+        domain: d3.extent(data, d => d.avgAutomationRisk),
+        format: d => (d*100).toFixed(0) + '%' 
+      },
+      { 
+        key: 'jobCount', 
+        label: 'Job Count', 
+        domain: d3.extent(data, d => d.jobCount),
+        format: d => d.toString() 
+      }
     ];
-
-    // Create a single persistent tooltip element
-    let tooltipEl = d3.select(pcContainer).select(".pc-persistent-tooltip");
-    if (tooltipEl.empty()) {
-      tooltipEl = d3.select(pcContainer).append("div")
-        .attr("class", "pc-persistent-tooltip")
-        .style("position", "absolute")
-        .style("pointer-events", "none")
-        .style("background", "rgba(255,255,255,0.95)")
-        .style("color", "#1e293b")
-        .style("padding", "8px 12px")
-        .style("border-radius", "8px")
-        .style("font-size", "12px")
-        .style("box-shadow", "0 4px 12px rgba(0,0,0,0.15)")
-        .style("border", "1px solid #e2e8f0")
-        .style("z-index", "100")
-        .style("opacity", "0")
-        .style("transition", "opacity 0.15s");
-    }
 
     metrics.forEach((metric, idx) => {
       const chartDiv = container.append("div").attr("class", "pc-chart-box");
-      chartDiv.append("div").attr("class", "pc-metric-title").text(metric.label);
+      
+      chartDiv.append("div")
+        .attr("class", "pc-metric-title")
+        .text(metric.label);
 
-      const svg = chartDiv.append("svg").attr("width", pcWidth).attr("height", pcHeight);
-      const g = svg.append("g").attr("transform", `translate(${pcMargin.left},${pcMargin.top})`);
-      const yScale = d3.scaleLinear().domain(metric.domain).range([pcHeight - pcMargin.top - pcMargin.bottom, 0]);
+      const svg = chartDiv.append("svg")
+        .attr("width", pcWidth)
+        .attr("height", pcHeight);
+
+      const g = svg.append("g")
+        .attr("transform", `translate(${pcMargin.left},${pcMargin.top})`);
+
+      const yScale = d3.scaleLinear()
+        .domain(metric.domain)
+        .range([pcHeight - pcMargin.top - pcMargin.bottom, 0]);
 
       years.forEach(year => {
         const x = xScale(year);
@@ -538,13 +531,18 @@ const Task2 = () => {
           .attr("x1", x).attr("x2", x)
           .attr("y1", 0).attr("y2", pcHeight - pcMargin.top - pcMargin.bottom)
           .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "2,2");
+        
         g.append("text")
-          .attr("x", x).attr("y", pcHeight - pcMargin.top - pcMargin.bottom + 20)
-          .attr("text-anchor", "middle").attr("font-size", "9px").attr("fill", "#64748b").text(year);
+          .attr("x", x)
+          .attr("y", pcHeight - pcMargin.top - pcMargin.bottom + 20)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "9px")
+          .attr("fill", "#64748b")
+          .text(year);
       });
 
-      g.append("g").call(d3.axisLeft(yScale).ticks(5).tickFormat(metric.format))
-        .selectAll("text").attr("font-size", "9px").attr("fill", "#64748b");
+      const yAxis = g.append("g").call(d3.axisLeft(yScale).ticks(5).tickFormat(metric.format));
+      yAxis.selectAll("text").attr("font-size", "9px").attr("fill", "#64748b");
 
       const line = d3.line()
         .x(d => xScale(d.year))
@@ -552,62 +550,110 @@ const Task2 = () => {
         .curve(d3.curveMonotoneX);
 
       industries.forEach(ind => {
-        g.append("path")
+        const isHovered = pcHoveredIndustry === ind.industry;
+        const isDimmed = pcHoveredIndustry && pcHoveredIndustry !== ind.industry;
+        
+        const path = g.append("path")
           .datum(ind.values)
           .attr("fill", "none")
           .attr("stroke", ind.color)
-          .attr("stroke-width", 2)
-          .attr("opacity", 0.7)
+          .attr("stroke-width", isHovered ? 4 : 2)
+          .attr("opacity", isDimmed ? 0.1 : 0.7)
           .attr("d", line)
           .style("cursor", "pointer")
-          .on("mouseenter", function(event) {
-            d3.select(this).attr("stroke-width", 4).attr("opacity", 1);
-            const [mouseX] = d3.pointer(event);
-            const closestYear = years.reduce((prev, curr) =>
-              Math.abs(xScale(curr) - mouseX) < Math.abs(xScale(prev) - mouseX) ? curr : prev
-            );
-            const point = ind.values.find(v => v.year === closestYear);
-            if (!point) return;
-            const prevPoint = ind.values.find(v => v.year === closestYear - 1);
-            const change = prevPoint ?
-              `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
-            tooltipEl.html(
-              `<div style="color:${ind.color};font-weight:600;margin-bottom:4px;">${ind.industry} - ${closestYear}</div>` +
-              `<div>${metric.label}: <strong>${metric.format(point[metric.key])}</strong>${change}</div>`
-            ).style("opacity", "1")
-              .style("left", (event.clientX - pcContainer.getBoundingClientRect().left + 15) + "px")
-              .style("top", (event.clientY - pcContainer.getBoundingClientRect().top - 10) + "px");
+          .on("mouseenter", (e) => {
+            setPcHoveredIndustry(ind.industry);
+            showPCTooltip(e, ind, metric, xScale, yScale);
           })
-          .on("mousemove", function(event) {
-            tooltipEl
-              .style("left", (event.clientX - pcContainer.getBoundingClientRect().left + 15) + "px")
-              .style("top", (event.clientY - pcContainer.getBoundingClientRect().top - 10) + "px");
-          })
-          .on("mouseleave", function() {
-            d3.select(this).attr("stroke-width", 2).attr("opacity", 0.7);
-            tooltipEl.style("opacity", "0");
+          .on("mouseleave", () => {
+            setPcHoveredIndustry(null);
+            hidePCTooltip();
+          });
+
+        g.selectAll(`.pc-dot-${idx}-${ind.industry}`)
+          .data(ind.values)
+          .join("circle")
+          .attr("cx", d => xScale(d.year))
+          .attr("cy", d => yScale(d[metric.key]))
+          .attr("r", isHovered ? 5 : 3)
+          .attr("fill", ind.color)
+          .attr("opacity", isDimmed ? 0.1 : 0.9)
+          .style("cursor", "pointer")
+          .on("mouseenter", (e, d) => {
+            setPcHoveredIndustry(ind.industry);
+            showPointTooltip(e, d, ind, metric);
           });
       });
     });
 
     const legendDiv = container.append("div").attr("class", "pc-global-legend");
     legendDiv.append("div").attr("class", "pc-legend-title").text("Industries (Click to filter)");
+    
     const allIndustries = [...new Set(data.map(d => d.industry))];
     const legendItems = legendDiv.append("div").attr("class", "pc-legend-items");
+    
     allIndustries.forEach(industry => {
-      const item = legendItems.append("div").attr("class", "pc-legend-item")
+      const item = legendItems.append("div")
+        .attr("class", "pc-legend-item")
         .style("opacity", selectedIndustries.size === 0 || selectedIndustries.has(industry) ? 1 : 0.3)
         .on("click", () => toggleIndustry(industry));
-      item.append("div").attr("class", "pc-legend-color").style("background-color", INDUSTRY_COLORS[industry]);
+      
+      item.append("div")
+        .attr("class", "pc-legend-color")
+        .style("background-color", INDUSTRY_COLORS[industry]);
+      
       item.append("span").text(industry);
     });
   };
 
+  const showPCTooltip = (e, industry, metric, xScale, yScale) => {
+    const mouseX = d3.pointer(e)[0];
+    const years = xScale.domain();
+    const closestYear = years.reduce((prev, curr) => 
+      Math.abs(xScale(curr) - mouseX) < Math.abs(xScale(prev) - mouseX) ? curr : prev
+    );
+    
+    const point = industry.values.find(v => v.year === closestYear);
+    if (!point) return;
+
+    const prevPoint = industry.values.find(v => v.year === closestYear - 1);
+    const change = prevPoint ? 
+      `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
+
+    const tooltip = d3.select("body").append("div")
+      .attr("class", "pc-floating-tooltip")
+      .style("left", (e.clientX + 15) + "px")
+      .style("top", (e.clientY - 10) + "px")
+      .html(`
+        <div style="color:${industry.color};font-weight:600;margin-bottom:4px;">${industry.industry} - ${closestYear}</div>
+        <div>${metric.label}: <strong>${metric.format(point[metric.key])}</strong>${change}</div>
+      `);
+  };
+
+  const showPointTooltip = (e, d, industry, metric) => {
+    const prevPoint = industry.values.find(v => v.year === d.year - 1);
+    const change = prevPoint ? 
+      `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
+
+    d3.select("body").append("div")
+      .attr("class", "pc-floating-tooltip")
+      .style("left", (e.clientX + 15) + "px")
+      .style("top", (e.clientY - 10) + "px")
+      .html(`
+        <div style="color:${industry.color};font-weight:600;margin-bottom:4px;">${industry.industry} - ${d.year}</div>
+        <div>${metric.format(d[metric.key])}${change}</div>
+      `);
+  };
+
+  const hidePCTooltip = () => {
+    d3.selectAll(".pc-floating-tooltip").remove();
+  };
+
   const toggleIndustry = (industry) => {
-    const ns = new Set(selectedIndustries);
-    if (ns.has(industry)) ns.delete(industry);
-    else ns.add(industry);
-    setSelectedIndustries(ns);
+    const newSet = new Set(selectedIndustries);
+    if (newSet.has(industry)) newSet.delete(industry);
+    else newSet.add(industry);
+    setSelectedIndustries(newSet);
   };
 
   const startGuide = (guideMode) => {
@@ -616,67 +662,119 @@ const Task2 = () => {
   };
 
   const closeGuide = () => {
-    const ns = { ...guideState, [activeGuide]: true };
-    setGuideState(ns);
-    localStorage.setItem('task2_guide_completed_v2', JSON.stringify(ns));
+    const newState = { ...guideState, [activeGuide]: true };
+    setGuideState(newState);
+    localStorage.setItem('task2_guide_completed_v2', JSON.stringify(newState));
     setActiveGuide(null);
     setGuideStep(0);
   };
 
   const nextStep = () => {
     const steps = GUIDE_STEPS[activeGuide];
-    if (guideStep < steps.length - 1) setGuideStep(guideStep + 1);
-    else closeGuide();
-  };
-
-  const getHighlightPosition = (selector) => {
-    const el = document.querySelector(selector);
-    if (!el) return { display: 'none' };
-    const r = el.getBoundingClientRect();
-    return { left: r.left - 4, top: r.top - 4, width: r.width + 8, height: r.height + 8 };
-  };
-
-  const getGuidePosition = (step) => {
-    const hl = getHighlightPosition(step.target);
-    if (hl.display === 'none') return { left: window.innerWidth / 2, top: window.innerHeight / 2, transform: 'translate(-50%, -50%)' };
-    const off = 20;
-    switch (step.position) {
-      case 'bottom': return { left: hl.left + hl.width / 2, top: hl.top + hl.height + off, transform: 'translate(-50%, 0)' };
-      case 'top': return { left: hl.left + hl.width / 2, top: hl.top - off, transform: 'translate(-50%, -100%)' };
-      case 'left': return { left: hl.left - off, top: hl.top + hl.height / 2, transform: 'translate(-100%, -50%)' };
-      case 'right': return { left: hl.left + hl.width + off, top: hl.top + hl.height / 2, transform: 'translate(0, -50%)' };
-      default: return { left: hl.left + hl.width / 2, top: hl.top + hl.height + off, transform: 'translate(-50%, 0)' };
+    if (guideStep < steps.length - 1) {
+      setGuideStep(guideStep + 1);
+    } else {
+      closeGuide();
     }
   };
 
-  if (data.length === 0) return <div className="loading">Initializing Time Machine...</div>;
+  const getHighlightPosition = (selector) => {
+    const element = document.querySelector(selector);
+    if (!element) {
+      console.warn(`Guide target not found: ${selector}`);
+      return { display: 'none' };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      left: rect.left - 4,
+      top: rect.top - 4,
+      width: rect.width + 8,
+      height: rect.height + 8
+    };
+  };
 
-  const yearRange = [d3.min(data, d => d.year), d3.max(data, d => d.year)];
+  const getGuidePosition = (step) => {
+    const highlight = getHighlightPosition(step.target);
+    if (highlight.display === 'none') {
+      return { 
+        left: window.innerWidth / 2, 
+        top: window.innerHeight / 2,
+        transform: 'translate(-50%, -50%)'
+      };
+    }
+    
+    const offset = 20;
+    
+    switch(step.position) {
+      case 'bottom':
+        return { 
+          left: highlight.left + highlight.width / 2, 
+          top: highlight.top + highlight.height + offset,
+          transform: 'translate(-50%, 0)'
+        };
+      case 'top':
+        return { 
+          left: highlight.left + highlight.width / 2, 
+          top: highlight.top - offset,
+          transform: 'translate(-50%, -100%)'
+        };
+      case 'left':
+        return { 
+          left: highlight.left - offset, 
+          top: highlight.top + highlight.height / 2,
+          transform: 'translate(-100%, -50%)'
+        };
+      case 'right':
+        return { 
+          left: highlight.left + highlight.width + offset, 
+          top: highlight.top + highlight.height / 2,
+          transform: 'translate(0, -50%)'
+        };
+      default:
+        return { 
+          left: highlight.left + highlight.width / 2, 
+          top: highlight.top + highlight.height + offset,
+          transform: 'translate(-50%, 0)'
+        };
+    }
+  };
+
+  const yearRange = data.length > 0 ? [d3.min(data, (d) => d.year), d3.max(data, (d) => d.year)] : [2010, 2024];
   const currentSteps = activeGuide ? GUIDE_STEPS[activeGuide] : [];
   const currentStep = currentSteps[guideStep];
 
+  if (data.length === 0) return <div className="loading">Initializing Time Machine...</div>;
+
   return (
-    <div className="task2-container scrolly-adapted" ref={chartContainerRef}>
-      {/* Spotlight overlay */}
+    <div className="task2-container">
+      {/* Spotlight引导层 */}
       {activeGuide && currentStep && (
-        <div className="guide-spotlight-overlay" style={{ pointerEvents: 'auto' }}>
+        <div className="guide-spotlight-overlay">
           <div className="spotlight-backdrop" onClick={closeGuide} />
-          <div className="spotlight-highlight" style={getHighlightPosition(currentStep.target)}>
+          <div 
+            className="spotlight-highlight" 
+            style={getHighlightPosition(currentStep.target)}
+          >
             <div className="spotlight-inner-glow" />
           </div>
-          <div className={`spotlight-tooltip spotlight-${currentStep.position}`} style={getGuidePosition(currentStep)}>
+          <div 
+            className={`spotlight-tooltip spotlight-${currentStep.position}`}
+            style={getGuidePosition(currentStep)}
+          >
             <div className="spotlight-arrow" />
             <h3>{currentStep.title}</h3>
             <p>{currentStep.content}</p>
             <div className="spotlight-actions">
               <span>{guideStep + 1} / {currentSteps.length}</span>
-              <button onClick={nextStep}>{guideStep === currentSteps.length - 1 ? 'Finish' : 'Next'}</button>
+              <button onClick={nextStep}>
+                {guideStep === currentSteps.length - 1 ? 'Finish' : 'Next'}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Control bar */}
+      {/* 控制栏 */}
       <div className="control-bar">
         <div className="mode-switcher">
           <button className={mode === "timeflow" ? "active" : ""} onClick={() => setMode("timeflow")}>⏱️ Timeflow</button>
@@ -686,13 +784,22 @@ const Task2 = () => {
         <button className="help-btn" onClick={() => startGuide(mode)}>❓ How to Use</button>
       </div>
 
-      {/* Chart area */}
+      {/* 图表区域 */}
       <div className="chart-wrapper">
         <div className="chart-container">
-          <svg ref={svgRef} width={WIDTH + MARGIN.left + MARGIN.right} height={HEIGHT + MARGIN.top + MARGIN.bottom} />
-          <div className="pc-scroll-container" style={{ display: mode === 'parallel' ? 'block' : 'none', pointerEvents: mode === 'parallel' ? 'auto' : 'none' }} />
+          <svg 
+            ref={svgRef} 
+            width={WIDTH + MARGIN.left + MARGIN.right} 
+            height={HEIGHT + MARGIN.top + MARGIN.bottom}
+            style={{ display: mode === 'parallel' ? 'none' : 'block' }}
+          />
+          
+          <div 
+            ref={pcScrollRef} 
+            className="pc-scroll-container"
+            style={{ display: mode === 'parallel' ? 'block' : 'none' }}
+          />
 
-          {/* Timeflow detail panel */}
           {mode === "timeflow" && selectedPoint && (
             <div className="detail-panel right-panel">
               <div className="panel-header" style={{ backgroundColor: INDUSTRY_COLORS[selectedPoint.industry] }}>
@@ -711,7 +818,6 @@ const Task2 = () => {
             </div>
           )}
 
-          {/* Compare detail panel */}
           {mode === "compare" && selectedIndustries.size > 0 && selectedIndustries.size <= 3 && (
             <div className="compare-detail-panel right-panel">
               <div className="compare-header">
@@ -756,16 +862,15 @@ const Task2 = () => {
         </div>
       </div>
 
-      {/* Timeline (not for parallel mode) */}
       {mode !== 'parallel' && (
         <div className="timeline-section">
           {mode === "timeflow" && (
             <button className={`play-button-cool ${isPlaying ? "playing" : ""}`} onClick={() => setIsPlaying(!isPlaying)}>
               <div className="button-inner">
                 {isPlaying ? (
-                  <svg viewBox="0 0 24 24" width="24" height="24"><rect x="6" y="4" width="4" height="16" fill="currentColor" /><rect x="14" y="4" width="4" height="16" fill="currentColor" /></svg>
+                  <svg viewBox="0 0 24 24" width="24" height="24"><rect x="6" y="4" width="4" height="16" fill="currentColor"/><rect x="14" y="4" width="4" height="16" fill="currentColor"/></svg>
                 ) : (
-                  <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8 5v14l11-7z" fill="currentColor" /></svg>
+                  <svg viewBox="0 0 24 24" width="24" height="24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>
                 )}
               </div>
               <div className="pulse-ring"></div>
@@ -780,9 +885,9 @@ const Task2 = () => {
               <div className="ticks-container">
                 {Array.from({ length: yearRange[1] - yearRange[0] + 1 }, (_, i) => {
                   const year = yearRange[0] + i;
-                  const pos = ((year - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100;
+                  const position = ((year - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100;
                   return (
-                    <div key={year} className="year-tick" style={{ left: `${pos}%` }}>
+                    <div key={year} className="year-tick" style={{ left: `${position}%` }}>
                       <div className="tick-line"></div>
                       <span className="tick-year">{year}</span>
                     </div>
@@ -791,12 +896,15 @@ const Task2 = () => {
               </div>
 
               {mode === "timeflow" && (
-                <div className="clock-draggable" style={{ left: `${((currentYear - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100}%` }}>
+                <div 
+                  className="clock-draggable" 
+                  style={{ left: `${((currentYear - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100}%` }}
+                >
                   <div className="clock-icon-animated">
                     <svg viewBox="0 0 32 32" width="32" height="32">
-                      <circle cx="16" cy="16" r="14" fill="#0ea5e9" stroke="#fff" strokeWidth="2" />
-                      <line x1="16" y1="16" x2="16" y2="8" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-                      <line x1="16" y1="16" x2="22" y2="16" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+                      <circle cx="16" cy="16" r="14" fill="#0ea5e9" stroke="#fff" strokeWidth="2"/>
+                      <line x1="16" y1="16" x2="16" y2="8" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+                      <line x1="16" y1="16" x2="22" y2="16" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
                   </div>
                   <div className="year-tooltip">{currentYear}</div>
@@ -805,11 +913,17 @@ const Task2 = () => {
 
               {mode === "compare" && (
                 <>
-                  <div className="compare-handle left" style={{ left: `${((compareYears.left - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100}%` }}>
+                  <div 
+                    className="compare-handle left" 
+                    style={{ left: `${((compareYears.left - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100}%` }}
+                  >
                     <div className="handle-icon solid">●</div>
                     <div className="handle-label">{compareYears.left}</div>
                   </div>
-                  <div className="compare-handle right" style={{ left: `${((compareYears.right - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100}%` }}>
+                  <div 
+                    className="compare-handle right" 
+                    style={{ left: `${((compareYears.right - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100}%` }}
+                  >
                     <div className="handle-icon hollow">○</div>
                     <div className="handle-label">{compareYears.right}</div>
                   </div>

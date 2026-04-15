@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, useDragControls } from 'framer-motion';
 import { useScrolly } from '../../context/ScrollyContext';
 import './DraggableRobot.css';

@@ -1,22 +1,25 @@
 .section-task {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr; /* Header + 灵活内容区 */
   background: #f8fafc;
+  overflow: hidden;
 }
 
 .task-header {
   padding: 1.5rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: transparent;
+  color: #0f172a;
   flex-shrink: 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .task-number {
   display: inline-block;
   padding: 0.25rem 0.75rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: #0ea5e9;
+  color: white;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -29,23 +32,27 @@
   font-size: 1.5rem;
   margin: 0;
   font-weight: 600;
+  color: #0f172a;
 }
 
 .task-desc {
   margin: 0.25rem 0 0 0;
-  opacity: 0.9;
+  color: #64748b;
   font-size: 0.9rem;
 }
 
 .task-content-wrapper {
-  flex: 1;
-  overflow: hidden;
   position: relative;
+  overflow: auto; /* 允许任务内部滚动 */
+  height: 100%;
+  width: 100%;
 }
 
 /* Task2特殊适配 */
 .task2-wrapper {
-  height: calc(100vh - 100px); /* 减去header高度 */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Placeholder样式 */

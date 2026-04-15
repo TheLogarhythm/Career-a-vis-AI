@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useScrolly } from '../context/ScrollyContext';
+import TaskPlaceholder from '../components/Common/TaskPlaceholder';
 import './SectionTask.css';
 
 const SectionTask4 = () => {
@@ -16,12 +17,22 @@ const SectionTask4 = () => {
     }
   }, [datasetB, loadDatasetB]);
 
-  if (datasetB.status === 'loading' || !data) {
+  if (datasetB.status === 'loading') {
     return (
       <div className="section-task">
-        <div className="task-loading">
-          <div className="loading-spinner"></div>
-          <p>Loading Dataset B...</p>
+        <div className="task-header">
+          <span className="task-number">Task 4</span>
+          <h3>Future Prediction</h3>
+          <p className="task-desc">AI-powered future projections</p>
+        </div>
+        <div className="task-content-wrapper">
+          <TaskPlaceholder 
+            taskNumber={4}
+            title="Future Prediction"
+            icon="\uD83D\uDD2E"
+            description="Loading dataset..."
+            status="loading"
+          />
         </div>
       </div>
     );
@@ -34,12 +45,13 @@ const SectionTask4 = () => {
         <h3>Future Prediction</h3>
         <p className="task-desc">AI-powered future projections</p>
       </div>
-      <div className="task-content-wrapper task-placeholder">
-        <div className="placeholder-content">
-          <div className="placeholder-icon">🔮</div>
-          <h4>Task 4: Future Prediction</h4>
-          <p>Dataset B Loaded: {data ? '✓' : '✗'}</p>
-        </div>
+      <div className="task-content-wrapper">
+        <TaskPlaceholder 
+          taskNumber={4}
+          title="Future Prediction"
+          icon="\uD83D\uDD2E"
+          description={data ? "Dataset loaded - visualization coming soon" : "Waiting for data"}
+        />
       </div>
     </div>
   );

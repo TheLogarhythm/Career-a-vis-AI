@@ -35,25 +35,36 @@ const SectionConclusion = () => {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
-        viewport={{ once: true }}
+        viewport={{ once: false }}
       >
         <h3>Key Findings</h3>
         <div className="findings-grid">
-          <div className="finding-card">
-            <span className="finding-icon">📈</span>
-            <h4>Growth Trend</h4>
-            <p>AI-related job postings increased by 300% over the analysis period</p>
-          </div>
-          <div className="finding-card">
-            <span className="finding-icon">💰</span>
-            <h4>Salary Impact</h4>
-            <p>AI-intensive roles command 25% higher salaries on average</p>
-          </div>
-          <div className="finding-card">
-            <span className="finding-icon">🌍</span>
-            <h4>Regional Variations</h4>
-            <p>Tech hubs show 2x higher AI adoption than other regions</p>
-          </div>
+          {[
+            { icon: '📈', title: 'Growth Trend', desc: 'AI-related job postings increased by 300% over the analysis period' },
+            { icon: '💰', title: 'Salary Impact', desc: 'AI-intensive roles command 25% higher salaries on average' },
+            { icon: '🌍', title: 'Regional Variations', desc: 'Tech hubs show 2x higher AI adoption than other regions' }
+          ].map((finding, index) => (
+            <motion.div 
+              key={index}
+              className="finding-card"
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.1 * index, duration: 0.6, type: 'spring', stiffness: 100 }}
+              viewport={{ once: false }}
+              whileHover={{ y: -8, scale: 1.02, boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)' }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <motion.span 
+                className="finding-icon"
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: index * 0.5 }}
+              >
+                {finding.icon}
+              </motion.span>
+              <h4>{finding.title}</h4>
+              <p>{finding.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </motion.div>
 
@@ -62,16 +73,37 @@ const SectionConclusion = () => {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        viewport={{ once: true }}
+        viewport={{ once: false }}
       >
         <h3>Team Labmem</h3>
         <div className="team-grid">
           {TEAM_MEMBERS.map((member, index) => (
-            <div key={index} className="team-card">
-              <div className="team-avatar">{member.avatar}</div>
+            <motion.div 
+              key={index} 
+              className="team-card"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.1 * index, duration: 0.5 }}
+              viewport={{ once: false }}
+              whileHover={{ y: -5, scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <motion.div 
+                className="team-avatar"
+                animate={{ 
+                  y: [0, -5, 0],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ 
+                  y: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.2 },
+                  rotate: { duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: index * 0.2 }
+                }}
+              >
+                {member.avatar}
+              </motion.div>
               <h4>{member.name}</h4>
               <p>{member.role}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </motion.div>
@@ -81,11 +113,17 @@ const SectionConclusion = () => {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        viewport={{ once: true }}
+        viewport={{ once: false }}
       >
-        <button className="back-to-top" onClick={scrollToTop}>
+        <motion.button 
+          className="back-to-top" 
+          onClick={scrollToTop}
+          whileHover={{ scale: 1.05, y: -3 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        >
           ↑ Back to Top
-        </button>
+        </motion.button>
         <p className="credits">
           Data sourced from Kaggle • Built with React + D3.js
         </p>

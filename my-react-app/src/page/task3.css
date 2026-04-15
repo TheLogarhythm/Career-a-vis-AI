@@ -1,8 +1,90 @@
-.chart-container {
-  font-family: Arial, sans-serif;
+.task3-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0f172a 0%, #1e293b 40%, #334155 100%);
   display: flex;
   flex-direction: column;
-  align-items: center;
+}
 
-  background-color: rgb(255, 255, 255);
+/* Subtle dot pattern overlay for visual interest */
+.task3-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.task3-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.task3-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.task3-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.task3-header p {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.chart-container {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  margin-bottom: 1.5rem;
+}
+
+.chart-container:last-child {
+  margin-bottom: 0;
+}
+
+/* Loading state */
+.task3-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 18px;
+  color: #cbd5e1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .task3-content {
+    padding: 1rem;
+  }
+  
+  .task3-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .chart-container {
+    padding: 1rem;
+  }
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useScrolly } from "../../context/ScrollyContext";
@@ -9,51 +9,81 @@ const ScrollyContainer = ({ children }) => {
   const containerRef = useRef(null);
   const { setCurrentSection } = useScrolly();
 
+  // 使用 useCallback 防止重复创建
+  const updateSection = useCallback((index) => {
+    setCurrentSection(index);
+  }, [setCurrentSection]);
+
   useEffect(() => {
-    const sections = containerRef.current.querySelectorAll('.scrolly-section');
-    
-    // 为每个Section创建ScrollTrigger
+    const container = containerRef.current;
+    if (!container) return;
+
+    const sections = container.querySelectorAll('.scrolly-section');
+    const triggers = [];
+
+    // 仅为 pinned sections 创建 ScrollTrigger
     sections.forEach((section, index) => {
       const isPinned = section.classList.contains('pinned-section');
-      
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top center',
-        end: 'bottom center',
-        onEnter: () => setCurrentSection(index),
-        onEnterBack: () => setCurrentSection(index),
-      });
 
-      // 软定格配置 (仅Task区域)
       if (isPinned) {
-        ScrollTrigger.create({
+        // 统一 pinning 逻辑（仅 Task 区域）
+        const st = ScrollTrigger.create({
           trigger: section,
           start: 'top top',
-          end: '+=150%', // 延长滚动距离
+          end: '+=100%', // 标准 100vh 滚动距离
           pin: true,
           pinSpacing: true,
-          snap: {
-            snapTo: [0, 0.5, 1], // 3个吸附点
-            duration: { min: 0.3, max: 0.8 },
-            ease: 'power2.out',
-            // 中点强吸附，两端弱吸附
-            onStart: (self) => {
-              const progress = self.progress;
-              if (progress > 0.3 && progress < 0.7) {
-                self.duration(0.8); // 强吸附
-              } else {
-                self.duration(0.3); // 弱吸附
-              }
-            }
+          // 移除 snap，改为自然滚动
+          onEnter: () => {
+            updateSection(index);
+            section.dispatchEvent(new CustomEvent('sectionEnter', {
+              detail: { sectionIndex: index }
+            }));
+          },
+          onEnterBack: () => {
+            updateSection(index);
+            section.dispatchEvent(new CustomEvent('sectionEnter', {
+              detail: { sectionIndex: index }
+            }));
+          },
+          onLeave: () => {
+            section.dispatchEvent(new CustomEvent('sectionLeave', {
+              detail: { sectionIndex: index }
+            }));
+          },
+          onUpdate: (self) => {
+            section.dispatchEvent(new CustomEvent('sectionProgress', {
+              detail: { progress: self.progress }
+            }));
           }
         });
+        triggers.push(st);
+      } else {
+        // 非 pinned sections 只需要状态追踪
+        const st = ScrollTrigger.create({
+          trigger: section,
+          start: 'top center',
+          end: 'bottom center',
+          onEnter: () => updateSection(index),
+          onEnterBack: () => updateSection(index),
+        });
+        triggers.push(st);
       }
     });
 
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    // 监听滚动结束事件，修复回弹问题
+    const handleScrollEnd = () => {
+      // 确保 ScrollTrigger 正确刷新
+      ScrollTrigger.refresh();
     };
-  }, [setCurrentSection]);
+
+    window.addEventListener('scrollend', handleScrollEnd);
+
+    return () => {
+      triggers.forEach(trigger => trigger.kill());
+      window.removeEventListener('scrollend', handleScrollEnd);
+    };
+  }, [updateSection]);
 
   return (
     <div ref={containerRef} className="scrolly-container">

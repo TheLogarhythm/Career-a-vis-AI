@@ -1,4 +1,5 @@
 import React from 'react';
+import TaskPlaceholder from '../components/Common/TaskPlaceholder';
 import './SectionTask.css';
 
 const SectionTask3 = () => {
@@ -9,12 +10,13 @@ const SectionTask3 = () => {
         <h3>Impact Stats</h3>
         <p className="task-desc">Detailed impact analysis</p>
       </div>
-      <div className="task-content-wrapper task-placeholder">
-        <div className="placeholder-content">
-          <div className="placeholder-icon">📊</div>
-          <h4>Task 3: Impact Stats</h4>
-          <p>Coming Soon</p>
-        </div>
+      <div className="task-content-wrapper">
+        <TaskPlaceholder 
+          taskNumber={3}
+          title="Impact Stats"
+          icon="\uD83D\uDCCA"
+          description="Visualization coming soon"
+        />
       </div>
     </div>
   );

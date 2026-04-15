@@ -45,6 +45,11 @@
   background: #e0f2fe;
 }
 
+.file-header.expanded {
+  background: #e0f2fe;
+  border-bottom-color: #0ea5e9;
+}
+
 .file-icon {
   font-size: 28px;
   width: 48px;
@@ -96,22 +101,54 @@
   opacity: 1;
 }
 
-/* 详细统计区域 */
+/* 详细统计区域 - 可折叠 */
 .detailed-stats-section {
   padding: 12px;
   border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+  overflow: hidden;
+  max-height: 1200px;
+  opacity: 1;
+  transition: max-height 0.35s ease-in-out, opacity 0.25s ease-in-out, padding 0.3s ease-in-out;
 }
 
-.click-hint-banner {
-  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
-  border: 1px solid #0ea5e9;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  font-size: 12px;
-  color: #0369a1;
-  text-align: center;
-  font-weight: 500;
+/* 折叠状态 */
+.detailed-stats-section.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+  pointer-events: none;
+}
+
+/* 展开状态 */
+.detailed-stats-section.visible {
+  max-height: 1200px;
+  opacity: 1;
+}
+
+/* 预览表格 - 可折叠 */
+.preview-table-container {
+  padding: 12px;
+  flex-shrink: 0;
+  overflow: hidden;
+  max-height: 400px;
+  opacity: 1;
+  transition: max-height 0.35s ease-in-out, opacity 0.25s ease-in-out, padding 0.3s ease-in-out;
+}
+
+.preview-table-container.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
+.preview-table-container.visible {
+  max-height: 400px;
+  opacity: 1;
 }
 
 .section-label {
@@ -123,67 +160,46 @@
   margin-bottom: 8px;
 }
 
-/* 统计滚动容器 */
-.stats-scroll-container {
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-  padding-bottom: 4px;
-}
-
-.stats-scroll-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.stats-scroll-container::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-.stats-scroll-container::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-.stats-row {
-  display: flex;
-  gap: 8px;
-  min-width: min-content;
+/* 统计卡片网格布局 (替代原来的横向滚动) */
+.stats-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  padding: 4px;
 }
 
 /* 统计单元格 */
 .stat-cell {
-  flex-shrink: 0;
-  width: 140px;
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 10px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
+  position: relative;
 }
 
-.stat-cell:hover, .stat-cell.hovered {
+.stat-cell:hover {
   background: #f0f9ff;
   border-color: #0ea5e9;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+  transform: translateY(-3px);
+}
+
+.stat-cell.active {
+  background: #e0f2fe;
+  border-color: #0ea5e9;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.2);
 }
 
 .cell-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 8px;
-}
-
-.cell-name {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 80px;
 }
 
 .type-badge {
@@ -217,41 +233,181 @@
 .cell-viz {
   height: 50px;
   margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  width: 100%;
 }
 
 .mini-viz-container {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
-.cell-footer {
+.mini-viz-container svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================
+   展开式详情面板
+   ============================================ */
+
+.detail-panel-expanded {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 0 12px 12px;
+  animation: slideDown 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes slideDown {
+  from { 
+    opacity: 0; 
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+    max-height: 600px;
+  }
+}
+
+.detail-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.detail-column-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.detail-type-badge {
   font-size: 10px;
-  color: #64748b;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.top-values-preview {
+.detail-type-badge.categorical {
+  background: #dbeafe;
+  color: #0369a1;
+}
+
+.detail-type-badge.numeric {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.detail-type-badge.temporal {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.detail-type-badge.text {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.detail-close-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.detail-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.detail-chart-container {
+  width: 100%;
+  min-height: 200px;
+  margin-bottom: 16px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.detail-chart-container svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.detail-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.detail-stat-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.top-value-tag {
+.detail-stat-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.detail-stat-value {
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.detail-top-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.detail-value-tag {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.more-tag {
-  color: #94a3b8;
-  font-size: 9px;
-}
-
-.unique-count {
-  font-weight: 600;
-  color: #0ea5e9;
+  max-width: 120px;
 }
 
 /* 预览表格 */
@@ -489,26 +645,12 @@
     padding: 1.5rem;
   }
   
-  .kaggle-preview.scrolly-adapted .stat-cell {
-    width: 160px;
-    padding: 12px;
-  }
-  
   .kaggle-preview.scrolly-adapted .preview-table-container {
     padding: 1.5rem;
   }
-}
-
-/* 确保统计卡片在大屏幕上排列更好 */
-@media (min-width: 768px) {
-  .kaggle-preview.scrolly-adapted .stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-  }
   
-  .kaggle-preview.scrolly-adapted .stat-cell {
-    width: auto;
+  .kaggle-preview.scrolly-adapted .stats-grid-cards {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }
 
@@ -525,4 +667,67 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+/* ============================================
+   Global Tooltip
+   ============================================ */
+
+.global-tooltip {
+  position: fixed;
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  word-wrap: break-word;
+  animation: tooltip-fade-in 0.15s ease-out;
+  transform: translate(0, 0);
+  will-change: left, top;
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .global-tooltip {
+    font-size: 11px;
+    padding: 6px 10px;
+    max-width: 160px;
+  }
+  
+  .stats-grid-cards {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+  
+  .stat-cell {
+    padding: 10px;
+  }
+  
+  .cell-viz {
+    height: 40px;
+  }
+  
+  .detail-panel-expanded {
+    margin: 0 8px 8px;
+    padding: 16px;
+  }
+  
+  .detail-stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
