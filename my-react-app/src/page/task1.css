@@ -29,7 +29,7 @@ body {
 .scrolly-root {
   position: relative;
   min-height: 100vh;
-  margin-right: 61.8vw;
+  /* margin-right: 61.8vw; */
   padding: 40px 10px; /* Minimized side padding */
   overflow: visible;
 }
@@ -383,9 +383,9 @@ h1 {
 }
 
 @media (max-width: 760px) {
-  .scrolly-root {
+  /* .scrolly-root {
     padding: 12px;
-  }
+  } */
 
   .story-step {
     min-height: 50vh;

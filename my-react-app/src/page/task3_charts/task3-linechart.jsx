@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 
-function Linechart() {
+function Linechart( { scrollParentRef } ) {
   const chartRef = useRef();
   const isFirstRender = useRef(true);
   const [overlay, setOverlay] = useState(false);
@@ -35,6 +35,8 @@ function Linechart() {
   }, []);
 useEffect(() => {
   const handleScroll = () => {
+    const scrollEl = scrollParentRef?.current || window;
+    
     if (!overlay || !chartRef.current) return;
     const rect = chartRef.current.getBoundingClientRect();
     
@@ -47,9 +49,11 @@ useEffect(() => {
     
     setScrollProgress(progress);
   };
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, [overlay]);
+   const target = scrollParentRef?.current || window;
+  target.addEventListener("scroll", handleScroll);
+  
+  return () => target.removeEventListener("scroll", handleScroll);
+}, [overlay,scrollParentRef]);
 
   
 

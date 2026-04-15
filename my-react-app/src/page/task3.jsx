@@ -4,13 +4,13 @@ import "./task3.css";
 import Linechart from "./task3_charts/task3-linechart";
 import SeniorityDashboard from "./task3_charts/task3-SeniorityDashboard";
 
-function Task3() {
+function Task3({ scrollParentRef }) {
   return (
     <div>
       {" "}
       <h2>AI Impact Analysis</h2>
       <SeniorityDashboard />
-      <Linechart />
+      <Linechart scrollParentRef={scrollParentRef}  />
     </div>
   );
 }
