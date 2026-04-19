@@ -1,207 +1,173 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
+import "./IndustryDashboard.css";
 
-function IndustryDashboard() {
-  const chartRef = useRef();
-  const isFirstRender = useRef(true);
-  const [overlay, setOverlay] = useState(false);
+const IndustryDashboard = () => {
+  const chartRef = useRef(null);
   const [data, setData] = useState([]);
+  const [selectedIndustries, setSelectedIndustries] = useState(["Market Average"]);
 
-  const [visibleKeys, setVisibleKeys] = useState({
-    salary_usd: true,
-    ai_intensity_score: true,
-    automation_risk_score: true,
-    ai_mentioned: true,
-  });
+  const width = 500;
+  const height = 500;
+  const radius = 180;
+  const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
+  const AVG_COLOR = "#94a3b8";
 
-  // Increased bottom margin for long industry labels
-  const margin = { top: 60, right: 180, bottom: 120, left: 70 };
-  const gridW = 450,
-    gridH = 340;
-  const fullW = 950,
-    fullH = 600;
-
-  const charts = [
-    { key: "salary_usd", title: "Avg Salary", color: "#1DD3B0" },
-    { key: "ai_intensity_score", title: "AI Intensity", color: "#FF6B6B" },
-    { key: "automation_risk_score", title: "Automation Risk", color: "#FF9F1C" },
-    { key: "ai_mentioned", title: "AI Mention %", color: "#6A0572" },
+  const metrics = [
+    { key: "salary_usd", title: "Avg Salary" },
+    { key: "ai_intensity_score", title: "AI Intensity" },
+    { key: "automation_risk_score", title: "Automation Risk" },
+    { key: "reskilling_rate", title: "Reskilling Demand" },
+    { key: "displacement_risk", title: "Displacement Risk" },
+    { key: "skill_complexity", title: "Skill Variety" }
   ];
 
   useEffect(() => {
-    if (!overlay) {
-      setVisibleKeys({ salary_usd: true, ai_intensity_score: true, automation_risk_score: true, ai_mentioned: true });
-    }
-  }, [overlay]);
-
-  useEffect(() => {
-    const baseUrl = import.meta.env.BASE_URL;
+    const baseUrl = import.meta.env.BASE_URL || "/";
     d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
-      // 1. Group by 'industry' instead of seniority
-      const rolled = d3.rollups(
-        raw,
-        (v) => ({
-          salary_usd: d3.mean(v, (d) => +d.salary_usd),
-          ai_intensity_score: d3.mean(v, (d) => +d.ai_intensity_score),
-          automation_risk_score: d3.mean(v, (d) => +d.automation_risk_score),
-          ai_mentioned: d3.mean(v, (d) => (d.ai_mentioned === "True" ? 1 : 0)) * 100,
-        }),
-        (d) => d.industry,
+      const riskMap = { Low: 0.33, Medium: 0.66, High: 1.0 };
+      
+      const rolled = d3.rollups(raw, (v) => ({
+          salary_usd: d3.mean(v, d => +d.salary_usd),
+          ai_intensity_score: d3.mean(v, d => +d.ai_intensity_score),
+          automation_risk_score: d3.mean(v, d => +d.automation_risk_score),
+          reskilling_rate: d3.mean(v, d => (d.reskilling_required === "True" ? 1 : 0)) * 100,
+          displacement_risk: d3.mean(v, d => riskMap[d.ai_job_displacement_risk] || 0),
+          skill_complexity: d3.mean(v, d => d.ai_skills ? d.ai_skills.split(",").length : 0)
+        }), (d) => d.industry
       );
 
-      const keys = charts.map((c) => c.key);
-      const stats = rolled.map(([industry, values]) => ({ industry, ...values }));
+      let stats = rolled.map(([industry, values]) => ({ industry, ...values }));
 
-      const normalizedStats = stats.map((d) => {
+      // Market Average Calculation
+      const marketAvg = { industry: "Market Average" };
+      metrics.forEach(m => {
+        marketAvg[m.key] = d3.mean(stats, s => s[m.key]);
+      });
+      
+      const combinedStats = [marketAvg, ...stats];
+
+      // Normalization
+      const normalized = combinedStats.map((d) => {
         const norm = { ...d };
-        keys.forEach((k) => (norm[`${k}_norm`] = d[k] / (d3.max(stats, (s) => s[k]) || 1)));
+        metrics.forEach((m) => {
+          const maxVal = d3.max(combinedStats, (s) => s[m.key]) || 1;
+          norm[`${m.key}_norm`] = d[m.key] / maxVal;
+        });
         return norm;
       });
 
-      setData(normalizedStats);
+      setData(normalized);
     });
   }, []);
 
   useEffect(() => {
-    if (data.length === 0) return;
+    if (!data.length || !chartRef.current) return;
 
-    const container = d3.select(chartRef.current);
-    let svg = container.select("svg");
+    const svg = d3.select(chartRef.current);
+    svg.selectAll("*").remove(); // Clear previous draw
 
-    let tooltip = container.select(".tooltip-div");
-    if (tooltip.empty()) {
-      tooltip = container
-        .append("div")
-        .attr("class", "tooltip-div")
-        .style("position", "fixed")
-        .style("background", "white")
-        .style("border", "1px solid #ccc")
-        .style("padding", "8px")
-        .style("border-radius", "4px")
-        .style("opacity", 0)
-        .style("pointer-events", "none")
-        .style("z-index", "100");
-    }
+    const g = svg.append("g")
+                 .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
-    if (svg.empty()) {
-      svg = container.append("svg").attr("overflow", "visible").style("font-family", "sans-serif");
-      charts.forEach((_, i) => {
-        const g = svg.append("g").attr("class", `chart-group group-${i}`);
-        g.append("g").attr("class", "bars");
-        g.append("g").attr("class", "x-axis");
-        g.append("g").attr("class", "y-axis");
-        g.append("text").attr("class", "chart-label").style("font-weight", "bold").style("cursor", "pointer");
+    const angleSlice = (Math.PI * 2) / metrics.length;
+    const rScale = d3.scaleLinear().domain([0, 1]).range([0, radius]);
+
+    // 1. Draw Grid
+    [0.2, 0.4, 0.6, 0.8, 1.0].forEach(level => {
+      const gridPoints = metrics.map((_, i) => {
+        const r = rScale(level);
+        return [r * Math.cos(angleSlice * i - Math.PI / 2), r * Math.sin(angleSlice * i - Math.PI / 2)];
       });
-    }
-
-    const duration = isFirstRender.current ? 0 : 800;
-    const t = d3.transition().duration(duration).ease(d3.easeCubicInOut);
-
-    const width = overlay ? fullW - margin.left - margin.right : gridW - margin.left - 40;
-    const height = overlay ? fullH - margin.top - margin.bottom : gridH - margin.top - margin.bottom;
-
-    const activeKeys = charts.filter((c) => visibleKeys[c.key]).map((c) => `${c.key}_norm`);
-    const stackedData = d3.stack().keys(activeKeys)(data);
-
-    svg
-      .transition(t)
-      .attr("width", overlay ? fullW : gridW * 2)
-      .attr("height", overlay ? fullH : gridH * 2);
-
-    charts.forEach((chart, i) => {
-      const g = svg.select(`.group-${i}`);
-      const isVisible = visibleKeys[chart.key];
-      const series = stackedData.find((s) => s.key === `${chart.key}_norm`);
-
-      const industries = data.map((d) => d.industry);
-      const x = d3.scaleBand().domain(industries).range([0, width]).padding(0.3);
-      const y = d3
-        .scaleLinear()
-        .domain([
-          0,
-          overlay
-            ? d3.max(data, (d) => activeKeys.reduce((a, k) => a + d[k], 0)) || 1
-            : d3.max(data, (d) => d[chart.key]) || 1,
-        ])
-        .range([height, 0]);
-
-      const tx = overlay ? margin.left : (i % 2) * gridW + margin.left;
-      const ty = overlay ? margin.top : Math.floor(i / 2) * gridH + margin.top;
-
-      g.transition(t).attr("transform", `translate(${tx}, ${ty})`);
-
-      const bars = g.select(".bars").selectAll(".bar").data(data);
-
-      bars
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .merge(bars)
-        .on("mouseover", (event, d) => {
-          if (!isVisible) return;
-          d3.selectAll(".bar").style("opacity", 0.1);
-          d3.select(event.currentTarget).style("opacity", 1);
-          tooltip.transition().duration(100).style("opacity", 1);
-          const val = chart.key === "salary_usd" ? d3.format("$,.0f")(d[chart.key]) : d3.format(".2f")(d[chart.key]);
-          tooltip.html(`<b>${d.industry}</b><br/>${chart.title}: ${val}`);
-        })
-        .on("mousemove", (event) => {
-          tooltip.style("left", event.clientX + 15 + "px").style("top", event.clientY - 40 + "px");
-        })
-        .on("mouseout", () => {
-          d3.selectAll(".bar").style("opacity", overlay ? 0.8 : 1);
-          tooltip.transition().duration(200).style("opacity", 0);
-        })
-        .transition(t)
-        .attr("x", (d) => x(d.industry))
-        .attr("width", x.bandwidth())
-        .attr("fill", chart.color)
-        .attr("y", (d, idx) => (overlay ? (isVisible && series ? y(series[idx][1]) : height) : y(d[chart.key])))
-        .attr("height", (d, idx) =>
-          overlay ? (isVisible && series ? y(series[idx][0]) - y(series[idx][1]) : 0) : height - y(d[chart.key]),
-        )
-        .style("opacity", isVisible ? (overlay ? 0.8 : 1) : overlay ? 0 : 0.3);
-
-      g.select(".x-axis")
-        .attr("transform", `translate(0, ${height})`)
-        .transition(t)
-        .style("opacity", overlay && i !== 0 ? 0 : 1)
-        .call(d3.axisBottom(x))
-        .selectAll("text")
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-45)");
-
-      g.select(".y-axis")
-        .transition(t)
-        .style("opacity", overlay || !isVisible ? 0 : 1)
-        .call(d3.axisLeft(y).ticks(5));
-
-      g.select(".chart-label")
-        .on("click", () => setVisibleKeys((prev) => ({ ...prev, [chart.key]: !prev[chart.key] })))
-        .transition(t)
-        .attr("fill", isVisible ? chart.color : "#9ca3af")
-        .attr("x", overlay ? width + 15 : width / 2)
-        .attr("y", overlay ? i * 25 : -15)
-        .attr("text-anchor", overlay ? "start" : "middle")
-        .text(`${isVisible ? "●" : "○"} ${chart.title}`);
+      g.append("polygon")
+       .attr("points", gridPoints.join(" "))
+       .attr("fill", "none")
+       .attr("stroke", "#f1f5f9");
     });
 
-    isFirstRender.current = false;
-  }, [data, overlay, visibleKeys]);
+    // 2. Labels
+    metrics.forEach((m, i) => {
+      const x = rScale(1.15) * Math.cos(angleSlice * i - Math.PI / 2);
+      const y = rScale(1.15) * Math.sin(angleSlice * i - Math.PI / 2);
+      g.append("text")
+       .attr("x", x).attr("y", y)
+       .attr("text-anchor", "middle")
+       .attr("fill", "#94a3b8")
+       .style("font-size", "11px")
+       .style("font-weight", "600")
+       .text(m.title);
+    });
+
+    // 3. Draw Industry Shapes
+    selectedIndustries.forEach((name) => {
+      const industryData = data.find(d => d.industry === name);
+      if (!industryData) return;
+
+      const isAvg = name === "Market Average";
+      const color = isAvg ? AVG_COLOR : colorScale(name);
+
+      const radarLine = d3.lineRadial()
+        .radius(d => rScale(industryData[`${d.key}_norm`]))
+        .angle((d, i) => i * angleSlice)
+        .curve(d3.curveLinearClosed);
+
+      g.append("path")
+        .datum(metrics)
+        .attr("d", radarLine)
+        .attr("fill", color)
+        .attr("fill-opacity", isAvg ? 0.05 : 0.15)
+        .attr("stroke", color)
+        .attr("stroke-width", isAvg ? 1.5 : 2.5)
+        .attr("stroke-dasharray", isAvg ? "4,4" : "0");
+
+      metrics.forEach((m, i) => {
+        g.append("circle")
+          .attr("r", isAvg ? 3 : 4.5)
+          .attr("cx", rScale(industryData[`${m.key}_norm`]) * Math.cos(angleSlice * i - Math.PI / 2))
+          .attr("cy", rScale(industryData[`${m.key}_norm`]) * Math.sin(angleSlice * i - Math.PI / 2))
+          .attr("fill", color)
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 1.5);
+      });
+    });
+  }, [data, selectedIndustries]);
+
+  const toggleIndustry = (industry) => {
+    setSelectedIndustries(prev => 
+      prev.includes(industry) ? prev.filter(i => i !== industry) : [...prev, industry]
+    );
+  };
 
   return (
-    <div style={{ padding: "40px", backgroundColor: "#f9fafb" }}>
-      <button
-        onClick={() => setOverlay(!overlay)}
-        style={{ padding: "10px 20px", cursor: "pointer", marginBottom: "20px" }}
-      >
-        {overlay ? "⬅ Back to Grid" : " View Stacked Comparison"}
-      </button>
-      <div ref={chartRef} style={{ background: "white", borderRadius: "12px", padding: "20px" }}></div>
+    <div className="dashboard-container">
+      <div className="industry-topbar">
+        {data.map((d) => {
+          const isActive = selectedIndustries.includes(d.industry);
+          const color = d.industry === "Market Average" ? AVG_COLOR : colorScale(d.industry);
+          return (
+            <button
+              key={d.industry}
+              onClick={() => toggleIndustry(d.industry)}
+              className="industry-btn"
+              style={{
+                borderColor: isActive ? color : "#e2e8f0",
+                color: isActive ? color : "#64748b",
+                backgroundColor: isActive ? `${color}10` : "white"
+              }}
+            >
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: isActive ? color : "#cbd5e1" }} />
+              {d.industry}
+            </button>
+          );
+        })}
+      </div>
+      <div className="chart-area">
+        <div className="chart-card">
+          <svg ref={chartRef} width={width} height={height}></svg>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default IndustryDashboard;
