@@ -60,6 +60,8 @@ const Task2 = () => {
   const [leaderboardYearType, setLeaderboardYearType] = useState("right"); // "left" for solid, "right" for hollow
   const [isDragging, setIsDragging] = useState(false);
   const [tempCompareYears, setTempCompareYears] = useState({ left: 2010, right: 2024 });
+  const [showTrace, setShowTrace] = useState(false);
+  const [ghostYear, setGhostYear] = useState(null); // Ghost marker position for trace
 
   // 引导状态
   const [guideState, setGuideState] = useState(() => {
@@ -514,15 +516,36 @@ const Task2 = () => {
       drawPersistentLayers();
       // 然后绘制数据点层
       updateDataPoints();
+      updateTraceLines(); // NEW: Render trace lines
       drawLegend();
     }
-  }, [data, selectedIndustries, mode, scales]);
+  }, [data, selectedIndustries, mode, scales, showTrace]);
 
   // 当 compareYears 或 hoveredPoint 变化时，仅更新数据点层（带过渡动画）
   useEffect(() => {
     if (!scales || data.length === 0 || mode === 'parallel') return;
     updateDataPoints();
-  }, [compareYears.left, compareYears.right, hoveredPoint, selectedIndustries]);
+    updateTraceLines(); // NEW: Update traces when years change
+  }, [compareYears.left, compareYears.right, hoveredPoint, selectedIndustries, showTrace, ghostYear]);
+
+  // Cleanup trace lines when showTrace is disabled
+  useEffect(() => {
+    if (!showTrace) {
+      const svg = d3.select(svgRef.current);
+      svg.selectAll(".trace-position-line").remove();
+      svg.selectAll(".trace-size-line").remove();
+    }
+  }, [showTrace]);
+
+  // Initialize ghostYear when trace is enabled
+  useEffect(() => {
+    if (showTrace && ghostYear === null && data.length > 0) {
+      setGhostYear(compareYears.left); // FIX: default to LEFT handle, not right
+    }
+    if (!showTrace) {
+      setGhostYear(null);
+    }
+  }, [showTrace, data.length]);
 
   const drawMainChart = () => {
     // 保留兼容入口，实际工作由 drawPersistentLayers + updateDataPoints 完成
@@ -538,6 +561,122 @@ const Task2 = () => {
       .attr("r", currentR + 4)
       .transition().duration(150).ease(d3.easeCubicInOut)
       .attr("r", currentR);
+  };
+
+  // Compute trace data for all visible industries between ghostYear and current year
+  const computeTraceData = () => {
+    if (!showTrace || ghostYear === null || ghostYear === compareYears.right) return [];
+    
+    const startYear = Math.min(ghostYear, compareYears.right);
+    const endYear = Math.max(ghostYear, compareYears.right);
+    
+    // Get all industries that have data in both start and end years
+    const industries = [...new Set(data.map(d => d.industry))];
+    const filteredIndustries = selectedIndustries.size === 0 
+      ? industries 
+      : [...selectedIndustries];
+    
+    const traces = [];
+    
+    filteredIndustries.forEach(industry => {
+      // Get all data points for this industry within the year range
+      const industryData = data
+        .filter(d => d.industry === industry && d.year >= startYear && d.year <= endYear)
+        .sort((a, b) => a.year - b.year);
+      
+      if (industryData.length < 2) return; // Need at least 2 points to draw a line
+      
+      traces.push({
+        industry,
+        color: INDUSTRY_COLORS[industry] || INDUSTRY_COLORS.default,
+        points: industryData.map(d => ({
+          year: d.year,
+          x: scales.x(d.avgAIIntensity),
+          y: scales.y(d.avgSalary),
+          r: scales.size(d.jobCount),
+          risk: d.avgAutomationRisk
+        }))
+      });
+    });
+    
+    return traces;
+  };
+
+  // Render trace lines showing industry evolution over time
+  const updateTraceLines = () => {
+    const svg = d3.select(svgRef.current);
+    const g = svg.select(".data-layer");
+    if (g.empty()) return;
+    
+    const traces = computeTraceData();
+
+    // --- Position Trace (Solid Line) ---
+    // Connects center positions (x, y) across years
+    const positionLineGenerator = d3.line()
+      .x(d => d.x)
+      .y(d => d.y)
+      .curve(d3.curveMonotoneX);
+    
+    g.selectAll(".trace-position-line")
+      .data(traces, d => d.industry)
+      .join(
+        enter => enter.append("path")
+          .attr("class", "trace-position-line")
+          .attr("fill", "none")
+          .attr("stroke", d => d.color)
+          .attr("stroke-width", 1.5)
+          .attr("stroke-opacity", 0.55)
+          .attr("d", d => positionLineGenerator(d.points))
+          .attr("opacity", 0)
+          .call(sel => sel.transition().duration(400).ease(d3.easeCubicInOut)
+            .attr("opacity", 1)),
+        update => update
+          .interrupt()
+          .transition().duration(400).ease(d3.easeCubicInOut)
+          .attr("d", d => positionLineGenerator(d.points))
+          .attr("stroke", d => d.color),
+        exit => exit.transition().duration(300)
+          .attr("opacity", 0)
+          .remove()
+      );
+
+    // --- Size Trace: dashed ghost circles at each historical position ---
+    // Flatten all (industry × year) points into one array keyed by industry+year
+    const allPoints = traces.flatMap(trace =>
+      trace.points.map(pt => ({
+        key: `${trace.industry}-${pt.year}`,
+        industry: trace.industry,
+        color: trace.color,
+        ...pt
+      }))
+    );
+
+    g.selectAll(".trace-size-line")
+      .data(allPoints, d => d.key)
+      .join(
+        enter => enter.append("circle")
+          .attr("class", "trace-size-line")
+          .attr("fill", "none")
+          .attr("stroke", d => d.color)
+          .attr("stroke-width", 1.5)
+          .attr("stroke-dasharray", "4,3")
+          .attr("stroke-opacity", 0.6)
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
+          .attr("r", 0)
+          .call(sel => sel.transition().duration(400).ease(d3.easeCubicInOut)
+            .attr("r", d => d.r)),
+        update => update
+          .interrupt()
+          .transition().duration(400).ease(d3.easeCubicInOut)
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y)
+          .attr("r", d => d.r)
+          .attr("stroke", d => d.color),
+        exit => exit.transition().duration(300)
+          .attr("r", 0)
+          .remove()
+      );
   };
 
   // HTML 图例渲染
@@ -925,6 +1064,26 @@ const Task2 = () => {
           <button className={mode === "compare" ? "active" : ""} onClick={() => setMode("compare")}>Compare</button>
           <button className={mode === "parallel" ? "active" : ""} onClick={() => setMode("parallel")}>Parallel</button>
         </div>
+        {mode === "compare" && (
+          <>
+            <button 
+              className={`trace-toggle-btn ${showTrace ? "active" : ""}`}
+              onClick={() => setShowTrace(prev => !prev)}
+              title="Show/hide industry evolution traces"
+            >
+              {showTrace ? "✦ Hide Trace" : "✦ Show Trace"}
+            </button>
+            {showTrace && ghostYear !== null && (
+              <button 
+                className="set-start-point-btn"
+                onClick={() => setGhostYear(compareYears.left)}
+                title="Reset ghost marker to left (start) year"
+              >
+                ⦿ Set Start Point
+              </button>
+            )}
+          </>
+        )}
         <button className="help-btn" onClick={() => startGuide(mode)}>How to Use</button>
       </div>
 
@@ -1114,6 +1273,17 @@ const Task2 = () => {
               <div className="handle-icon hollow">○</div>
               <div className="handle-label">{compareYears.right}</div>
             </div>
+
+            {/* Ghost marker for trace mode */}
+            {showTrace && ghostYear !== null && ghostYear !== compareYears.right && (
+              <div
+                className="ghost-marker"
+                style={{ left: `${((ghostYear - yearRange[0]) / (yearRange[1] - yearRange[0])) * 100}%` }}
+              >
+                <div className="ghost-icon">◌</div>
+                <div className="ghost-label">{ghostYear}</div>
+              </div>
+            )}
           </div>
         </div>
       </div>

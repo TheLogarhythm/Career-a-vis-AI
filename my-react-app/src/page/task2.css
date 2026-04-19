@@ -211,6 +211,100 @@
   border-color: #94a3b8;
 }
 
+/* Show Trace Toggle Button */
+.trace-toggle-btn {
+  padding: 8px 16px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trace-toggle-btn:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.trace-toggle-btn.active {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border-color: #0ea5e9;
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+}
+
+/* Set Start Point Button */
+.set-start-point-btn {
+  padding: 8px 16px;
+  border: 1px solid #f59e0b;
+  background: #fffbeb;
+  color: #d97706;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.set-start-point-btn:hover {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+  box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+
+/* Trace Line Styles (SVG) */
+.trace-position-line {
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.trace-size-line {
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Ghost Marker on Timeline */
+.ghost-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.ghost-icon {
+  font-size: 24px;
+  color: #f59e0b;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+}
+
+.ghost-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #f59e0b;
+  background: rgba(255, 251, 235, 0.9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px dashed #f59e0b;
+  white-space: nowrap;
+}
+
 /* 图表区域 */
 .chart-wrapper {
   flex: 1;
