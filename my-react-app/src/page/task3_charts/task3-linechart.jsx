@@ -201,7 +201,7 @@ g.select(".y-axis")
   }, [data, overlay, scrollProgress]);
 
   return (
-    <div style={{ paddingBottom: "100vh" }}>
+    <div >
       <div style={{ height: "100px" }} />
       <h2 style={{ textAlign: 'center', fontFamily: 'sans-serif' }}>AI Impact Analysis</h2>
       <div style={{ textAlign: 'center', position: 'sticky', top: '20px', zIndex: 10 }}>

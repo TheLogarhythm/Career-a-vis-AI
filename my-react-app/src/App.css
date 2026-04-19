@@ -14,13 +14,19 @@ body, html {
 
 /* LEFT SIDE */
 .left-container {
-  width: 300px;
+  /* Use flex-basis and prevent shrinking/growing */
+  flex: 0 0 300px; 
+  width: 200px;
   height: 100%;
-  overflow-y: auto; /* Independent scroll */
+  overflow-y: auto;
   border-right: 2px solid #e2e8f0;
   padding: 40px 20px;
   box-sizing: border-box;
+  
+  /* Reserve scrollbar space here too so THIS bar doesn't shift */
+  scrollbar-gutter: stable;
 }
+
 
 .task-card {
   height: 150px;
@@ -44,13 +50,10 @@ body, html {
 .right-container {
   flex-grow: 1;
   height: 100%;
-  overflow-y: auto; /* Independent scroll */
+  overflow-y: scroll;
   /* padding: 40px; */
   box-sizing: border-box;
   scroll-behavior: smooth;
+  
 }
 
-/* .content-padding {
-  max-width: 800px;
-  margin: 0 auto;
-} */
