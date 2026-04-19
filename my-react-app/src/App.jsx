@@ -17,7 +17,6 @@ function App() {
             const taskId = entry.target.getAttribute("data-task");
             setActiveTask(taskId);
             
-            // Optional: Reset right side scroll to top when task changes
             if (rightContainerRef.current) {
               rightContainerRef.current.scrollTop = 0;
             }

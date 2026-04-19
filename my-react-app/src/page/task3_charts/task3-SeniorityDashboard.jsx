@@ -1,16 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
-import "./IndustryDashboard.css";
 
-const IndustryDashboard = () => {
+const SeniorityDashboard = ({ data, selectedIndustries, colorScale }) => {
   const chartRef = useRef(null);
-  const [data, setData] = useState([]);
-  const [selectedIndustries, setSelectedIndustries] = useState(["Market Average"]);
-
+  const prevSelectionRef = useRef([]); // To track what was already selected
+  
   const width = 500;
   const height = 500;
-  const radius = 180;
-  const colorScale = d3.scaleOrdinal(d3.schemeTableau10);
+  const radius = 160;
   const AVG_COLOR = "#94a3b8";
 
   const metrics = [
@@ -23,49 +20,10 @@ const IndustryDashboard = () => {
   ];
 
   useEffect(() => {
-    const baseUrl = import.meta.env.BASE_URL || "/";
-    d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
-      const riskMap = { Low: 0.33, Medium: 0.66, High: 1.0 };
-      
-      const rolled = d3.rollups(raw, (v) => ({
-          salary_usd: d3.mean(v, d => +d.salary_usd),
-          ai_intensity_score: d3.mean(v, d => +d.ai_intensity_score),
-          automation_risk_score: d3.mean(v, d => +d.automation_risk_score),
-          reskilling_rate: d3.mean(v, d => (d.reskilling_required === "True" ? 1 : 0)) * 100,
-          displacement_risk: d3.mean(v, d => riskMap[d.ai_job_displacement_risk] || 0),
-          skill_complexity: d3.mean(v, d => d.ai_skills ? d.ai_skills.split(",").length : 0)
-        }), (d) => d.industry
-      );
-
-      let stats = rolled.map(([industry, values]) => ({ industry, ...values }));
-
-      // Market Average Calculation
-      const marketAvg = { industry: "Market Average" };
-      metrics.forEach(m => {
-        marketAvg[m.key] = d3.mean(stats, s => s[m.key]);
-      });
-      
-      const combinedStats = [marketAvg, ...stats];
-
-      // Normalization
-      const normalized = combinedStats.map((d) => {
-        const norm = { ...d };
-        metrics.forEach((m) => {
-          const maxVal = d3.max(combinedStats, (s) => s[m.key]) || 1;
-          norm[`${m.key}_norm`] = d[m.key] / maxVal;
-        });
-        return norm;
-      });
-
-      setData(normalized);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!data.length || !chartRef.current) return;
+    if (!data || data.length === 0 || !chartRef.current) return;
 
     const svg = d3.select(chartRef.current);
-    svg.selectAll("*").remove(); // Clear previous draw
+    svg.selectAll("*").remove(); 
 
     const g = svg.append("g")
                  .attr("transform", `translate(${width / 2}, ${height / 2})`);
@@ -73,101 +31,90 @@ const IndustryDashboard = () => {
     const angleSlice = (Math.PI * 2) / metrics.length;
     const rScale = d3.scaleLinear().domain([0, 1]).range([0, radius]);
 
-    // 1. Draw Grid
+    // 1. STATIC GRID & AXES (Same as before)
     [0.2, 0.4, 0.6, 0.8, 1.0].forEach(level => {
-      const gridPoints = metrics.map((_, i) => {
-        const r = rScale(level);
-        return [r * Math.cos(angleSlice * i - Math.PI / 2), r * Math.sin(angleSlice * i - Math.PI / 2)];
-      });
-      g.append("polygon")
-       .attr("points", gridPoints.join(" "))
-       .attr("fill", "none")
-       .attr("stroke", "#f1f5f9");
+      const gridPoints = metrics.map((_, i) => [
+        rScale(level) * Math.cos(angleSlice * i - Math.PI / 2),
+        rScale(level) * Math.sin(angleSlice * i - Math.PI / 2)
+      ]);
+      g.append("polygon").attr("points", gridPoints.join(" ")).attr("fill", "none").attr("stroke", "#f1f5f9").attr("stroke-width", 1);
     });
-
-    // 2. Labels
     metrics.forEach((m, i) => {
-      const x = rScale(1.15) * Math.cos(angleSlice * i - Math.PI / 2);
-      const y = rScale(1.15) * Math.sin(angleSlice * i - Math.PI / 2);
-      g.append("text")
-       .attr("x", x).attr("y", y)
-       .attr("text-anchor", "middle")
-       .attr("fill", "#94a3b8")
-       .style("font-size", "11px")
-       .style("font-weight", "600")
-       .text(m.title);
+      const angle = angleSlice * i - Math.PI / 2;
+      g.append("line").attr("x1", 0).attr("y1", 0).attr("x2", rScale(1) * Math.cos(angle)).attr("y2", rScale(1) * Math.sin(angle)).attr("stroke", "#f1f5f9");
+      g.append("text").attr("x", rScale(1.2) * Math.cos(angle)).attr("y", rScale(1.2) * Math.sin(angle)).attr("text-anchor", "middle").attr("dominant-baseline", "middle").attr("fill", "#94a3b8").style("font-size", "11px").text(m.title);
     });
 
-    // 3. Draw Industry Shapes
+    // 2. LOGIC TO IDENTIFY THE "NEWLY CLICKED" INDUSTRY
+    // If the current list is longer than the previous, the last item in selectedIndustries is the new one.
+    const lastAdded = selectedIndustries.length > prevSelectionRef.current.length 
+      ? selectedIndustries[selectedIndustries.length - 1] 
+      : null;
+
+    // 3. DRAW SHAPES
     selectedIndustries.forEach((name) => {
       const industryData = data.find(d => d.industry === name);
       if (!industryData) return;
 
       const isAvg = name === "Market Average";
       const color = isAvg ? AVG_COLOR : colorScale(name);
+      const isNew = name === lastAdded; // Check if this industry specifically needs animation
 
       const radarLine = d3.lineRadial()
-        .radius(d => rScale(industryData[`${d.key}_norm`]))
+        .radius(d => rScale(industryData[`${d.key}_norm`] || 0))
         .angle((d, i) => i * angleSlice)
         .curve(d3.curveLinearClosed);
 
-      g.append("path")
+      const shapeG = g.append("g").style("mix-blend-mode", "multiply");
+
+      // Area Path
+      const path = shapeG.append("path")
         .datum(metrics)
         .attr("d", radarLine)
         .attr("fill", color)
-        .attr("fill-opacity", isAvg ? 0.05 : 0.15)
         .attr("stroke", color)
-        .attr("stroke-width", isAvg ? 1.5 : 2.5)
+        .attr("stroke-width", isAvg ? 1 : 2.5)
         .attr("stroke-dasharray", isAvg ? "4,4" : "0");
 
+      if (isNew) {
+        path.attr("opacity", 0)
+            .transition().duration(800)
+            .attr("opacity", 1)
+            .attr("fill-opacity", isAvg ? 0.1 : 0.35);
+      } else {
+        path.attr("opacity", 1)
+            .attr("fill-opacity", isAvg ? 0.1 : 0.35);
+      }
+
+      // Dots
       metrics.forEach((m, i) => {
-        g.append("circle")
+        const val = industryData[`${m.key}_norm`] || 0;
+        const circle = shapeG.append("circle")
           .attr("r", isAvg ? 3 : 4.5)
-          .attr("cx", rScale(industryData[`${m.key}_norm`]) * Math.cos(angleSlice * i - Math.PI / 2))
-          .attr("cy", rScale(industryData[`${m.key}_norm`]) * Math.sin(angleSlice * i - Math.PI / 2))
+          .attr("cx", rScale(val) * Math.cos(angleSlice * i - Math.PI / 2))
+          .attr("cy", rScale(val) * Math.sin(angleSlice * i - Math.PI / 2))
           .attr("fill", color)
-          .attr("stroke", "#fff")
-          .attr("stroke-width", 1.5);
+          .attr("stroke", "#fff");
+
+        if (isNew) {
+          circle.attr("opacity", 0).transition().duration(800).attr("opacity", 1);
+        } else {
+          circle.attr("opacity", 1);
+        }
       });
     });
-  }, [data, selectedIndustries]);
 
-  const toggleIndustry = (industry) => {
-    setSelectedIndustries(prev => 
-      prev.includes(industry) ? prev.filter(i => i !== industry) : [...prev, industry]
-    );
-  };
+    // Update the Ref for the next render
+    prevSelectionRef.current = [...selectedIndustries];
+  }, [data, selectedIndustries, colorScale]);
 
   return (
-    <div className="dashboard-container">
-      <div className="industry-topbar">
-        {data.map((d) => {
-          const isActive = selectedIndustries.includes(d.industry);
-          const color = d.industry === "Market Average" ? AVG_COLOR : colorScale(d.industry);
-          return (
-            <button
-              key={d.industry}
-              onClick={() => toggleIndustry(d.industry)}
-              className="industry-btn"
-              style={{
-                borderColor: isActive ? color : "#e2e8f0",
-                color: isActive ? color : "#64748b",
-                backgroundColor: isActive ? `${color}10` : "white"
-              }}
-            >
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: isActive ? color : "#cbd5e1" }} />
-              {d.industry}
-            </button>
-          );
-        })}
-      </div>
-      <div className="chart-area">
-        <div className="chart-card">
-          <svg ref={chartRef} width={width} height={height}></svg>
-        </div>
+    <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
+      <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        <svg ref={chartRef} width={width} height={height}></svg>
       </div>
     </div>
   );
 };
 
-export default IndustryDashboard;
+export default SeniorityDashboard;
