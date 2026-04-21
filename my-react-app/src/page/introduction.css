@@ -1,0 +1,152 @@
+/* 1. 容器与粘性视口 */
+.intro-container {
+  width: 100%;
+  /* 增加总高度以提供充足的滚动空间（3段式动画） */
+  height: 300vh; 
+  position: relative;
+  background: #ffffff;
+}
+
+.intro-sticky-viewport {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 2. 图层通用样式：通过 opacity 实现原地淡入淡出 */
+.layer {
+  position: absolute;
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.1s ease-out; /* 响应滚动更及时 */
+}
+
+/* 3. Stage 0: 文字与提示 */
+.stage-text {
+  text-align: center;
+  padding: 0 40px;
+}
+
+.pre-intro-text {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.4;
+  margin-bottom: 40px;
+  max-width: 800px;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.scroll-hint-minimal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.hint-arrow {
+  margin-top: 10px;
+  animation: hintBounce 2s infinite;
+  font-size: 20px;
+}
+
+@keyframes hintBounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+  40% {transform: translateY(-8px);}
+  60% {transform: translateY(-4px);}
+}
+
+/* 4. Stage 1: 词云与说明 */
+.stage-cloud {
+  padding: 20px;
+}
+
+.cloud-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.intro-cloud-canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.cloud-footer {
+  margin-top: 20px;
+  text-align: center;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 20px;
+  width: 80%;
+}
+
+.cloud-source-text {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.cloud-source-text a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.cloud-context-text {
+  font-size: 13px;
+  color: #94a3b8;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* 5. Stage 2: 详情网格 */
+.stage-content {
+  padding: 0 60px;
+}
+
+.content-grid {
+  display: flex;
+  gap: 60px;
+  align-items: center;
+}
+
+.content-left {
+  flex: 0 0 45%;
+}
+
+.intro-main-img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+}
+
+.content-right {
+  flex: 1;
+}
+
+.content-right h2 {
+  font-size: 32px;
+  color: #0f172a;
+  margin-bottom: 24px;
+  font-weight: 800;
+}
+
+.content-right p {
+  font-size: 17px;
+  color: #475569;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}

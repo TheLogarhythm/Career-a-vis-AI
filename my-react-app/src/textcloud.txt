@@ -1,0 +1,254 @@
+Revenue growth in AI-exposed industries has accelerated sharply since 2022, the year that the launch of ChatGPT 3.5 awakened the world to AI's power. Since then, as companies have raced to leverage this technology, the value created in industries best positioned to use AI has skyrocketed.
+
+That’s clearly great for businesses, but how is this rapid transformation affecting jobs?
+
+To find out, PwC analysed AI’s impact on both augmentable jobs (jobs that contain many tasks in which AI can enhance or support human judgment and expertise), and automatable jobs (jobs that contain many tasks that can be autonomously completed by AI).
+
+Industries more exposed to AI have 3x higher growth in revenue per employee
+AI can make workers more productive and enable them to create more value. Since 2022 when awareness of AI's power surged, revenue growth in industries best positioned to adopt AI has nearly quadrupled. This suggests that investments in AI are paying off. AI's promise is proving to be real, and we are still only in the early days of AI adoption.
+
+Wages are rising 2x faster in the most AI-exposed industries
+AI is making workers more valuable, with wages rising twice as quickly in those industries most exposed to AI compared to those least exposed. Indeed we found that wages are rising for AI-powered workers even in the most highly automatable roles, suggesting that concerns that AI is devaluing automatable roles in the aggregate may be misplaced.
+
+Skills for AI-exposed jobs are changing 66% faster than for other jobs: more than 2.5x faster than last year
+The AI-driven skills earthquake is accelerating. AI is redefining roles faster and faster and creating rapid change in the skills required to succeed in AI-powered jobs. Workers must demonstrate that they have the skills to succeed in an AI era.
+
+Workers with AI skills command a 56% wage premium: up from 25% last year
+The value that AI-powered workers bring is apparent in the wage premium for workers with AI skills like prompt engineering. We compared the wages of workers in a given occupation who differ only on whether they have AI skills. We found that on average, the wages of workers with AI skills were significantly higher. What’s more, every industry we analysed pays wage premiums for AI skills.Over the next two to three years, 50% to 55% of jobs in the US will be reshaped by AI. For many employees, this will mean that they retain the same or a similar role but face radically new expectations for how they work and what they produce. For company leaders, it will require a clear vision for how the transformation is managed, including a scaled, strategic approach to upskilling and reskilling and the restructuring of career ladders.
+
+This shift is already happening—and will pick up speed as AI adoption spreads. Our analysis, based on microeconomic modeling, identified a significant swath of the labor force for which AI will meaningfully augment current roles. Moreover, when the productivity gains from AI use trigger increased end product demand and the potential for augmentation is high, we believe there will be a need for more and, in some cases, new human roles. (See Exhibit 1.) While job augmentation and new-job creation will happen rapidly, full substitution of jobs by AI will be slower. Five years from now—or perhaps further in the future—10% to 15% of jobs in the US could be eliminated. 1 This level of potential job loss is considerable and creates an important call to action for business leaders.To build our model, we calculated the number of jobs involving tasks that are at least 40% automatable. This represents the average level of automation for all US-based occupations and the threshold after which role and organization redesign becomes a stronger business case. The 43% of jobs that exceed this threshold formed the focus of our analysis. The other 57% are jobs that depend heavily on the physical presence of human workers, on hands-on work, or on sustained human interaction, all of which limit the potential for automation and thus are less likely to be disrupted by AI. (See Exhibit 2.)Substitution Versus Augmentation. To illustrate the difference between substitution and augmentation, consider call center representatives and software engineers, two roles that are already deploying agentic AI at scale.
+
+A call center representative is typically responsible for resolving a defined set of customer inquiries within established workflows. Much of the work involves structured interactions such as account lookups, policy explanations, and scripted troubleshooting. When AI systems can reliably handle these repeatable inquiries end to end, fewer representatives are required. In this setting, the workflow can often be clearly bifurcated, with AI handling first-line interactions and humans focusing on escalations and exceptions.
+
+In some cases, representatives can transition into higher-value roles focused on relationship building and proactive risk mitigation. But overall employment in the call center rep role will decline as the most structured tasks are absorbed by the system.
+
+A software engineer, by contrast, produces a very different output. While coding includes routine elements, the core value of the role lies in system design, architectural judgment, tradeoffs between performance and cost, and the translation of business needs into technical solutions. AI can dramatically accelerate code generation and testing, but given today’s capabilities, it cannot replace the system-level judgment required to own the outcome end to end—meaning the work cannot be cleanly divided between system and engineer. Instead, software development becomes an ongoing interaction in which engineers define objectives, refine outputs, validate results, and integrate components into broader systems.
+
+AI supports and accelerates these steps but does not replace the need for human judgment and accountability. As a result, AI helps engineers do their jobs more effectively rather than replacing them, making these roles less likely to experience direct displacement and shifting engineers’ work toward system-level thinking, orchestration, and product and design tasks, rather than repetitive coding tasks.
+
+Low Versus High Demand Expandability. When AI lowers the cost of delivering a business outcome or end product, the question is whether demand for the output expands or remains bounded. If lower costs unlock unmet demand, increase accessibility, or accelerate consumption, total output may rise and employment may remain stable or even grow despite significant automation at the task level. If demand for the outcome is fixed, productivity gains are more likely to translate into fewer required workers.
+
+This dynamic is not new. Economists have long observed that efficiency improvements can increase total consumption rather than reduce it, a phenomenon often referred to as Jevons Paradox. When the cost of a resource falls, usage can rise. The same logic applies to labor: whether productivity reduces employment depends on how demand for the output responds.
+
+Software engineering illustrates expandable demand. Organizations across industries continue to face persistent unmet need for digital products, automation, and new features. As AI reduces the cost and time required to build software, organizations often build more. Output expands and overall job volume may remain stable or grow, even as the productivity of individual engineers rises, because humans continue to play a meaningful role. The continued growth of software engineering headcount in the years following the introduction of ChatGPT in 2022 illustrates this phenomenon. (See Exhibit 3.)The rapid diffusion of AI is generating a wave of research measuring and forecasting its impacts on labor markets. But the track record of past approaches gives reason for humility.
+
+For example, a prominent attempt to measure job offshorability identified roughly a quarter of US jobs as vulnerable, but a decade on, most of those jobs maintained healthy employment growth. The government’s own occupational growth forecasts, while directionally correct, have added little predictive value beyond linear extrapolation of past trends. Even in hindsight, the impact of major economic disruptions on the labor market is often unclear. Studies on the employment effects of industrial robots reach opposing conclusions, and the scale of job losses attributed to the China trade shock continues to be debated.1
+
+In this paper, we present a new framework for understanding AI’s labor market impacts, and test it against early data, finding limited evidence that AI has affected employment to date. Our goal is to establish an approach for measuring how AI is affecting employment, and to revisit these analyses periodically. This approach won't capture every channel through which AI could reshape the labor market, but by laying this groundwork now, before meaningful effects have emerged, we hope future findings will more reliably identify economic disruption than post-hoc analyses.
+
+It is possible that the impacts of AI will be unmistakable. This framework is most useful when the effects are ambiguous—and could help identify the most vulnerable jobs before displacement is visible.
+
+Counterfactuals
+Causal inference is easier when the effects are large and sudden. The COVID-19 pandemic and accompanying policy measures caused economic disruption so stark that sophisticated statistical approaches were unnecessary for many questions. For example, unemployment jumped sharply in the early weeks of the pandemic, leaving little room for alternative explanations.
+
+The impacts of AI, however, might be less like COVID and more like the internet or trade with China. The effects may not be immediately clear from aggregate unemployment data; factors like trade policy and the business cycle could cloud interpretations of trend lines.
+
+One common approach is to compare outcomes between more or less AI-exposed workers, firms, or industries, in order to isolate the effect of AI from confounding forces.2 Exposure is typically defined at the task level: AI can grade homework but not manage a classroom, for example, so teachers are considered less exposed than workers whose entire job can be performed remotely.
+
+Our work follows this task-based approach, incorporating measures of theoretical AI capability and real-world usage, before aggregating to occupations.3Our new measure, observed exposure, is meant to quantify: of those tasks that LLMs could theoretically speed up, which are actually seeing automated usage in professional settings? Theoretical capability encompasses a much broader range of tasks. By tracking how that gap narrows, observed exposure provides insight into economic changes as they emerge.
+
+Our measure qualitatively captures several aspects of AI usage that we think are predictive of job impacts. A job's exposure is higher if:
+
+Its tasks are theoretically possible with AI
+Its tasks see significant usage in the Anthropic Economic Index5
+Its tasks are performed in work-related contexts
+It has a relatively higher share of automated use patterns or API implementation
+Its AI-impacted tasks make up a larger share of the overall role6
+We give mathematical details in the Appendix. We count tasks that are theoretically capable with an LLM as covered if they have seen sufficient work-related usage in Claude traffic. We then adjust for how the task is being carried out: fully automated implementations receive full weight, while augmentative use receives half weight. Finally, the task-level coverage measures are averaged to the occupation level weighted by the fraction of time spent on each task.
+
+Figure 2 shows observed exposure (in red) compared to β from Eloundou et al. (in blue), illustrating the difference between theoretical and actual use on our platform, grouped by broad occupational categories. We calculate this by first averaging to the occupation level weighting by our time fraction measure, then averaging to the occupation category weighting by total employment. For example, the β measure shows scope for LLM penetration in the majority of tasks in Computer & Math (94%) and Office & Admin (90%) occupations.
+
+We next study trends in unemployment, matching our occupation-level measures to respondents in the Current Population Survey.
+
+A key question in interpreting our coverage measure is which workers should be considered treated? Should changes in employment be expected from just 10% task coverage? Gans and Goldfarb (2025) show that if an O-ring model best describes jobs, employment effects might be seen only when all tasks have some degree of AI penetration. Hampole et al. (2025) argue that mean exposure decreases labor demand, but concentration of exposure in only certain tasks can counteract this. And Autor and Thompson (2025) highlight the level of expertise required for the remaining tasks.
+
+With an eye toward simplicity, and noting that we are most concerned with large impacts, we center our analysis on the idea that impacts should be felt most in the groups with the highest mean exposure. We compare workers in the top quartile of time-weighted task coverage to those in the bottom. If AI capabilities advance quickly, task coverage might be high for lower percentiles of coverage, which might make an absolute threshold more helpful. But we make the assumption that impacts should affect the most exposed workers first, and present results varying the cutoff we use to define treatment.
+
+The upper panel of Figure 6 shows raw trends in the unemployment rate since 2016 for workers in the top quartile of exposure and the unexposed group. During COVID, the less AI-exposed workers—who are more likely to have in-person jobs—saw a much larger increase in unemployment. Since then, the trends have been largely similar between the two groups. The lower panel measures the size of the gap between the most and least exposed workers in a difference-in-differences framework, mirroring the findings from the raw data. The average change in the gap since the release of ChatGPT is small and insignificant, suggesting that the unemployment rate of the more exposed group has increased slightly but the effect is indistinguishable from zero.8What kind of scenarios can this framework identify? Based on the confidence interval of the pooled estimate, differential increases in unemployment on the order of 1 percentage point would be detectable (this will change as new data comes in, so it is merely a ballpark estimate). If all workers within the top 10% were laid off, it would increase unemployment within the top quartile group from 3% to 43%, and it would increase aggregate unemployment from 4% to 13%.
+
+A smaller but still concerning impact would be a scenario such as a “Great Recession for white-collar workers.” During the 2007-2009 Great Recession, unemployment rates doubled from 5% to 10% in the US. Such a doubling in the top quartile of exposure would increase its unemployment rate from 3% to 6%. This should be visible in our analysis as well. Note that our core estimate is based on differential changes in the unemployment rate in the exposed group compared to the less exposed group. If unemployment increased for all workers in parallel, we would not attribute this to AI advancements that still leave many tasks unaffected.
+
+One group of particular concern is young workers. Brynjolfsson et al. report a 6—16% fall in employment in exposed occupations among workers aged 22 to 25. They attribute this decrease primarily to a slowdown in hiring rather than an increase in separations.9
+
+We find that the unemployment rate for young workers in the exposed occupations is flat (see Appendix). But slowed hiring may not necessarily manifest as increased unemployment, since many young workers are labor market entrants without a listed occupation in the CPS data and may exit the labor force rather than appear as unemployed. To address hiring directly, we use the panel dimension of the CPS, counting the percent of young (22-25 year old) workers who begin a new job in a more vs. less exposed occupation over time. Figure 7 shows the monthly job finding rate (i.e., when a worker reports a job that they did not have in the previous month) for young workers, split by whether they are entering a high- vs. low-exposure occupation.
+
+Apart from some large swings in 2020-2021, these series visually diverge in 2024, with young workers relatively less likely to be hired into exposed occupations. Job finding rates at the less exposed occupations remain stable at 2% per month, while entry into the most exposed jobs decreases by about half a percentage point. The averaged estimate in the post-ChatGPT era is a 14% drop in the job finding rate compared to that in 2022 in the exposed occupations, although this is just barely statistically significant. (There is no such decrease for workers older than 25.)
+
+This may provide some signal of the early effects of AI on employment, and echoes the findings from Brynjolfsson et al. But there are several alternative interpretations. The young workers who are not hired may be remaining at their existing jobs, taking different jobs, or returning to school. A further data-related caveat is that job transitions may be more vulnerable to mismeasurement in surveys.10
+
+You would have been living under a rock if you did not know how artificial intelligence is set to affect jobs in 2026-2030. AI like ChatGPT seems to be stealing all of the headlines at the moment, Google unveiled new AI software to build presentations, analyze and enter data, and write content, and there are so many more AI tools like Gamma and Numerous AI. Those that are resisting, rather than riding the crest of the wave will not be making hey whilst the sun shines when it comes to landing in-demand jobs in the next 6 years and enjoying job growth. AI will be taking some jobs, but it will be creating new ones!   Here are the most likely jobs that artificial intelligence will affect from 2026-2030:
+
+
+How artificial intelligence will change the world
+Will AI help the world or hurt it?
+Like any controversial subject, there will always be people who are for it, and those that are against it. Artificial Intelligence is no different. In fact, as new ai tools are introduced, and the news around them grows, so the division between the two camps will grow with it.
+
+Many market research analysts say that AI has the potential to bring about numerous positive changes in society, including enhanced productivity, improved healthcare, and increased access to education. But we need to adapt right now.
+
+Others will say, mostly those working in human work types of jobs that are manually repetitive, that ai and robotics is a disruptive force and when it comes to the future of jobs it merely serves to steal jobs.
+
+But robots and ai technologies can and will create a great many new vocations and help solve complex problems and make our daily lives easier and more convenient.
+
+The jury is not yet out on this, but the leaning is more toward ai being a positive force rather than a negative one.
+
+How will AI affect jobs and the economy?
+McKinsey global institute says that at the global average level of adoption and absorption and advances in ai implied by their simulation, AI has the profound impact to deliver additional global economic activity of around $13 trillion in the foreseeable future and by 2030, or about 16% higher cumulative GDP compared with today.
+
+This amounts to 1.2% additional GDP growth per year. If delivered, this impact would compare well with that of other general-purpose technologies through history. This will mainly come from substitution of labor by automation and increased innovation in products and services.
+
+The same report went on to say that By 2030, the average simulation shows that some 70% of companies will have embraced the ai revolution and adopted at  least one type of AI technology but that less than half will have fully absorbed the five categories.
+
+Forbes say ai has the potential to be among the most disruptive technologies across global economies that we will ever develop.
+
+How will artificial intelligence affect society and future?
+Forbes says that the future of AI brings endless possibilities and applications that will help simplify our lives to a great extent. It will help shape the future and destiny of humanity positively, whilst Bernard Marr & Co says that the transformative impact of artificial intelligence on our society will have far-reaching economic, legal, political and regulatory implications on all types of jobs and industries that we need to be discussing and preparing for.
+
+Others in the know say that AI has the potential to bring about numerous positive changes in society both now and in the future, including enhanced productivity, improved healthcare, and increased access to education.
+
+AI-powered technologies can also help solve complex problems and make our daily lives easier and more convenient.
+
+How Will AI Affect Jobs - How many jobs will AI replace by 2030
+Artificial intelligence (AI) could replace the equivalent of 300 million full-time jobs, a report by investment bank Goldman Sachs says. It could replace a quarter of work tasks in the US and Europe but may also mean new jobs and a productivity boom.
+
+And it could eventually increase the total annual value of goods and services produced globally by 7%. The report also predicts two-thirds of jobs in the U.S. and Europe “are exposed to some degree of AI automation,” and around a quarter of all jobs could be performed by AI entirely.
+
+Researchers from the University of Pennsylvania and OpenAI found some educated white-collar workers earning up to $80,000 a year are the most likely to be affected by workforce automation.
+
+Forbes also says that According to an MIT and Boston University report, AI will replace as many as two million manufacturing workers by 2026.
+
+A study by the McKinsey Global Institute reports that by 2030, at least 14% of employees globally could need to change their careers due to digitization, robotics, and AI advancements
+
+What jobs are most likely to be automated?
+1. Customer service representative
+Most human customer service interactions are no longer done by phone with human employees manning the lines. Most of the time, the queries and problems of customers are repetitive.
+
+Answering these queries does not require high emotional or social intelligence. Therefore, AI can be used to provide automated responses to frequently asked questions.
+
+2. Receptionists
+The majority of companies across the world are now using robots at their reception. Even the calls are being managed by AI now. For example, AimeReception can see, listen, understand, and talk with guests and customers.
+
+3. Accountants/Bookkeepers 
+Many companies are now using automation and ai for their bookkeeping practices. AI-powered bookkeeping services provide an efficient accounting system and flexibility and security, considering that they are available as cloud-based services.
+
+Using ai algorithms, AI will ensure the data is collected, stored, and analyzed correctly. Using an AI accounting service is significantly less costly than paying an employee’s salary to do the same job.
+
+4. Salespeople 
+Gone are the days when corporations required salespeople for advertising and retail activities. Advertising has shifted towards web and social media landscapes. The built-in target marketing capabilities in social media allow advertisers to create custom content for different types of audiences.
+
+5. Research and analysis
+The fields of data analysis and research are areas that already implement the use of artificial intelligence as a method of streamlining the process and identifying new data without human assistance. 
+
+The processing power of modern computers allows for the efficient sorting, extrapolation and analysis of data. As artificial intelligence continues to improve, there may not be a need for humans to play a role in data analysis and research.
+
+6. Warehouse work
+Online sales is a steadily growing industry and comes with an increasing need for processes and automated systems that efficiently get orders onto trucks for delivery.One area of focus for streamlining the process has been the use of automation.
+
+Basic automation and artificial implementation in a warehouse allow for easy access to computerized systems to locate packages and direct staff, and future AI may even perform mechanized retrieval and loading to increase shipping capacities.
+
+7. Insurance underwriting
+When making assessments on the viability of insurance applicants, the most important work is often in analyzing the data available and applying it within a set of formulas or structures.
+
+Automation can easily complete these tasks and is continually adapting to perform more complicated duties, which may reduce how many underwriters a company requires.
+
+8. Retail
+Self-checkout stations at stores are an example of automation in the retail sphere and have gained prominence in grocery stores and big-box outlets. When a company makes use of self-checkout areas, it results from a cost-benefit analysis.
+
+Although allowing customers to scan their own items can increase the instances of theft, the company saves more money by reducing the need for employees working registers.
+
+How to quickly change career
+Experts say that ai and machine learning will help workers by creating more occupations than it replaces. That said, in order to ride the wave and build a new career, you have to have procured the skills necessary to get the job done.
+
+If you're exposed to ai and looking to pivot into an AI-focused role, demonstrating your knowledge and experience with AI development can give you an edge.
+
+Why not take a read of our top 10 highest paying AI jobs article here. To acquire the skills to stand out from other would be candidates you should: ramp up your technical skills, complete online courses, understand the industry, gain work experience, and develop your soft skills.
+
+AI will require extensive research and collaboration as it is still an emerging area. Soft skills will help set you apart from other developers who only have technical skills.
+
+Which jobs will not be replaced by ai?
+It is widely touted that ai will create more jobs than it replaces. Further to that, many in certain industries will breath a sigh of relief that ai will not threaten their vocation and livelihood.
+
+These are some of the jobs that will not involve repetitive tasks and be prone to disruption. This means that ai will not replace those that perform them in the open labor market.
+
+
+1. Teachers
+Teachers often represent a reference point for many of us. Often, our academic decisions are partly based on how inspiring a particular teacher has been with us in the years prior. For all these reasons, it is almost impossible that we will have a fully digital teaching experience in the Future. 
+
+2. Lawyers and judges
+These positions have a strong component of negotiation, strategy and case analysis. A lot is based on the personal experience and knowledge of each specialist.
+
+It requires a certain set of skills to be able to navigate complex legal systems and argue in defense of a client in court. There is a human factor involved when it comes down to consider all the various aspects of a trial and take a final decision that could turn into years in prison, in the case of a Judge.
+
+3. Directors, Managers and CEOs
+Managing teams inside an organization is a matter of Leadership and this is not a stack of behaviors that can be written down in a code and processed in a linear way.
+
+A CEO is also the person responsible for sharing the company’s mission and value down to the team. It is very unlikely that investors will ever feel comfortable investing in a company managed by robots or algorithms.
+
+4. HR Managers 
+Although ai does assist in the hiring process to make sifting through CVs so much easier and quicker, Human Resource Managers still cover a variety of very important tasks inside an organization.
+
+Hiring new professionals is just part of their prerogatives. They also are a key position inside the organization for maintaining the staff motivated, detecting early-on signs of discontent, and manage them if possible. 
+
+5. Psychologists and Psychiatrists 
+Although a lot of face recognition technology is currently being used to develop initial AI counseling care and support, given the growing demand, mental health is a very delicate topic. Human touch is essential when it comes down to supporting people to succeed in their lives in all of the aspects that it can entail.
+
+6. Surgeons
+For sure, technology has seriously increased the accuracy with whom we are today able to diagnose and detect diseases in any medical report. Micro robotics also enhance the precision of the surgeons when it comes down to operation, enabling less invasive procedures.
+
+But being a surgeon requires the ability to connect with the patient on so many other different levels while taking a vast number of the factor under consideration at the same time. Experience, knowledge, and skills acquired throughout the years are all factors that need to be condensed in a matter of minutes during an operation.
+
+7. Computer System Analysts
+No matter how automated we become, there will always be the need of a human presence that can run maintenance work, update, improve, correct, and set-up complex software and hardware systems that often require coordination among more than one specialist in order to properly work. 
+
+Reviewing the system capabilities, controlling the workflow and schedule improvements and increase automation is only part of a Computer System Analyst, a profession that is a great demand in the last years.
+
+8. Artists and writers
+Writing especially is such an imaginative fine art, and being able to place a specific selection of words in the right order is definitely a challenging endeavor.
+
+So even if AI technically would have the capacity of absorbing the content of most books in the world, in probably any language and come up with a somewhat personal style of communication, the magic and thrill of creating art with words is something that is pretty much going to rest in our domain of competition in the years to come. 
+
+How many jobs will be lost to ai by 2026?
+The World Economic Forum has estimated that artificial intelligence will replace some 85 million jobs by 2026. Freethink says that 65% of retail jobs could be automated by that year, saying that this is largely due to technological advancements, rising costs and wages, tight labor markets, and reduced consumer spending. 
+
+How many jobs will be lost to ai by 2030?
+PwC estimates that by the mid-2030s, up to 30% of jobs could be automatable, with slightly more men being affected in the long run as autonomous vehicles and other machines replace many manual tasks where their share of employment is higher.
+
+During the first and second waves, they estimate that women could be at greater risk of automation due to their higher representation in clerical and other administrative functions​.
+
+How to embrace AI and learn skills to take advantage of this new technology
+You may be wondering how you can start familiarizing yourself with AI in your work to help advance your career. LinkedIn says that the good news is that you probably already have experience with AI whether you know it or not.
+
+Asking voice assistants like Alexa and Siri questions uses AI, for example. Plenty of the apps on your phone also use AI, too. Generative AI, which is taking up all the headlines lately, is really the next step for this technology.
+
+The company went on to say that to stay ahead in the era of artificial intelligence, it is essential to develop new skills and adapt to the changing job market. Here are some strategies for staying ahead in the era of artificial intelligence:
+
+
+1. Embrace lifelong learning
+In the era of AI, it is important to be constantly learning and adapting to new technologies and ways of working. This means taking courses, attending workshops and conferences, and keeping up-to-date with the latest trends in your industry.
+
+2. Develop soft skills
+While AI is great at performing routine tasks, it is still far from replicating human emotional intelligence and creativity. Developing soft skills such as communication, problem-solving, and collaboration will be crucial in the era of AI.
+
+3. Be agile
+In the era of AI, the ability to adapt quickly to changing circumstances will be key. This means being willing to learn new skills, take on new responsibilities, and pivot to new career paths.
+
+4. Specialize
+As AI becomes more ubiquitous, there will be increasing demand for workers with specialized skills and knowledge. By developing expertise in a particular area, you can increase your value to employers and differentiate yourself in the job market.
+
+Learn from a next-gen university which embraces change
+If there is one word that you need to take out of the way to transition from the current job market to the new world order of the job market affected by ai, is the word, 'agility'. The other is 'skills' and skills development at that. 
+
+Besides learning on the job, which can take a long time and effort for all concerned, many of those looking to switch careers or start a new one, are looking to online next-gen universities that can pivot on a penny and offer the programs at a specific period in time to take advantage of the drive to greater numbers of ai related jobs. 
+
+Doing the degree will mean that learners will learn and develop skills based on the latest employer needs and market trends – this is what the 100% online learning university calls their Workplace Alignment Model which is designed to equip those learners with the skills needed and what employers are looking for.
+
+
+Conclusion 
+The neigh sayers have seemingly concluded that ai will take millions of jobs and put people out into the street, whilst those that are excited for it and ready to embrace the change are saying that ai has the ability to create more new types of jobs than it replaces. 
+
+That said, it would appear that resistance is futile, and that people must accept that artificial intelligence is becoming a part of our everyday lives. Every job role should embrace it, considering the efficient and cost-effective solutions it brings.
+
+It lets people focus on more creative goals by automating the decision-making processes and tedious tasks.Artificial intelligence offers great promise to drive businesses forward, automate manufacturing processes, and deliver valuable insights.
+
+AI is increasingly being used across various industries, including logistics, manufacturing, and cybersecurity. Small businesses have also made rapid progress in creating speech recognition software for mobile devices.
+
+To stay ahead in the era of artificial intelligence, it is essential to embrace lifelong learning, develop soft skills, be agile, and specialize in a particular area. By developing these skills and adapting to the changing job market, workers can thrive in the era of AI and take advantage of the opportunities it presents.
