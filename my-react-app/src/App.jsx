@@ -18,23 +18,23 @@ const TASK_DETAILS = {
                  "Details of the datasets are provided with links below.",
   },
   section1: {
-    title: "🌍 Location Analysis",
+    title: "🌍 Location Consideration",
     description: "In this section, we analyze the geographic distribution of data.",
   },
   section2: {
-    title: "📈 Time Trends",
-    description: "Analyzing how metrics have shifted over the last decade.",
+    title: "🏭 Across Industries",
+    description: "Analyzing how metrics have shifted over the last decade across different sectors.",
   },
   section3a: {
-    title: "💬 Radar: Industry & Region",
-    description: "Compare how different industries intersect with regional AI profiles.",
+    title: "💬 How AI automation risk affected",
+    description: "Compare how different industries intersect with regional AI profiles and automation risks.",
   },
   section3b: {
     title: "📊 Trend: Historical Analysis",
     description: "Detailed drill-down into historical performance trends.",
   },
   section4: {
-    title: "🔮 Predictive Insights",
+    title: "🔮 An Evaluation",
     description: "Forecasting the next 5 years based on current data models.",
   }
 };

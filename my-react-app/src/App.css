@@ -6,6 +6,20 @@ body, html {
   font-family: 'Inter', sans-serif;
 }
 
+/* 统一所有 Task 的文字样式 */
+.task-section h2, .detail-card h2 {
+  font-family: "Inter", -apple-system, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.description, .def-item p {
+  font-family: "Inter", system-ui, sans-serif;
+  line-height: 1.6;
+  color: #475569;
+}
+
 .web-container {
   display: flex;
   width: 100vw;
@@ -30,7 +44,6 @@ body, html {
   background: hsl(0, 0%, 100%);
   padding: 30px;
   border-radius: 16px;
-  /* box-shadow: 0 10px 30px rgba(0,0,0,0.5); */
   transition: all 0.5s ease;
   animation: slideIn 0.4s ease-out;
 }
@@ -52,8 +65,6 @@ body, html {
 }
 
 .description {
-  color: #616161;
-  line-height: 1.6;
   margin-top: 15px;
 }
 
