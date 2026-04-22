@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import * as d3 from "d3";
-import SeniorityDashboard from "./task3_charts/task3-SeniorityDashboard";
-import Linechart from "./task3_charts/task3-linechart";
+import SeniorityDashboard from "./task3-SeniorityDashboard";
+import Linechart from "./task3-linechart";
 
-function Task3({ scrollParentRef }) {
+function Radar({ scrollParentRef }) {
   const [industryData, setIndustryData] = useState([]);
   const [regionData, setRegionData] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState(["Market Average"]);
@@ -154,31 +154,9 @@ function Task3({ scrollParentRef }) {
         </div>
       </div>
 
-      {/* --- LINE CHART SECTION --- */}
-      <div style={{ background: "white", padding: "40px", position: "relative", zIndex: 20 }}>
-        <h3 style={{ textAlign: "center", color: "#1e293b", marginBottom: "20px" }}>Historical Trend Analysis</h3>
-
-        {/* Restored Line Chart Buttons */}
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: "30px", maxWidth: "900px", margin: "0 auto 30px" }}>
-          {industryData.map((d) => {
-            const isActive = selectedIndustryLine === d.industry;
-            const btnColor = d.industry === "Market Average" ? "#3498db" : industryColorScale(d.industry);
-            return (
-              <button
-                key={`line-btn-${d.industry}`}
-                onClick={() => setSelectedIndustryLine(d.industry)}
-                style={btnStyle(isActive, btnColor)}
-              >
-                {d.industry}
-              </button>
-            );
-          })}
-        </div>
-
-        <Linechart scrollParentRef={scrollParentRef} selectedIndustry={selectedIndustryLine} />
-      </div>
+    
     </div>
   );
 }
 
-export default Task3;
+export default Radar;

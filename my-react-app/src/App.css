@@ -1,56 +1,87 @@
-/* Prevent the whole page from scrolling */
+/* Prevent global body scroll */
 body, html {
   margin: 0;
   padding: 0;
-  overflow: hidden; 
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
 }
 
 .web-container {
   display: flex;
   width: 100vw;
   height: 100vh;
-  background-color: #f8fafc;
 }
 
-/* LEFT SIDE */
+/* LEFT SIDE: Fixed */
 .left-container {
-  width: 300px;
-  height: 100%;
-  overflow-y: auto; /* Independent scroll */
-  border-right: 2px solid #e2e8f0;
-  padding: 40px 20px;
+  width: 380px;
+  height: 100vh;
+  background: #ffffff;
+  color: rgb(24, 24, 24);
+  display: flex;
+  align-items: center;
+  padding: 40px;
   box-sizing: border-box;
+  flex-shrink: 0;
+  border-right: 1px solid #c7c7c7;
 }
 
-.task-card {
-  height: 150px;
-  background: white;
-  margin-bottom: 400px; /* Space them out to trigger observer */
-  margin-top: 300px; /* Space them out to trigger observer */
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
+.detail-card {
+  background: hsl(0, 0%, 100%);
+  padding: 30px;
+  border-radius: 16px;
+  /* box-shadow: 0 10px 30px rgba(0,0,0,0.5); */
+  transition: all 0.5s ease;
+  animation: slideIn 0.4s ease-out;
 }
 
-.task-card[data-active="true"] {
-  border-color: #3b82f6;
-  transform: scale(1.05);
-  background: #eff6ff;
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-/* RIGHT SIDE */
+.badge {
+  font-size: 10px;
+  background: #3b82f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.description {
+  color: #616161;
+  line-height: 1.6;
+  margin-top: 15px;
+}
+
+/* RIGHT SIDE: Scrollable */
 .right-container {
   flex-grow: 1;
-  height: 100%;
-  overflow-y: auto; /* Independent scroll */
-  /* padding: 40px; */
-  box-sizing: border-box;
+  height: 100vh;
+  overflow-y: auto;
   scroll-behavior: smooth;
+  background: #ffffff;
 }
 
-/* .content-padding {
-  max-width: 800px;
-  margin: 0 auto;
-} */
+.task-section {
+  min-height: 100vh;
+  width: 100%;
+  padding-bottom: 200px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bottom-spacer {
+  height: 40vh;
+}
+
+.right-container::-webkit-scrollbar {
+  width: 8px;
+}
+.right-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}

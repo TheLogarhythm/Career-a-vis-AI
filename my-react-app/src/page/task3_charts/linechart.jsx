@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import * as d3 from "d3";
-import SeniorityDashboard from "./task3_charts/task3-SeniorityDashboard";
-import Linechart from "./task3_charts/task3-linechart";
+import SeniorityDashboard from "./task3-SeniorityDashboard";
+import Linechart from "./task3-linechart";
 
-function Task3({ scrollParentRef }) {
+function LinechartComponent({ scrollParentRef }) {
   const [industryData, setIndustryData] = useState([]);
   const [regionData, setRegionData] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState(["Market Average"]);
@@ -94,65 +94,7 @@ function Task3({ scrollParentRef }) {
 
   return (
     <div style={{ background: "#f8fafc", fontFamily: "sans-serif" }}>
-      <div style={{ height: "250vh", position: "relative" }} ref={stickyRef}>
-        <div style={{
-          position: "sticky",
-          top: "0",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          background: "white",
-          overflow: "hidden",
-          paddingTop: "40px"
-        }}>     
-        {/* SECTION TITLE */}
-          <div style={{ marginBottom: "20px", textAlign: "center" }}>
-            <h2 style={{ color: "#1e293b", margin: "0 0 5px 0" }}>Comparative AI Profile</h2>
-            <p style={{ color: "#64748b", margin: 0, fontSize: "14px" }}>
-              Overlay Industry and Regional data to find unique intersections
-            </p>
-          </div>
-          <div style={{ display: "flex", gap: "20px", width: "90%", maxWidth: "1000px", background: "white", padding: "15px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", zIndex: 10 }}>
-            <div style={{ flex: 1, padding: "10px" }}>
-
-
-              <h5 style={{ margin: "0 0 8px 0", color: "#64748b", textAlign: "center" }}>Industry Selection (Radar)</h5>
-              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-
-                <button onClick={() => setSelectedIndustries(["Market Average"])} style={btnStyle(true, "#ef4444")}>Reset</button>
-                {industryData.map((d) => (
-                  <button key={`ind-${d.industry}`} onClick={() => toggleSelection(d.industry, setSelectedIndustries)} style={btnStyle(selectedIndustries.includes(d.industry), industryColorScale(d.industry))}>{d.industry}</button>
-                ))}
-              </div>
-            </div>
-            <div style={{ flex: 1, padding: "10px" }}>
-              <h5 style={{ margin: "0 0 8px 0", color: "#64748b", textAlign: "center" }}>Regional Selection (Radar)</h5>
-              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-                <button onClick={() => setSelectedRegions(["Market Average"])} style={btnStyle(true, "#ef4444")}>Reset</button>
-                {regionData.map((d) => (
-                  <button key={`reg-${d.industry}`} onClick={() => toggleSelection(d.industry, setSelectedRegions)} style={btnStyle(selectedRegions.includes(d.industry), regionColorScale(d.industry))}>{d.industry}</button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", position: "relative" }}>
-
-            <div style={{ transform: `translateX(${mergeFactor * 250}px)`, zIndex: 2 }}>
-              <SeniorityDashboard data={industryData} selectedIndustries={selectedIndustries} colorScale={industryColorScale} transparent={true} />
-            </div>
-            <div style={{ transform: `translateX(-${mergeFactor * 250}px)`, mixBlendMode: "multiply", zIndex: 3, pointerEvents: "none" }}>
-              <SeniorityDashboard data={regionData} selectedIndustries={selectedRegions} colorScale={regionColorScale} transparent={true} />
-            </div>
-          </div>
-
-          <div style={{ marginTop: "20px", color: "#94a3b8", fontSize: "14px", opacity: mergeFactor > 0.1 && mergeFactor < 0.9 ? 1 : 0 }}>
-            {mergeFactor < 0.5 ? "Keep scrolling to merge..." : "Analyzing intersections..."}
-          </div>
-        </div>
-      </div>
+  
 
       {/* --- LINE CHART SECTION --- */}
       <div style={{ background: "white", padding: "40px", position: "relative", zIndex: 20 }}>
@@ -181,4 +123,4 @@ function Task3({ scrollParentRef }) {
   );
 }
 
-export default Task3;
+export default LinechartComponent;
