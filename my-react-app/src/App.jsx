@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import Introduction from "./page/introduction";
 import Task1 from "./page/task1";
 import Task2 from "./page/task2";
 import AiWordGraph from "./page/task3_charts/ai-keyword";
@@ -9,6 +10,13 @@ import Task4 from "./page/task4";
 import "./App.css";
 
 const TASK_DETAILS = {
+  intro: {
+    title: "📖 Introduction",
+    description: "Nowadays, AI's impact on the job market is a hot topic.\n\n" +
+                 "AI automation risk, job openings, AI exposure, and wage are key factors in this discussion.\n\n" +
+                 "We are investigating these factors in two datasets to provide an exploratory analysis of AI's impact and a guide for job seekers.\n\n" +
+                 "Details of the datasets are provided with links below.",
+  },
   section1: {
     title: "🌍 Location Analysis",
     description: "In this section, we analyze the geographic distribution of data.",
@@ -32,8 +40,9 @@ const TASK_DETAILS = {
 };
 
 function App() {
-  const [activeTask, setActiveTask] = useState("section1");
+  const [activeTask, setActiveTask] = useState("intro");
   const rightContainerRef = useRef(null);
+  const [introStage, setIntroStage] = useState(0);
 
   useEffect(() => {
     const options = {
@@ -56,7 +65,29 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
-  const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.section1;
+  const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.intro;
+
+  let displayDescription = currentDetail.description;
+  if (activeTask === "intro") {
+    if (introStage === 1) {
+      displayDescription = (
+        <div>
+          <p>AI's impact on job market is a heat topic and many people discuss this topic.</p>
+          <p style={{ marginTop: "8px" }}>Keywords: <b>Automation Risk, Job Opening, AI Exposure, Wage...</b></p>
+        </div>
+      );
+    } else if (introStage >= 2) {
+      displayDescription = (
+        <div>
+          <p>Jobs are much more exposed to AI recently. Investigate the data:</p>
+          <div style={{ marginTop: "8px", fontSize: "12px", display: "flex", flexDirection: "column", gap: "4px" }}>
+            <a href="https://www.kaggle.com/datasets/sahilislam007/ai-impact-on-job-market-20242030/data" target="_blank" rel="noreferrer" style={{color: "#2563eb"}}>Dataset 1: AI Impact (24-30)</a>
+            <a href="https://www.kaggle.com/datasets/sarcasmos/ai-society/data" target="_blank" rel="noreferrer" style={{color: "#2563eb"}}>Dataset 2: AI & Society</a>
+          </div>
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="web-container">
@@ -65,20 +96,26 @@ function App() {
         <div className="detail-card">
           <span className="badge">Current Stage</span>
           <h2>{currentDetail.title}</h2>
-          <p className="description">{currentDetail.description}</p>
+          <div className="description" style={{ whiteSpace: "pre-wrap" }}>
+            {displayDescription}
+          </div>
         </div>
       </div>
 
       {/* SCROLLABLE RIGHT SIDE */}
       <div className="right-container" ref={rightContainerRef}>
+        
+        <section className="task-section" data-task="intro">
+          <Introduction scrollParentRef={rightContainerRef} onStageChange={setIntroStage} />
+        </section>
+
         <section className="task-section" data-task="section1">
           <Task1 />
         </section>
 
-        <section className="task-section"  data-task="section2">
+        <section className="task-section" data-task="section2">
           <LinechartComponent scrollParentRef={rightContainerRef}/>
         </section>
-
 
         <section className="task-section" data-task="section1">
           <AiIntensity />
@@ -87,9 +124,6 @@ function App() {
         <section className="task-section" data-task="section3a">
           <Radar scrollParentRef={rightContainerRef}/>
         </section>
-        
-
-
 
         <section className="task-section" data-task="section4">
           <Task4 />
