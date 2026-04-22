@@ -1,73 +1,101 @@
+import React, { useState, useEffect, useRef } from "react";
 import Task1 from "./page/task1";
 import Task2 from "./page/task2";
-import Task3 from "./page/task3";
+import AiWordGraph from "./page/task3_charts/ai-keyword";
+import Radar from "./page/task3_charts/radar";
+import AiIntensity from "./page/task3_charts/ai-intensity";
+import LinechartComponent from "./page/task3_charts/linechart";
 import Task4 from "./page/task4";
-import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
+const TASK_DETAILS = {
+  section1: {
+    title: "🌍 Location Analysis",
+    description: "In this section, we analyze the geographic distribution of data.",
+  },
+  section2: {
+    title: "📈 Time Trends",
+    description: "Analyzing how metrics have shifted over the last decade.",
+  },
+  section3a: {
+    title: "💬 Radar: Industry & Region",
+    description: "Compare how different industries intersect with regional AI profiles.",
+  },
+  section3b: {
+    title: "📊 Trend: Historical Analysis",
+    description: "Detailed drill-down into historical performance trends.",
+  },
+  section4: {
+    title: "🔮 Predictive Insights",
+    description: "Forecasting the next 5 years based on current data models.",
+  }
+};
+
 function App() {
-  const [activeTask, setActiveTask] = useState("task1");
+  const [activeTask, setActiveTask] = useState("section1");
   const rightContainerRef = useRef(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const taskId = entry.target.getAttribute("data-task");
-            setActiveTask(taskId);
-            
-            if (rightContainerRef.current) {
-              rightContainerRef.current.scrollTop = 0;
-            }
-          }
-        });
-      },
-      { threshold: 0.8 } // Trigger when card is 80% visible
-    );
+    const options = {
+      root: rightContainerRef.current,
+      threshold: 0.3, 
+      rootMargin: "0px 0px -40% 0px" 
+    };
 
-    const cards = document.querySelectorAll(".task-card");
-    cards.forEach((card) => observer.observe(card));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveTask(entry.target.getAttribute("data-task"));
+        }
+      });
+    }, options);
+
+    const sections = document.querySelectorAll(".task-section");
+    sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
   }, []);
 
-  const renderRightContent = () => {
-    switch (activeTask) {
-      case "task1": return <Task1 />;
-      case "task2": return <Task2 />;
-      case "task3": return  <Task3 scrollParentRef={rightContainerRef} />;
-      case "task4": return <Task4 />;
-      default: return <Task1 />;
-    }
-  };
+  const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.section1;
 
   return (
     <div className="web-container">
+      {/* FIXED LEFT SIDE */}
       <div className="left-container">
-        <div className="task-card" data-task="task1" data-active={activeTask === "task1"}>
-          <h3>🌍 Location</h3>
-          <p>Task 1 Navigation</p>
+        <div className="detail-card">
+          <span className="badge">Current Stage</span>
+          <h2>{currentDetail.title}</h2>
+          <p className="description">{currentDetail.description}</p>
         </div>
-        <div className="task-card" data-task="task2" data-active={activeTask === "task2"}>
-          <h3>📈 Time</h3>
-          <p>Task 2 Navigation</p>
-        </div>
-        <div className="task-card" data-task="task3" data-active={activeTask === "task3"}>
-          <h3>💬 Topics</h3>
-          <p>Task 3 Navigation</p>
-        </div>
-        <div className="task-card" data-task="task4" data-active={activeTask === "task4"}>
-          <h3>🔮 Prediction</h3>
-          <p>Task 4 Navigation</p>
-        </div>
-        <div style={{ height: "40vh" }} />
       </div>
 
+      {/* SCROLLABLE RIGHT SIDE */}
       <div className="right-container" ref={rightContainerRef}>
-        <div className="content-padding">
-          {renderRightContent()}
-        </div>
+        <section className="task-section" data-task="section1">
+          <Task1 />
+        </section>
+
+        <section className="task-section"  data-task="section2">
+          <LinechartComponent scrollParentRef={rightContainerRef}/>
+        </section>
+
+
+        <section className="task-section" data-task="section1">
+          <AiIntensity />
+        </section>
+        
+        <section className="task-section" data-task="section3a">
+          <Radar scrollParentRef={rightContainerRef}/>
+        </section>
+        
+
+
+
+        <section className="task-section" data-task="section4">
+          <Task4 />
+        </section>
+        
+        <div className="bottom-spacer" />
       </div>
     </div>
   );
