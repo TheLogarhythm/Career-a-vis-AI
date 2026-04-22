@@ -1,254 +1,889 @@
-Revenue growth in AI-exposed industries has accelerated sharply since 2022, the year that the launch of ChatGPT 3.5 awakened the world to AI's power. Since then, as companies have raced to leverage this technology, the value created in industries best positioned to use AI has skyrocketed.
+AI linked to a fourfold increase in productivity growth and 56% wage premium globally; demand for roles requiring AI-related skills increased in Hong Kong
+Hong Kong, 13 June 2025 – AI is making workers more valuable, productive, and able to command higher wage premiums, with job numbers rising even in roles considered most automatable, according to PwC’s 2025 Global AI Jobs Barometer. The report is based on analysis of close to a billion job ads and thousands of company financial reports from six continents.
 
-That’s clearly great for businesses, but how is this rapid transformation affecting jobs?
+The report finds that since GenAI’s proliferation in 2022, productivity growth has nearly quadrupled in industries most exposed to AI (e.g. financial services, software publishing), rising from 7% from 2018-2022 to 27% between 2018-2024. In contrast, the rate of productivity growth in industries least exposed to AI (e.g. mining, hospitality) declined from 10% to 9% over the same period. Data from 2024 shows that the most AI exposed industries are now seeing 3x higher growth in revenue per employee than the least exposed.
 
-To find out, PwC analysed AI’s impact on both augmentable jobs (jobs that contain many tasks in which AI can enhance or support human judgment and expertise), and automatable jobs (jobs that contain many tasks that can be autonomously completed by AI).
+Carol Stubbings, Global Chief Commercial Officer, PwC, said: “This research shows that the power of AI to deliver for businesses is already being realised. And we are only at the start of the transition. As we roll out Agentic AI at enterprise scale, we are seeing that the right combination of technology and culture can create dramatic new opportunities to reimagine how organisations work and create value.”
 
-Industries more exposed to AI have 3x higher growth in revenue per employee
-AI can make workers more productive and enable them to create more value. Since 2022 when awareness of AI's power surged, revenue growth in industries best positioned to adopt AI has nearly quadrupled. This suggests that investments in AI are paying off. AI's promise is proving to be real, and we are still only in the early days of AI adoption.
+Job numbers are rising in virtually every type of AI-exposed occupation, even those highly automatable
 
-Wages are rising 2x faster in the most AI-exposed industries
-AI is making workers more valuable, with wages rising twice as quickly in those industries most exposed to AI compared to those least exposed. Indeed we found that wages are rising for AI-powered workers even in the most highly automatable roles, suggesting that concerns that AI is devaluing automatable roles in the aggregate may be misplaced.
+Contrary to some expectations, the data from the report does not show job or wage destruction from AI.
 
-Skills for AI-exposed jobs are changing 66% faster than for other jobs: more than 2.5x faster than last year
-The AI-driven skills earthquake is accelerating. AI is redefining roles faster and faster and creating rapid change in the skills required to succeed in AI-powered jobs. Workers must demonstrate that they have the skills to succeed in an AI era.
+While occupations with lower exposure to AI saw strong job growth (65%) in recent years (2019-2024), growth remained robust even in more exposed occupations (38%). Within more exposed occupations, jobs can be further divided into ‘automated’ (i.e., the job contains some tasks that AI can carry out) and ‘augmented’ (i.e., where AI helps a human do their job better). Across both classifications between 2019-24, job numbers are growing in every industry analysed, although augmented jobs are generally growing faster.
 
-Workers with AI skills command a 56% wage premium: up from 25% last year
-The value that AI-powered workers bring is apparent in the wage premium for workers with AI skills like prompt engineering. We compared the wages of workers in a given occupation who differ only on whether they have AI skills. We found that on average, the wages of workers with AI skills were significantly higher. What’s more, every industry we analysed pays wage premiums for AI skills.Over the next two to three years, 50% to 55% of jobs in the US will be reshaped by AI. For many employees, this will mean that they retain the same or a similar role but face radically new expectations for how they work and what they produce. For company leaders, it will require a clear vision for how the transformation is managed, including a scaled, strategic approach to upskilling and reskilling and the restructuring of career ladders.
+Wages are growing twice as fast in AI-exposed industries
 
-This shift is already happening—and will pick up speed as AI adoption spreads. Our analysis, based on microeconomic modeling, identified a significant swath of the labor force for which AI will meaningfully augment current roles. Moreover, when the productivity gains from AI use trigger increased end product demand and the potential for augmentation is high, we believe there will be a need for more and, in some cases, new human roles. (See Exhibit 1.) While job augmentation and new-job creation will happen rapidly, full substitution of jobs by AI will be slower. Five years from now—or perhaps further in the future—10% to 15% of jobs in the US could be eliminated. 1 This level of potential job loss is considerable and creates an important call to action for business leaders.To build our model, we calculated the number of jobs involving tasks that are at least 40% automatable. This represents the average level of automation for all US-based occupations and the threshold after which role and organization redesign becomes a stronger business case. The 43% of jobs that exceed this threshold formed the focus of our analysis. The other 57% are jobs that depend heavily on the physical presence of human workers, on hands-on work, or on sustained human interaction, all of which limit the potential for automation and thus are less likely to be disrupted by AI. (See Exhibit 2.)Substitution Versus Augmentation. To illustrate the difference between substitution and augmentation, consider call center representatives and software engineers, two roles that are already deploying agentic AI at scale.
+Wages are growing twice as fast in industries more exposed to AI versus less exposed, with wages rising in both automatable and augmentable jobs. Jobs which require AI skills also offer a wage premium (over similar roles that don’t require AI skills) in every industry analysed, with the average premium hitting 56%, up from 25% last year. Jobs that require such AI skills also continue to grow faster than all jobs – rising 7.5% from last year, even as total job postings fell 11.3%.
 
-A call center representative is typically responsible for resolving a defined set of customer inquiries within established workflows. Much of the work involves structured interactions such as account lookups, policy explanations, and scripted troubleshooting. When AI systems can reliably handle these repeatable inquiries end to end, fewer representatives are required. In this setting, the workflow can often be clearly bifurcated, with AI handling first-line interactions and humans focusing on escalations and exceptions.
+Joe Atkinson, Global Chief AI Officer, PwC, said: “In contrast to worries that AI could cause sharp reductions in the number of jobs available – this year's findings show jobs are growing in virtually every type of AI-exposed occupation, including highly automatable ones. AI is amplifying and democratising expertise, enabling employees to multiply their impact and focus on higher-level responsibilities. With the right foundations, both companies and workers can re-define their roles and industries and emerge leaders in their field, particularly as the full gambit of applications becomes clearer.”
 
-In some cases, representatives can transition into higher-value roles focused on relationship building and proactive risk mitigation. But overall employment in the call center rep role will decline as the most structured tasks are absorbed by the system.
+The skills earthquake accelerates – AI is creating deep change in the skills workers need to succeed
 
-A software engineer, by contrast, produces a very different output. While coding includes routine elements, the core value of the role lies in system design, architectural judgment, tradeoffs between performance and cost, and the translation of business needs into technical solutions. AI can dramatically accelerate code generation and testing, but given today’s capabilities, it cannot replace the system-level judgment required to own the outcome end to end—meaning the work cannot be cleanly divided between system and engineer. Instead, software development becomes an ongoing interaction in which engineers define objectives, refine outputs, validate results, and integrate components into broader systems.
+While the picture on productivity, wages and jobs is broadly positive, the research does highlight the need for workers and businesses to adapt to a much faster pace of change. The skills sought by employers are changing 66% faster in occupations most exposed to AI, up from 25% last year. What it takes to succeed in AI-exposed jobs is changing in other ways. Employer demand for formal degrees is declining for all jobs, but especially quickly for AI-exposed jobs. 
 
-AI supports and accelerates these steps but does not replace the need for human judgment and accountability. As a result, AI helps engineers do their jobs more effectively rather than replacing them, making these roles less likely to experience direct displacement and shifting engineers’ work toward system-level thinking, orchestration, and product and design tasks, rather than repetitive coding tasks.
+Peter Brown, Global Workforce Leader, PwC, said: “AI’s rapid advance is not just re-shaping industries, but fundamentally altering the workforce and the skills required. This is not a situation that employers can easily buy their way out of. Even if they can pay the premium required to attract talent with AI skills, those skills can quickly become out of date without investment in the systems to help the workforce learn.”
 
-Low Versus High Demand Expandability. When AI lowers the cost of delivering a business outcome or end product, the question is whether demand for the output expands or remains bounded. If lower costs unlock unmet demand, increase accessibility, or accelerate consumption, total output may rise and employment may remain stable or even grow despite significant automation at the task level. If demand for the outcome is fixed, productivity gains are more likely to translate into fewer required workers.
+Demand for roles requiring AI-related skills increased in Hong Kong
 
-This dynamic is not new. Economists have long observed that efficiency improvements can increase total consumption rather than reduce it, a phenomenon often referred to as Jevons Paradox. When the cost of a resource falls, usage can rise. The same logic applies to labor: whether productivity reduces employment depends on how demand for the output responds.
+In Hong Kong, while new job listings were scarcer in 2024 than the preceding two years, there was a rise in the proportion of job postings seeking AI skills, rising from 1.6% of postings to 1.9%. The Information & Communication sector saw the most consistent rise in new jobs requiring AI skills in the city, increasing from 6.4% in 2021 to 7.2% in 2024. Over the period, AI skill requirements in other sectors remained relatively consistent. 
 
-Software engineering illustrates expandable demand. Organizations across industries continue to face persistent unmet need for digital products, automation, and new features. As AI reduces the cost and time required to build software, organizations often build more. Output expands and overall job volume may remain stable or grow, even as the productivity of individual engineers rises, because humans continue to play a meaningful role. The continued growth of software engineering headcount in the years following the introduction of ChatGPT in 2022 illustrates this phenomenon. (See Exhibit 3.)The rapid diffusion of AI is generating a wave of research measuring and forecasting its impacts on labor markets. But the track record of past approaches gives reason for humility.
+Concurrently, an overarching trend, spanning all industries in Hong Kong has been observed, showing jobs requiring AI augmentation have increased by 6%, while automated roles decreased by around 7% across all industries. The sector making the most of AI augmentation in Hong Kong has been Public Administration and Defence, with growth in AI oriented jobs exceeding 50%. Additionally, Energy and Water Supply sectors all experienced growth above 30% in AI augmented jobs since 2021. This reflects increased demand for roles that collate AI with human expertise.
 
-For example, a prominent attempt to measure job offshorability identified roughly a quarter of US jobs as vulnerable, but a decade on, most of those jobs maintained healthy employment growth. The government’s own occupational growth forecasts, while directionally correct, have added little predictive value beyond linear extrapolation of past trends. Even in hindsight, the impact of major economic disruptions on the labor market is often unclear. Studies on the employment effects of industrial robots reach opposing conclusions, and the scale of job losses attributed to the China trade shock continues to be debated.1
+Wilson Chow, PwC Global TMT Industry Leader and China AI Leader said: “As a global hub of ingenuity, Hong Kong is uniquely positioned to unlock the redefined employment opportunities emerging from an AI enabled work landscape. The report underscores that rather than acting as a replacement for human creativity, AI is optimally deployed as a transformative ‘enhancer’, pushing boundaries, amplifying capabilities, to drive greater efficiency and productivity across industries.” 
 
-In this paper, we present a new framework for understanding AI’s labor market impacts, and test it against early data, finding limited evidence that AI has affected employment to date. Our goal is to establish an approach for measuring how AI is affecting employment, and to revisit these analyses periodically. This approach won't capture every channel through which AI could reshape the labor market, but by laying this groundwork now, before meaningful effects have emerged, we hope future findings will more reliably identify economic disruption than post-hoc analyses.
+The AI business imperative
 
-It is possible that the impacts of AI will be unmistakable. This framework is most useful when the effects are ambiguous—and could help identify the most vulnerable jobs before displacement is visible.
+If businesses are to turbocharge their growth and leverage the opportunity afforded by AI, they must put AI front-and-centre, now. The report recommends five key actions for businesses:
 
-Counterfactuals
-Causal inference is easier when the effects are large and sudden. The COVID-19 pandemic and accompanying policy measures caused economic disruption so stark that sophisticated statistical approaches were unnecessary for many questions. For example, unemployment jumped sharply in the early weeks of the pandemic, leaving little room for alternative explanations.
+Use AI for enterprise-wide transformation.
+Treat AI as a growth strategy, not just an efficiency strategy.
+Prioritise Agentic AI.
+Enable your workforce to have the skills to make the most of AI’s power.
+Unlock AI’s transformative potential by building trust. 
+ 
 
-The impacts of AI, however, might be less like COVID and more like the internet or trade with China. The effects may not be immediately clear from aggregate unemployment data; factors like trade policy and the business cycle could cloud interpretations of trend lines.
+Notes to Editors 
 
-One common approach is to compare outcomes between more or less AI-exposed workers, firms, or industries, in order to isolate the effect of AI from confounding forces.2 Exposure is typically defined at the task level: AI can grade homework but not manage a classroom, for example, so teachers are considered less exposed than workers whose entire job can be performed remotely.
+About the PwC 2025 AI Jobs Barometer
 
-Our work follows this task-based approach, incorporating measures of theoretical AI capability and real-world usage, before aggregating to occupations.3Our new measure, observed exposure, is meant to quantify: of those tasks that LLMs could theoretically speed up, which are actually seeing automated usage in professional settings? Theoretical capability encompasses a much broader range of tasks. By tracking how that gap narrows, observed exposure provides insight into economic changes as they emerge.
+The AI Jobs Barometer analysed close to a billion job ads and thousands of company financial reports across six continents to reveal AI's impact on jobs, wages, skills, and productivity. The Barometer includes some of the most recent available data on AI's impact including the latest available job ads and company reports through the end of 2024. We define a job as ‘AI-exposed’ if it contains many tasks in which AI can be used according to the well-established AI Occupational Exposure index. Definitions: ‘More exposed’ jobs are the 50% of jobs with greater AI exposure; ‘Less exposed’ jobs are the 50% of jobs with lower AI exposure; ‘Most exposed’ jobs are the 25% of jobs with the greatest AI exposure. We use the IMF's methodology to separately analyse AI-exposed jobs that are highly automatable (which means the job contains many tasks AI can perform) versus jobs that are highly augmentable (which means the job contains many tasks in which AI supports human expertise and judgment).
 
-Our measure qualitatively captures several aspects of AI usage that we think are predictive of job impacts. A job's exposure is higher if:
+Unemployment among college graduates is increasing
+“The discussion about AI taking jobs, or at least good jobs, is generally framed as tomorrow’s problem. However, there are some hints that AI may already be taking ‘knowledge worker’ jobs,” said Michael Feroli, chief U.S. economist at J.P. Morgan.
 
-Its tasks are theoretically possible with AI
-Its tasks see significant usage in the Anthropic Economic Index5
-Its tasks are performed in work-related contexts
-It has a relatively higher share of automated use patterns or API implementation
-Its AI-impacted tasks make up a larger share of the overall role6
-We give mathematical details in the Appendix. We count tasks that are theoretically capable with an LLM as covered if they have seen sufficient work-related usage in Claude traffic. We then adjust for how the task is being carried out: fully automated implementations receive full weight, while augmentative use receives half weight. Finally, the task-level coverage measures are averaged to the occupation level weighted by the fraction of time spent on each task.
-
-Figure 2 shows observed exposure (in red) compared to β from Eloundou et al. (in blue), illustrating the difference between theoretical and actual use on our platform, grouped by broad occupational categories. We calculate this by first averaging to the occupation level weighting by our time fraction measure, then averaging to the occupation category weighting by total employment. For example, the β measure shows scope for LLM penetration in the majority of tasks in Computer & Math (94%) and Office & Admin (90%) occupations.
-
-We next study trends in unemployment, matching our occupation-level measures to respondents in the Current Population Survey.
-
-A key question in interpreting our coverage measure is which workers should be considered treated? Should changes in employment be expected from just 10% task coverage? Gans and Goldfarb (2025) show that if an O-ring model best describes jobs, employment effects might be seen only when all tasks have some degree of AI penetration. Hampole et al. (2025) argue that mean exposure decreases labor demand, but concentration of exposure in only certain tasks can counteract this. And Autor and Thompson (2025) highlight the level of expertise required for the remaining tasks.
-
-With an eye toward simplicity, and noting that we are most concerned with large impacts, we center our analysis on the idea that impacts should be felt most in the groups with the highest mean exposure. We compare workers in the top quartile of time-weighted task coverage to those in the bottom. If AI capabilities advance quickly, task coverage might be high for lower percentiles of coverage, which might make an absolute threshold more helpful. But we make the assumption that impacts should affect the most exposed workers first, and present results varying the cutoff we use to define treatment.
-
-The upper panel of Figure 6 shows raw trends in the unemployment rate since 2016 for workers in the top quartile of exposure and the unexposed group. During COVID, the less AI-exposed workers—who are more likely to have in-person jobs—saw a much larger increase in unemployment. Since then, the trends have been largely similar between the two groups. The lower panel measures the size of the gap between the most and least exposed workers in a difference-in-differences framework, mirroring the findings from the raw data. The average change in the gap since the release of ChatGPT is small and insignificant, suggesting that the unemployment rate of the more exposed group has increased slightly but the effect is indistinguishable from zero.8What kind of scenarios can this framework identify? Based on the confidence interval of the pooled estimate, differential increases in unemployment on the order of 1 percentage point would be detectable (this will change as new data comes in, so it is merely a ballpark estimate). If all workers within the top 10% were laid off, it would increase unemployment within the top quartile group from 3% to 43%, and it would increase aggregate unemployment from 4% to 13%.
-
-A smaller but still concerning impact would be a scenario such as a “Great Recession for white-collar workers.” During the 2007-2009 Great Recession, unemployment rates doubled from 5% to 10% in the US. Such a doubling in the top quartile of exposure would increase its unemployment rate from 3% to 6%. This should be visible in our analysis as well. Note that our core estimate is based on differential changes in the unemployment rate in the exposed group compared to the less exposed group. If unemployment increased for all workers in parallel, we would not attribute this to AI advancements that still leave many tasks unaffected.
-
-One group of particular concern is young workers. Brynjolfsson et al. report a 6—16% fall in employment in exposed occupations among workers aged 22 to 25. They attribute this decrease primarily to a slowdown in hiring rather than an increase in separations.9
-
-We find that the unemployment rate for young workers in the exposed occupations is flat (see Appendix). But slowed hiring may not necessarily manifest as increased unemployment, since many young workers are labor market entrants without a listed occupation in the CPS data and may exit the labor force rather than appear as unemployed. To address hiring directly, we use the panel dimension of the CPS, counting the percent of young (22-25 year old) workers who begin a new job in a more vs. less exposed occupation over time. Figure 7 shows the monthly job finding rate (i.e., when a worker reports a job that they did not have in the previous month) for young workers, split by whether they are entering a high- vs. low-exposure occupation.
-
-Apart from some large swings in 2020-2021, these series visually diverge in 2024, with young workers relatively less likely to be hired into exposed occupations. Job finding rates at the less exposed occupations remain stable at 2% per month, while entry into the most exposed jobs decreases by about half a percentage point. The averaged estimate in the post-ChatGPT era is a 14% drop in the job finding rate compared to that in 2022 in the exposed occupations, although this is just barely statistically significant. (There is no such decrease for workers older than 25.)
-
-This may provide some signal of the early effects of AI on employment, and echoes the findings from Brynjolfsson et al. But there are several alternative interpretations. The young workers who are not hired may be remaining at their existing jobs, taking different jobs, or returning to school. A further data-related caveat is that job transitions may be more vulnerable to mismeasurement in surveys.10
-
-You would have been living under a rock if you did not know how artificial intelligence is set to affect jobs in 2026-2030. AI like ChatGPT seems to be stealing all of the headlines at the moment, Google unveiled new AI software to build presentations, analyze and enter data, and write content, and there are so many more AI tools like Gamma and Numerous AI. Those that are resisting, rather than riding the crest of the wave will not be making hey whilst the sun shines when it comes to landing in-demand jobs in the next 6 years and enjoying job growth. AI will be taking some jobs, but it will be creating new ones!   Here are the most likely jobs that artificial intelligence will affect from 2026-2030:
-
-
-How artificial intelligence will change the world
-Will AI help the world or hurt it?
-Like any controversial subject, there will always be people who are for it, and those that are against it. Artificial Intelligence is no different. In fact, as new ai tools are introduced, and the news around them grows, so the division between the two camps will grow with it.
-
-Many market research analysts say that AI has the potential to bring about numerous positive changes in society, including enhanced productivity, improved healthcare, and increased access to education. But we need to adapt right now.
-
-Others will say, mostly those working in human work types of jobs that are manually repetitive, that ai and robotics is a disruptive force and when it comes to the future of jobs it merely serves to steal jobs.
-
-But robots and ai technologies can and will create a great many new vocations and help solve complex problems and make our daily lives easier and more convenient.
-
-The jury is not yet out on this, but the leaning is more toward ai being a positive force rather than a negative one.
-
-How will AI affect jobs and the economy?
-McKinsey global institute says that at the global average level of adoption and absorption and advances in ai implied by their simulation, AI has the profound impact to deliver additional global economic activity of around $13 trillion in the foreseeable future and by 2030, or about 16% higher cumulative GDP compared with today.
-
-This amounts to 1.2% additional GDP growth per year. If delivered, this impact would compare well with that of other general-purpose technologies through history. This will mainly come from substitution of labor by automation and increased innovation in products and services.
-
-The same report went on to say that By 2030, the average simulation shows that some 70% of companies will have embraced the ai revolution and adopted at  least one type of AI technology but that less than half will have fully absorbed the five categories.
-
-Forbes say ai has the potential to be among the most disruptive technologies across global economies that we will ever develop.
-
-How will artificial intelligence affect society and future?
-Forbes says that the future of AI brings endless possibilities and applications that will help simplify our lives to a great extent. It will help shape the future and destiny of humanity positively, whilst Bernard Marr & Co says that the transformative impact of artificial intelligence on our society will have far-reaching economic, legal, political and regulatory implications on all types of jobs and industries that we need to be discussing and preparing for.
-
-Others in the know say that AI has the potential to bring about numerous positive changes in society both now and in the future, including enhanced productivity, improved healthcare, and increased access to education.
-
-AI-powered technologies can also help solve complex problems and make our daily lives easier and more convenient.
-
-How Will AI Affect Jobs - How many jobs will AI replace by 2030
-Artificial intelligence (AI) could replace the equivalent of 300 million full-time jobs, a report by investment bank Goldman Sachs says. It could replace a quarter of work tasks in the US and Europe but may also mean new jobs and a productivity boom.
-
-And it could eventually increase the total annual value of goods and services produced globally by 7%. The report also predicts two-thirds of jobs in the U.S. and Europe “are exposed to some degree of AI automation,” and around a quarter of all jobs could be performed by AI entirely.
-
-Researchers from the University of Pennsylvania and OpenAI found some educated white-collar workers earning up to $80,000 a year are the most likely to be affected by workforce automation.
-
-Forbes also says that According to an MIT and Boston University report, AI will replace as many as two million manufacturing workers by 2026.
-
-A study by the McKinsey Global Institute reports that by 2030, at least 14% of employees globally could need to change their careers due to digitization, robotics, and AI advancements
-
-What jobs are most likely to be automated?
-1. Customer service representative
-Most human customer service interactions are no longer done by phone with human employees manning the lines. Most of the time, the queries and problems of customers are repetitive.
-
-Answering these queries does not require high emotional or social intelligence. Therefore, AI can be used to provide automated responses to frequently asked questions.
-
-2. Receptionists
-The majority of companies across the world are now using robots at their reception. Even the calls are being managed by AI now. For example, AimeReception can see, listen, understand, and talk with guests and customers.
-
-3. Accountants/Bookkeepers 
-Many companies are now using automation and ai for their bookkeeping practices. AI-powered bookkeeping services provide an efficient accounting system and flexibility and security, considering that they are available as cloud-based services.
-
-Using ai algorithms, AI will ensure the data is collected, stored, and analyzed correctly. Using an AI accounting service is significantly less costly than paying an employee’s salary to do the same job.
-
-4. Salespeople 
-Gone are the days when corporations required salespeople for advertising and retail activities. Advertising has shifted towards web and social media landscapes. The built-in target marketing capabilities in social media allow advertisers to create custom content for different types of audiences.
-
-5. Research and analysis
-The fields of data analysis and research are areas that already implement the use of artificial intelligence as a method of streamlining the process and identifying new data without human assistance. 
-
-The processing power of modern computers allows for the efficient sorting, extrapolation and analysis of data. As artificial intelligence continues to improve, there may not be a need for humans to play a role in data analysis and research.
-
-6. Warehouse work
-Online sales is a steadily growing industry and comes with an increasing need for processes and automated systems that efficiently get orders onto trucks for delivery.One area of focus for streamlining the process has been the use of automation.
-
-Basic automation and artificial implementation in a warehouse allow for easy access to computerized systems to locate packages and direct staff, and future AI may even perform mechanized retrieval and loading to increase shipping capacities.
-
-7. Insurance underwriting
-When making assessments on the viability of insurance applicants, the most important work is often in analyzing the data available and applying it within a set of formulas or structures.
-
-Automation can easily complete these tasks and is continually adapting to perform more complicated duties, which may reduce how many underwriters a company requires.
-
-8. Retail
-Self-checkout stations at stores are an example of automation in the retail sphere and have gained prominence in grocery stores and big-box outlets. When a company makes use of self-checkout areas, it results from a cost-benefit analysis.
-
-Although allowing customers to scan their own items can increase the instances of theft, the company saves more money by reducing the need for employees working registers.
-
-How to quickly change career
-Experts say that ai and machine learning will help workers by creating more occupations than it replaces. That said, in order to ride the wave and build a new career, you have to have procured the skills necessary to get the job done.
-
-If you're exposed to ai and looking to pivot into an AI-focused role, demonstrating your knowledge and experience with AI development can give you an edge.
-
-Why not take a read of our top 10 highest paying AI jobs article here. To acquire the skills to stand out from other would be candidates you should: ramp up your technical skills, complete online courses, understand the industry, gain work experience, and develop your soft skills.
-
-AI will require extensive research and collaboration as it is still an emerging area. Soft skills will help set you apart from other developers who only have technical skills.
-
-Which jobs will not be replaced by ai?
-It is widely touted that ai will create more jobs than it replaces. Further to that, many in certain industries will breath a sigh of relief that ai will not threaten their vocation and livelihood.
-
-These are some of the jobs that will not involve repetitive tasks and be prone to disruption. This means that ai will not replace those that perform them in the open labor market.
-
-
-1. Teachers
-Teachers often represent a reference point for many of us. Often, our academic decisions are partly based on how inspiring a particular teacher has been with us in the years prior. For all these reasons, it is almost impossible that we will have a fully digital teaching experience in the Future. 
-
-2. Lawyers and judges
-These positions have a strong component of negotiation, strategy and case analysis. A lot is based on the personal experience and knowledge of each specialist.
-
-It requires a certain set of skills to be able to navigate complex legal systems and argue in defense of a client in court. There is a human factor involved when it comes down to consider all the various aspects of a trial and take a final decision that could turn into years in prison, in the case of a Judge.
-
-3. Directors, Managers and CEOs
-Managing teams inside an organization is a matter of Leadership and this is not a stack of behaviors that can be written down in a code and processed in a linear way.
-
-A CEO is also the person responsible for sharing the company’s mission and value down to the team. It is very unlikely that investors will ever feel comfortable investing in a company managed by robots or algorithms.
-
-4. HR Managers 
-Although ai does assist in the hiring process to make sifting through CVs so much easier and quicker, Human Resource Managers still cover a variety of very important tasks inside an organization.
-
-Hiring new professionals is just part of their prerogatives. They also are a key position inside the organization for maintaining the staff motivated, detecting early-on signs of discontent, and manage them if possible. 
-
-5. Psychologists and Psychiatrists 
-Although a lot of face recognition technology is currently being used to develop initial AI counseling care and support, given the growing demand, mental health is a very delicate topic. Human touch is essential when it comes down to supporting people to succeed in their lives in all of the aspects that it can entail.
-
-6. Surgeons
-For sure, technology has seriously increased the accuracy with whom we are today able to diagnose and detect diseases in any medical report. Micro robotics also enhance the precision of the surgeons when it comes down to operation, enabling less invasive procedures.
-
-But being a surgeon requires the ability to connect with the patient on so many other different levels while taking a vast number of the factor under consideration at the same time. Experience, knowledge, and skills acquired throughout the years are all factors that need to be condensed in a matter of minutes during an operation.
-
-7. Computer System Analysts
-No matter how automated we become, there will always be the need of a human presence that can run maintenance work, update, improve, correct, and set-up complex software and hardware systems that often require coordination among more than one specialist in order to properly work. 
-
-Reviewing the system capabilities, controlling the workflow and schedule improvements and increase automation is only part of a Computer System Analyst, a profession that is a great demand in the last years.
-
-8. Artists and writers
-Writing especially is such an imaginative fine art, and being able to place a specific selection of words in the right order is definitely a challenging endeavor.
-
-So even if AI technically would have the capacity of absorbing the content of most books in the world, in probably any language and come up with a somewhat personal style of communication, the magic and thrill of creating art with words is something that is pretty much going to rest in our domain of competition in the years to come. 
-
-How many jobs will be lost to ai by 2026?
-The World Economic Forum has estimated that artificial intelligence will replace some 85 million jobs by 2026. Freethink says that 65% of retail jobs could be automated by that year, saying that this is largely due to technological advancements, rising costs and wages, tight labor markets, and reduced consumer spending. 
-
-How many jobs will be lost to ai by 2030?
-PwC estimates that by the mid-2030s, up to 30% of jobs could be automatable, with slightly more men being affected in the long run as autonomous vehicles and other machines replace many manual tasks where their share of employment is higher.
-
-During the first and second waves, they estimate that women could be at greater risk of automation due to their higher representation in clerical and other administrative functions​.
-
-How to embrace AI and learn skills to take advantage of this new technology
-You may be wondering how you can start familiarizing yourself with AI in your work to help advance your career. LinkedIn says that the good news is that you probably already have experience with AI whether you know it or not.
-
-Asking voice assistants like Alexa and Siri questions uses AI, for example. Plenty of the apps on your phone also use AI, too. Generative AI, which is taking up all the headlines lately, is really the next step for this technology.
-
-The company went on to say that to stay ahead in the era of artificial intelligence, it is essential to develop new skills and adapt to the changing job market. Here are some strategies for staying ahead in the era of artificial intelligence:
-
-
-1. Embrace lifelong learning
-In the era of AI, it is important to be constantly learning and adapting to new technologies and ways of working. This means taking courses, attending workshops and conferences, and keeping up-to-date with the latest trends in your industry.
-
-2. Develop soft skills
-While AI is great at performing routine tasks, it is still far from replicating human emotional intelligence and creativity. Developing soft skills such as communication, problem-solving, and collaboration will be crucial in the era of AI.
-
-3. Be agile
-In the era of AI, the ability to adapt quickly to changing circumstances will be key. This means being willing to learn new skills, take on new responsibilities, and pivot to new career paths.
-
-4. Specialize
-As AI becomes more ubiquitous, there will be increasing demand for workers with specialized skills and knowledge. By developing expertise in a particular area, you can increase your value to employers and differentiate yourself in the job market.
-
-Learn from a next-gen university which embraces change
-If there is one word that you need to take out of the way to transition from the current job market to the new world order of the job market affected by ai, is the word, 'agility'. The other is 'skills' and skills development at that. 
-
-Besides learning on the job, which can take a long time and effort for all concerned, many of those looking to switch careers or start a new one, are looking to online next-gen universities that can pivot on a penny and offer the programs at a specific period in time to take advantage of the drive to greater numbers of ai related jobs. 
-
-Doing the degree will mean that learners will learn and develop skills based on the latest employer needs and market trends – this is what the 100% online learning university calls their Workplace Alignment Model which is designed to equip those learners with the skills needed and what employers are looking for.
-
-
-Conclusion 
-The neigh sayers have seemingly concluded that ai will take millions of jobs and put people out into the street, whilst those that are excited for it and ready to embrace the change are saying that ai has the ability to create more new types of jobs than it replaces. 
-
-That said, it would appear that resistance is futile, and that people must accept that artificial intelligence is becoming a part of our everyday lives. Every job role should embrace it, considering the efficient and cost-effective solutions it brings.
-
-It lets people focus on more creative goals by automating the decision-making processes and tedious tasks.Artificial intelligence offers great promise to drive businesses forward, automate manufacturing processes, and deliver valuable insights.
-
-AI is increasingly being used across various industries, including logistics, manufacturing, and cybersecurity. Small businesses have also made rapid progress in creating speech recognition software for mobile devices.
-
-To stay ahead in the era of artificial intelligence, it is essential to embrace lifelong learning, develop soft skills, be agile, and specialize in a particular area. By developing these skills and adapting to the changing job market, workers can thrive in the era of AI and take advantage of the opportunities it presents.
+For starters, the unemployment rate among college graduates has increased, reaching 5.8% in March — the highest in more than four years. “Disturbingly, the unemployment rate has been trending above the aggregate rate, which is highly unusual by historical standards,” noted Murat Tasci, senior U.S. economist at J.P. Morgan. While the trend could be partially due to a secular rise in the relative supply of college graduates and unusually low labor market churn, the effects of AI could also be at play.
+
+To investigate the impact of AI on graduate unemployment, the economics team at J.P. Morgan Global Research examined the cross-sectional distribution of unemployment rates by college major, noting that the technology could affect some fields more than others. Overall, anthropology graduates — who are not particularly exposed to AI — have had most difficulty finding jobs. However, other majors exposed to AI, including computer engineering, graphic design, industrial engineering and architecture, have also experienced significant increases in graduate unemployment, highlighting AI’s impact on job growth.
+
+“To the extent that exposure to AI displaces some workers with specific majors, new entrants from those majors could be at a greater disadvantage, as experience could offset some of the skills that are now obsolete with AI-performed tasks,” Tasci said.
+
+Job growth is slowing across certain tech industries
+In addition to rising unemployment among college graduates, job growth across several white-collar sectors has been tepid, pointing to AI’s growing role in the workforce.
+
+To this end, the economics team compared changes in employment trends with AI exposure across industries, as well as within detailed subsectors of professional employment, using data from the U.S. Census Bureau’s Business Trends and Outlook Survey (BTOS) and Anthropic AI. On the whole, there is a mildly negative correlation between employment trends and AI usage, suggesting that AI may be depressing job growth.
+
+This trend is especially evident in certain tech industries, including cloud, web search and computer systems design. After years of steady employment gains, these three industries stopped growing at the end of 2022, just after the release of ChatGPT. “While firms may also have been retrenching after their post-COVID hiring, the rise of large language models (LLMs) produced a product that automated some of their labor via code assistance, while at the same time reshaping their business strategy,” Feroli noted.
+
+On the other hand, this trend isn’t as apparent within the professional and business services segment. “The most likely explanation for our non-result across non-tech industries is that AI is simply too recent to have materially changed business practices, even if it were to ultimately prove impactful,” Feroli said. Indeed, BTOS data shows that as of mid-2025, less than 10% of firms in the overall economy indicate they are using AI regularly, with the figure rising to just over 20% in the professional, scientific and technical industries.
+
+“All in all, we find little association between various measures of AI intensity and job growth outside of selected tech industries, and conclude that so far AI has not been a major driver of the composition of employment gains, except perhaps in tech,” Feroli added. 
+
+AI could affect the labor market in the next recession
+
+In addition to its impact on job growth, AI could prolong the recovery of the labor market in the event of a downturn. “We think that during the next recession, the speed and breadth of the adoption of AI tools and applications in the workplace might induce a large-scale displacement for occupations that consist of primarily non-routine cognitive tasks,” Tasci said.
+
+Back in the 1980s, middle-skill occupations that rely on routine tasks — such as sales, manufacturing construction and maintenance — started disappearing due to automation. Notably, their decline had a pronounced cyclical behavior. Throughout the downturns over the following decades, it took increasingly longer for these occupations to bounce back from recession-induced job losses, each time resulting in a jobless recovery — an economic situation in which the overall economy improves but payrolls grow only slowly.  
+
+Today, AI exposes non-routine cognitive occupations — such as scientists, engineers, designers and lawyers — to similar risks. “As the cost of adaptation comes down with the wide dissemination of AI tools and applications, these traditionally high-wage occupations might come under pressure,” Tasci noted.
+
+This is compounded by the rising unemployment risk among these occupations, which has now surpassed that of workers from non-routine manual jobs. “Workers who were last employed in non-routine cognitive jobs have always accounted for the smallest share of the unemployed, until recently. This changing pattern might be indicative of rising unemployment risk for these workers going forward,” Tasci said.
+
+Taken together, these factors suggest that a jobless recovery could recur in the future. “Overall, a much larger unemployment risk and anemic recovery prospects for workers in non-routine cognitive occupations might cause the next labor market downturn to look pretty dismal,” Tasci added.  
+
+Since its founding in 1990, the McKinsey Global Institute (MGI) has sought 
+to develop a deeper understanding of the evolving global economy. As the 
+business and economics research arm of McKinsey & Company, MGI aims 
+to provide leaders in the commercial, public, and social sectors with the facts 
+and insights on which to base management and policy decisions.
+MGI research combines the disciplines of economics and management, 
+employing the analytical tools of economics with the insights of business 
+leaders. Our “micro-to-macro” methodology examines microeconomic 
+industry trends to better understand the broad macroeconomic forces 
+affecting business strategy and public policy. MGI’s in-depth reports have 
+covered more than 20 countries and 30 industries. Current research focuses 
+on six themes: productivity and growth, natural resources, labor markets, 
+the evolution of global financial markets, the economic impact of technology 
+and innovation, and urbanization. Recent reports have assessed the 
+digital economy, the impact of AI and automation on employment, income 
+inequality, the productivity puzzle, the economic benefits of tackling gender 
+inequality, a new era of global competition, Chinese innovation, and digital and 
+f
+inancial globalization.
+MGI is led by three McKinsey & Company senior partners: Jacques Bughin, 
+Jonathan Woetzel, and James Manyika, who also serves as the chairman 
+of MGI. Michael Chui, Susan Lund, Anu Madgavkar, Jan Mischke, 
+Sree Ramaswamy, and Jaana Remes are MGI partners, and Mekala Krishnan 
+and Jeongmin Seong are MGI senior fellows.
+Project teams are led by the MGI partners and a group of senior fellows, 
+and include consultants from McKinsey offices around the world. These 
+teams draw on McKinsey’s global network of partners and industry and 
+management experts. Advice and input to MGI research are provided by 
+the MGI Council, members of which are also involved in MGI’s research. 
+MGI Council members are drawn from around the world and from various 
+sectors and include Andrés Cadena, Sandrine Devillard, Richard Dobbs, 
+Tarek Elmasry, Katy George, Rajat Gupta, Eric Hazan, Eric Labaye, Acha Leke, 
+Scott Nyquist, Gary Pinkus, Sven Smit, Oliver Tonby, and Eckart Windhagen. 
+In addition, leading economists, including Nobel laureates, act as advisers to 
+MGI research.
+The partners of McKinsey fund MGI’s research; it is not commissioned by any 
+business, government, or other institution. For further information about MGI 
+and to download reports, please visit www.mckinsey.com/mgi.
+
+NOTES FROM THE AI FRONTIER: 
+MODELING THE IMPACT OF AI 
+ON THE WORLD ECONOMY
+Continuing the McKinsey Global Institute’s ongoing exploration of artificial 
+intelligence (AI) and its broader implications, this discussion paper focuses 
+on modeling AI’s potential impact on the economy. We take a micro-to-macro 
+and simulation-based approach in which the adoption of AI by firms arises 
+from economic and competition-related incentives, and macro factors have an 
+influence. We consider not only the possible benefits but also the costs related 
+to implementation and disruption.
+AI has large potential to contribute to global economic activity. 
+Looking at several broad categories of AI technologies, we model trends 
+in adoption, using early adopters and their performance as a leading 
+indicator of how businesses across the board may (want to) absorb AI. 
+Based on early evidence, our average simulation shows around 70 percent 
+of companies adopting at least one of these types of AI technologies by 
+2030, and less than half of large companies may be using the full range of 
+AI technologies across their organizations. In the aggregate, and netting 
+out competition effects and transition costs, AI could potentially deliver 
+additional economic output of around $13 trillion by 2030, boosting global 
+GDP by about 1.2 percent a year.
+WHAT’S INSIDE?
+In brief 
+Page 1
+Introduction 
+Page 2
+1. An approach to assessing 
+the economic impact of AI 
+Page 9
+2. AI has the potential to 
+be a significant driver of 
+economic growth 
+Page 12
+3. Along with large economic 
+gains, AI may bring 
+wider gaps 
+Page 30
+4. Considering key questions 
+can help economic entities 
+decide how to optimize for AI 
+Page 46
+The economic impact may emerge gradually and be visible only over 
+time. Our simulation suggests that the adoption of AI by firms may follow an 
+S-curve pattern—a slow start given the investment associated with learning 
+and deploying the technology, and then acceleration driven by competition 
+and improvements in complementary capabilities. As a result, AI’s 
+contribution to growth may be three or more times higher by 2030 than it is 
+over the next five years. Initial investment, ongoing refinement of techniques 
+and applications, and significant transition costs might limit adoption by smaller firms.
+Technical appendix 
+Page 49
+Acknowledgments 
+Page 61
+A key challenge is that adoption of AI could widen gaps between countries, companies, and workers. AI 
+may widen performance gaps between countries. Those that establish themselves as AI leaders (mostly developed 
+economies) could capture an additional 20 to 25 percent in economic benefits compared with today, while emerging 
+economies may capture only half their upside. There could also be a widening gap between companies, with front
+runners potentially doubling their returns by 2030 and companies that delay adoption falling behind. For individual 
+workers, too, demand—and wages—may grow for those with digital and cognitive skills and with expertise in tasks 
+that are hard to automate, but shrink for workers performing repetitive tasks.
+How companies and countries choose to embrace AI will likely impact outcomes. The pace of AI adoption 
+and the extent to which companies choose to use AI for innovation rather than efficiency gains alone are likely to 
+have a large impact on economic outcomes. Similarly, how countries choose to embrace these technologies (or 
+not) will likely impact the extent to which their businesses, economies, and societies can benefit. The race is already 
+on among companies and countries. In all cases, there are trade-offs that need to be understood and managed 
+appropriately in order to capture the potential of AI for the world economy.
+The results of this modeling build upon, and are generally consistent with, our previous research, but add new results 
+that deepen our understanding of how AI may touch off a competitive race with major implications for firms, labor 
+markets, and broader economies, and reinforce our perception of the imperative for businesses, government, and 
+society to address the challenges that lie ahead for skills and the world of work. 
+INTRODUCTION
+The role of artificial intelligence tools and techniques in business and the global economy 
+is a hot topic. This is not surprising given recent progress, breakthrough results, and 
+demonstrations of AI, as well as the increasingly pervasive products and services already 
+in wide use. All of this has led to speculation that AI may usher in radical—arguably 
+unprecedented—changes in the way people live and work.
+This discussion paper is part of MGI’s ongoing effort to understand AI, the future of work, 
+and the impact of automation on skills. It largely focuses on the impact of AI on economic 
+growth.1 Our hope is that this effort helps us to broaden our understanding of how AI 
+may impact economic activity, and potentially touch off a competitive race with major 
+implications for firms, labor markets, and economies. Three key findings emerge:
+AI has large potential to contribute to global economic activity. AI is not a single 
+technology but a family of technologies. In this paper, we look at five broad categories of 
+AI technologies: computer vision, natural language, virtual assistants, robotic process 
+automation, and advanced machine learning. Companies will likely use these tools to 
+varying degrees. Some will take an opportunistic approach, testing only one technology 
+and piloting it in a specific function. Others may be bolder, adopting all five and then 
+absorbing them across their entire organization. For the sake of our modeling, we define 
+the first approach as adoption and the second as full absorption.2 Between these two 
+poles will be many companies at different stages of adoption; the model captures partial 
+impact, too. By 2030, our average simulation shows, some 70 percent of companies 
+may have adopted at least one type of AI technology, but less than half may have fully 
+absorbed the five categories.3
+The pattern of adoption and full absorption may be relatively rapid—at the high end of 
+what has been observed with other technologies. However, several barriers may hinder 
+rapid adoption. For instance, late adopters may find it difficult to generate impact from 
+AI because AI opportunities have already been captured by front-runners, and they lag 
+behind in developing capabilities and attracting talent.4 Nevertheless, at the average level 
+of adoption implied by our simulation, and netting out competition effects and transition 
+costs, AI could potentially deliver additional global economic activity of around $13 trillion 
+1
+2
+3
+4
+2
+A version of this discussion paper is published in a forthcoming white paper on AI published by the 
+International Telecommunication Union but, as with all MGI research, is independent and has not been 
+commissioned or sponsored in any way. MGI research on the future of work, automation, skills, and AI can 
+be read and downloaded at mckinsey.com/mgi/our-research/technology-and-innovation. Key publications 
+relevant to this paper include A future that works: Automation, employment, and productivity, McKinsey 
+Global Institute, January 2017; Jobs lost, jobs gained: Workforce transitions in a time of automation, 
+McKinsey Global Institute, December 2017; Notes from the AI frontier: Insights from hundreds of use cases, 
+McKinsey Global Institute, April 2018; and Skill shift: Automation and the future of the workforce, McKinsey 
+Global Institute, May 2018. For a data visualization of AI and other analytics, see Visualizing the uses and 
+potential impact of AI and other analytics, McKinsey Global Institute, April 2018 (mckinsey.com/featured
+insights/artificial-intelligence/visualizing-the-uses-and-potential-impact-of-ai-and-other-analytics).
+In this paper, we use the terms “adoption,” “diffusion,” and “absorption.” We define adoption as investment 
+in a technology, diffusion as how adoption spreads—the process by which an innovation is communicated 
+over time among the participants in a social system—and absorption as how technology is used within a 
+f
+irm. “Full absorption” is when a company uses the adopted technology for all operational purposes across 
+its broad workflow system. These definitions align with those in academic literature. See, for instance, Tomaž 
+Turk and Peter Trkman, “Bass model estimates for broadband diffusion in European countries,” Technological 
+Forecasting and Social Change, 2012, Volume 79, Issue 1; David H. Wong et al., “Predicting the diffusion 
+pattern of internet-based communication applications using bass model parameter estimates for email,” 
+Journal of Internet Business, 2011, Issue 9; and Kenneth L. Kraemer, Sean Xu, and Kevin Zhuk, “The process 
+of innovation assimilation by firms in different countries: A technology diffusion perspective on e-business,” 
+Management Science, October 1, 2006.
+These percentages need to be understood not in terms of numbers of firms per se, but in terms of their share 
+of economic activity.
+These industry dynamics between front-runners and followers are called the “rank effect” in the literature on 
+technology adoption literature. See Paul Stoneman and John Vickers, “The assessment: The economics of 
+technology policy,” Oxford Review of Economic Policy, 1988, Volume 4, Issue 4.
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+McKinsey Global Institute
+globally by 2030, or about 16 percent higher cumulative GDP compared with today. This 
+amounts to about 1.2 percent additional GDP growth per year. If delivered, this impact 
+would compare well with that of other general-purpose technologies through history.5 
+Consider, for instance, that the introduction of steam engines during the 1800s boosted 
+labor productivity by an estimated 0.3 percent a year, the impact from robots during the 
+1990s around 0.4 percent, and the spread of IT during the 2000s 0.6 percent.6
+The economic impact may emerge gradually and be visible only over time. The 
+impact of AI may not be linear, but may build up at an accelerating pace over time. AI’s 
+contribution to growth may be three or more times higher by 2030 than it is over the next 
+f
+ive years. An S-curve pattern of AI adoption is likely—a slow start due to substantial 
+costs and investment associated with learning and deploying these technologies, but 
+then an acceleration driven by the cumulative effect of competition and an improvement 
+in complementary capabilities. The fact that it takes time for productivity to unfold may 
+be reminiscent of the Solow Paradox.7 Complementary management and process 
+innovations will likely be necessary to take full advantage of AI innovations.8 It would be a 
+misjudgment to interpret this “slow-burn” pattern of impact as proof that the effect of AI 
+will be limited. The size of benefits for those who move into these technologies early will 
+build up in later years at the expense of firms with limited or no adoption.
+A key challenge is that adoption of AI could widen gaps between countries, 
+companies, and workers. AI could deliver a boost to economic activity, but the 
+distribution of benefits is likely to be uneven:
+— Countries. AI may widen gaps between countries, reinforcing the current digital 
+divide.9 Countries may need different strategies and responses because AI adoption 
+levels vary. AI leaders (mostly in developed countries) could increase their lead in AI 
+adoption over developing countries. Leading countries could capture an additional 
+20 to 25 percent in net economic benefits compared with today, while developing 
+countries may capture only about 5 to 15 percent. Many developed countries may 
+have no choice but to push AI to capture higher productivity growth as their GDP 
+growth momentum slows, in many cases partly reflecting the challenges related to 
+aging populations. Moreover, wage rates in these economies are high, which means 
+that there is more incentive than in low-wage, developing countries to substitute 
+labor with machines. Developing countries tend to have other ways to improve 
+their productivity, including catching up with best practices and restructuring their 
+industries, and may therefore have less incentive to push for AI (which, in any case, 
+may offer them a smaller economic benefit than advanced economies). This does 
+not mean that developed economies are set to make the best use of AI and that 
+developing economies are destined to lose the AI race. Countries can choose to 
+strengthen the foundations, enablers, and capabilities needed to reap the potential 
+of AI, and be proactive in accelerating adoption. Some developing countries are 
+already being ambitious in pushing AI. For instance, China, as we have noted, has 
+5
+6
+7
+8
+9
+McKinsey Global Institute
+We acknowledge that direct comparison of the impact of AI with that of past technological innovations may 
+not realistically be possible as our quantification of the impact of AI includes a family of technologies. Such 
+comparisons are mainly to indicate a broad sense of magnitude.
+A future that works: Automation, employment, and productivity, McKinsey Global Institute, January 2017.
+The Solow Paradox is a phenomenon in which increased investment in IT is not visible in productivity statistics. 
+For an in-depth debate, see Mekala Krishnan, Jan Mischke, and Jaana Remes, “Is the Solow Paradox back?” 
+McKinsey Quarterly, June 2018.
+Solving the productivity puzzle: The role of demand and the promise of digitization, McKinsey Global Institute, 
+February 2018.
+Jan A.G.M. van Dijk, “The evolution of the digital divide: The digital divide turns to inequality of skills and 
+usage,” in Jacques Bus et al., eds., Digital Enlightenment Yearbook 2012, Amsterdam, Netherlands: IOS 
+Press, 2012.
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+3
+a national strategy in place to become a global leader in the AI supply chain, and is 
+investing heavily.10
+— Companies. AI technologies could lead to a performance gap between front-runners 
+on one side and slow adopters and nonadopters on the other. At one end of the 
+spectrum, front-runners (companies that fully absorb AI tools across their enterprises 
+over the next five to seven years) are likely to benefit disproportionately. By 2030, 
+they could potentially double their cash flow (economic benefit captured minus 
+associated investment and transition costs), which implies additional annual net cash 
+f
+low growth of about 6 percent for more than the next decade.11 Front-runners tend 
+to have a strong starting digital base, a higher propensity to invest in AI, and positive 
+views of the business case for AI. Although our simulation treats front-runners as one 
+group, in reality, this category is not homogeneous. Some current AI innovators and 
+creators have big starting endowments of data, computing power, and specialized 
+talent. Other early adopters may not engage in creating these technologies but may 
+be innovative in how they deploy them. At the other end of the spectrum is a long tail 
+of laggards that do not adopt AI technologies at all or that have not fully absorbed 
+them in their enterprises by 2030. This group may experience around a 20 percent 
+decline in their cash flow from today’s levels, assuming the same cost and revenue 
+model as today. One important driver of this profit pressure is the existence of strong 
+competitive dynamics among firms, which could shift market share from laggards to 
+front-runners and may prompt debate on the unequal distribution of the benefits of AI.
+— Workers. A widening gap may also unfold at the level of individual workers. Demand 
+for jobs could shift away from repetitive tasks toward those that are socially and 
+cognitively driven and others that involve activities that are hard to automate and 
+require more digital skills.12 Job profiles characterized by repetitive tasks and activities 
+that require low digital skills may experience the largest decline as a share of total 
+employment, from some 40 percent to near 30 percent by 2030. The largest gain 
+in share may be in nonrepetitive activities and those that require high digital skills, 
+rising from some 40 percent to more than 50 percent. These shifts in employment 
+would have an impact on wages. We simulate that around 13 percent of the total 
+wage bill could shift to categories requiring nonrepetitive and high digital skills, 
+where incomes could rise, while workers in the repetitive and low digital skills 
+categories may potentially experience stagnation or even a cut in their wages. The 
+share of the total wage bill of the latter group could decline from 33 to 20 percent.13 
+Direct consequences of this widening gap in employment and wages would be an 
+intensifying war for people, particularly those skilled in developing and utilizing AI 
+tools, and structural excess supply for a still relatively high portion of people lacking 
+the digital and cognitive skills necessary to work with machines.
+10 Artificial intelligence: Implications for China, McKinsey Global Institute, April 2017.
+11 Large firms have a competitive advantage in adopting and absorbing AI ahead of industry peers. MGI’s 
+econometric simulation suggests that they have adoption rates around ten percentage points higher than 
+the average. Similarly, organizations that have a more established digital culture (including elements such 
+as institutionalized user experience design thinking, a nimble organization, scaled and integrated agile ways 
+of working across business and IT domains, and a leadership culture that fosters and enables a network 
+of empowered teams to reach defined goals) are in a better position to accelerate the adoption of AI: their 
+adoption rates are around eight percentage points higher than those of companies that do not have a digital 
+culture. In fact, early corporate adopters will benefit from the exponential impact, potentially gaining three 
+times more economic benefits from AI than followers.
+12 Assessment of the impact of AI on individuals in this research mainly focuses on workers. A more complete 
+view of the impact on individuals would include discussion of the effect of AI on users, citizens, and 
+consumers.
+13 For more detail on the impact of automation on wages, see Daron Acemoglu and Pascual Restrepo, Low-skill 
+and high-skill automation, NBER working paper number 24119, December 2017.
+4
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+McKinsey Global Institute
+Gaps may be widening among firms, workers, and countries, but measures can be taken to 
+manage the transition and steer economies toward higher productivity and job growth. The 
+disruption that comes with AI may lead to some firms leaving the market and some workers 
+losing jobs. There will be major challenges for individuals transitioning to new jobs. However, 
+if they are given the support they need to develop and refresh their skills and return to the 
+labor market, then resources can be redeployed to more productive parts of the economy.
+THE AI REVOLUTION IS NOT IN ITS INFANCY, BUT THE MAJORITY OF THE 
+ECONOMIC IMPACT OF AI IS YET TO COME
+Substantial progress in many areas has accelerated the development of AI, which has the 
+potential to reshape the competitive landscape of companies, jobs, and the economic 
+development of countries. Over the past few years, there have been many breakthrough 
+results and announcements in natural language processing, machine vision, and games like 
+Go.14 In addition, many products and services already in wide use employ advances in AI 
+such as personal assistants and facial recognition systems. Much of this progress has been 
+the result of progress in three areas:
+1. Step-change improvements in computing power and capacity. At the silicon 
+level, there has been continuous progress from central processing units to graphics 
+processing units (GPUs). Today’s GPUs can be 40 to 80 times faster than the quickest 
+versions available in 2013. Silicon-level development may put early movers (front
+runners in this analysis) at an advantage because they have the resources to drive 
+breakthroughs. Companies such as Google are pushing further with tensor processing 
+units. Many more silicon-level developments are underway. At the cluster level, cloud 
+solutions offer much cheaper computing and storage services on demand. Microsoft 
+offers a hybrid solution combining the public and private cloud that helps companies 
+rapidly ramp up their computing resources and handle spikes in need without large 
+capital outlays.
+2. Explosion of data. The world creates an unprecedented amount of data every day, 
+feeding algorithms the raw material needed to produce new insights. International Data 
+Corporation estimates that there may be 163 zettabytes (one trillion gigabytes) of data 
+by 2025, or ten times the data generated in 2016.15 Enormous diversity in the data being 
+generated means that organizing and analyzing these data are extremely challenging, 
+but that there is an unprecedented opportunity to extract value from data that were not 
+available in the past.16
+3. Progress in algorithms. The techniques and algorithms underlying AI have continued to 
+be developed. Recent advances in deep learning techniques are delivering step changes 
+in the accuracy of classification and prediction.17 Deep learning uses large-scale neural 
+networks (the most common are convolutional and recurrent neural networks) that 
+14 For instance, Eric Horvitz and colleagues at Microsoft Research have demonstrated in-stream supervision 
+in which data can be labeled in the course of natural usage. See Eric Horvitz, “Machine learning, reasoning, 
+and intelligence in daily life: Directions and challenges,” Proceedings of Artificial Intelligence Techniques for 
+Ambient Intelligence, Hyderabad, India, January 2007. AlphaGo Zero used a new form of reinforcement 
+learning to defeat its predecessor AlphaGo after learning to play the game Go from scratch. See Demis 
+Hassabis et al., AlphaGo Zero: Learning from scratch, deepmind.com. DeepMind researchers have had 
+promising results with transfer learning where training is simulated and then transferred to physical robots. See 
+Andre A. Rusu et al., Sim-to-real robot learning from pixels with progressive nets, arvix.org, October 2016. 
+For more, see Michael Chui, James Manyika, and Mehdi Miremadi, “What AI can and can’t do (yet) for your 
+business,” McKinsey Quarterly, January 2018.
+15 John Gantz, David Reinsel, and John Rydning, Data age 2025: The evolution of data to life-critical, IDC white 
+paper, April 2017.
+16 Behavioral, transactional, environmental, and geospatial data are available from sources including the 
+web, social media, industrial sensors, payment systems, cameras, wearable devices, and human entry, for 
+example. See The age of analytics: Competing in a data-driven world, McKinsey Global Institute, December 
+2016.
+17 Yoshua Bengio, Aaron Courville, and Ian Goodfellow, Deep Learning, Cambridge, MA: MIT Press, 2016.
+McKinsey Global Institute
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+5
+learn through the use of training data and backpropagation algorithms. Also emerging 
+are meta-learning techniques that are attempting to automate the design of machine
+learning models and neural networks by classifying images in large-scale data sets. Also 
+notable is the development of reinforcement learning, an unsupervised technique that 
+allows algorithms to learn tasks by trial and error, improving their performance through 
+repetition and, in many cases—the game of Go being one example—surpassing human 
+capabilities.18 In one-shot learning, an AI model can learn about a topic even where there 
+is only a small number—even one—of real-world examples, reducing the need for large 
+data sets.19
+While many of the most public breakthroughs have largely been associated with a relatively 
+small group of individuals, companies, and institutions and have mainly, but not exclusively, 
+been US-led, this is changing fast. An increasing number of countries are now starting to 
+put more emphasis on AI initiatives, with China in particular making huge strides (see Box 1, 
+“More countries are taking measures to advance AI”).
+Most companies currently face significant limitations on their ability to leverage AI (see 
+Box 2, “Current technical limitations to leveraging AI, and some early progress”). However, 
+the AI revolution is certainly no longer in its infancy. These technologies are already 
+widely used in business. MGI analysis of more than 400 cases in which companies and 
+organizations could potentially use AI found that AI is already relatively applicable to real 
+business problems and can have significant impact in areas including marketing and sales, 
+supply chain management, and manufacturing. The research found that three deep learning 
+techniques—feed forward neural networks, recurrent neural networks, and convolutional 
+neural networks—together could enable the creation of between $3.5 trillion and $5.8 trillion 
+in value each year in nine business functions in 19 countries. This is the equivalent of 1 to 
+9 percent of 2016 sector revenue.20
+A broad range of companies already use AI tools in a wide variety of ways and functions. As 
+of early 2018, AI was used in supply chains (for instance, Amazon’s Kiva robot automation 
+in retail logistics); fixed assets (for example, preventive maintenance of assets by companies 
+such as Neuron Soundware, which uses artificial auditory cortexes to simulate human 
+sound interpretation, and can therefore automate the detection and identification of 
+causes of potential breakdown of equipment); R&D (for instance, Quantum Black’s use 
+of AI to streamline R&D in Formula 1 racing); and sales and marketing (for example, AI
+powered search by Baidu, and Digiday’s AI-based predictive sales target of business-to
+business salespeople).21
+As funding becomes more widely available, the skills to deploy and manage AI are likely to 
+spread to a broader swath of companies and take hold across economies.
+18 Matt Burgess, “DeepMind’s latest AI breakthrough is its most significant yet,” Wired, October 18, 2017.
+19 Yan Duan et al., One-shot imitation learning, arxiv.org, December 2017.
+20 Notes from the AI frontier: Insights from hundreds of use cases, McKinsey Global Institute, April 2018.
+21 Jeremy Hsu, “Deep learning AI listens to machines for signs of trouble,” IEEE Spectrum, December 27, 2016.
+6
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+McKinsey Global Institute
+Box 1. More countries are taking measures to advance AI
+A number of countries have announced initiatives and plans to drive the use of 
+AI in their economies. Here we give just a few examples as of mid-2018:
+China. The government is prioritizing AI, including its promotion in, for 
+instance, its 13th Five-Year Plan (which runs from 2016 to 2020), its Internet 
+Plus and AI plans from 2016 to 2018, and a “new generation AI plan.” China 
+has stated that it aims to create a domestic AI market of 1 trillion renminbi 
+($150 billion) by 2020 and become a world-leading AI center by 2030.1 The 
+private sector is pushing actively for AI, too. Three of China’s internet giants—
+Alibaba, Baidu, and Tencent—as well as iFlytek, a voice recognition specialist, 
+have joined a “national team” to develop AI in in areas such as autonomous 
+vehicles, smart cities, and medical imaging.
+Europe. European Union (EU) member states have announced their intention 
+to collaborate on AI more actively across borders to ensure that Europe 
+is competitive in these technologies and that they can tackle their social, 
+economic, ethical, and legal ramifications together.2 The EU has called for 
+$24 billion to be invested in AI research by 2020.3 A number of European 
+countries have also been driving national initiatives. The French government 
+has announced an initiative to double the number of people studying and 
+researching AI projects, set new boundaries for data sharing, and invest 
+$1.85 billion to fund research and startups.4 The United Kingdom has 
+published a comprehensive plan to strengthen the core foundation of AI in an 
+“artificial intelligence sector deal” and has stated its aim to lead in the field of 
+AI ethics.5
+Asia (outside China). The government of South Korea set up a Presidential 
+Fourth Industrial Revolution Committee in 2017 and announced that it would 
+invest $2 billion by 2022 to strengthen its capabilities in AI R&D.6 Singapore 
+has launched an AI Singapore national initiative to enhance AI capabilities by 
+forming a partnership of government institutions.7
+Canada. International research institute CIFAR is leading the government’s 
+Pan-Canadian Artificial Intelligence Strategy with three new AI institutes: the 
+Alberta Intelligence Institute in Edmonton, the Vector Institute in Toronto, and 
+MILA in Montreal; these cities are Canada’s three major AI centers.8
+1
+2
+3
+4
+5
+6
+7
+8
+McKinsey Global Institute
+China to publish guideline on AI development: Minister, The State Council of the People’s 
+Republic of China, March 11, 2018.
+EU member states sign up to cooperate on artificial intelligence, European Commission, April 
+10, 2018.
+Aoife White, “EU calls for $24 billion in AI to keep with China, U.S.,” Bloomberg News, May 1, 
+2018.
+Romain Dillet, “France wants to become an artificial intelligence hub,” TechCrunch, March 
+29, 2018.
+Artificial Intelligence Sector Deal, HM Government, 2018; and UK can lead the way on ethical 
+AI, says Lords Committee, UK Parliament, April 16, 2018.
+“South Korea aims high on AI, pumps $2 billion into R&D,” SyncedReview, May 16, 2018.
+AI Singapore (aisingapore.org/about-ai-singapore/).
+Pan-Canadian Artificial Intelligence Strategy, CIFAR (cifar.ca/ai/pan-canadian-artificial
+intelligence-strategy).
+7
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+Box 2. Current technical limitations to leveraging AI, and some 
+early progress
+Businesses have recorded much progress in making AI applicable to 
+them. However, the following five technical factors are arguably limiting the 
+application of AI:1
+Labeled training data. In supervised learning, machines do not learn by 
+themselves but need to be taught, which means that humans must label and 
+categorize the underlying training data. However, promising new techniques 
+are emerging to reduce time spent on such efforts, including reinforcement 
+learning and in-stream supervision such as generative adversarial networks, a 
+supervised learning method in which two networks compete with each other 
+to improve their understanding of a concept.2
+Obtaining sufficiently large data sets. In many business use cases, it can 
+be difficult to create or obtain data sets large enough to train algorithms. 
+One example is the limited pool of the clinical-trial data necessary to predict 
+healthcare treatment outcomes more accurately. Players with access to 
+vast quantities of data may have an advantage. At present, the availability 
+of labeled data is critical since most current AI models are trained through 
+supervised learning, and categorizing data correctly requires a huge amount 
+of human time. This may change as technologies and algorithms develop. One 
+technique that could reduce the need for large data sets is one-shot learning, 
+in which an AI model is pretrained in a set of related data and can then learn 
+even from a small number of real-world examples.
+Difficulty explaining results. It is often difficult to explain results from large, 
+complex neural-network-based systems. One development—still at an early 
+stage—that could improve the ease of explaining or transparency of models 
+is local interpretable model agnostic explanations, which attempt to identify 
+which parts of input data a trained model relies on most to make predictions. 
+Another technique that is becoming relatively well established is the 
+application of generalized additive models. They use single-feature models, 
+which limit interactions between features and enable users to interpret each 
+one more easily.
+Difficulty generalizing. AI models still have difficulty carrying their 
+experiences from one set of circumstances to another, which leaves 
+companies having to commit resources to training new models even if use 
+cases are relatively similar to previous ones. Transfer learning, in which 
+an AI model is training to apply learning from one task to the next one, is 
+showing promise.3
+Risk of bias. The first four limitations may be solved as technology advances, 
+but bias—in data in particular, but also in algorithms—has raised broad social 
+concerns and may be challenging to resolve.4 A great deal of academic, 
+nonprofit, and private-sector research is now underway on this issue.
+1
+2
+3
+4
+8
+“What AI can and can’t do (yet) for your business,” McKinsey Quarterly, January 2018.
+Eric Horvitz, “Machine learning, reasoning, and intelligence in daily life: Directions and 
+challenges,” Proceedings of Artificial Intelligence Techniques for Ambient Intelligence, 
+Hyderabad, India, January 2007.
+See John Guttag, Eric Horvitz, and Jenna Wiens, “A study in transfer learning: Leveraging 
+data from multiple hospitals to enhance hospital-specific predictions,” Journal of the 
+American Medical Informatics Association, 2014, Volume 21, Number 4.
+For more, see Notes from the AI frontier: Insights from hundreds of use cases, McKinsey 
+Global Institute, April 2018.
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+McKinsey Global Institute
+1. AN APPROACH TO ASSESSING THE 
+ECONOMIC IMPACT OF AI
+The “new spring” for AI has prompted a great deal of research on the economic impact 
+of AI, and consensus is emerging that it may offer substantial benefits. Thus far, research 
+f
+inds that a broad range of AI technologies could boost productivity levels and elevate 
+GDP growth trajectories. The exact numbers vary because researchers have used 
+different methodologies—for instance, considering a narrow or broad set of drivers of 
+economic impact.22
+While research to date has provided some early insights, the methodologies deployed have 
+exhibited some shortcomings and limitations. First, estimates have tended to concentrate on 
+developed economies such as Europe and the United States, plus China; outside these three 
+economies, insights have tended to be limited.23 Second, the channels through which the 
+macroeconomic impact occurs have not been clearly explained or exhaustive. For instance, 
+research has largely focused on new AI investment demand that substitutes hours worked 
+by humans. However, the reality is that a large share of AI use cases relate to retrofitting or 
+replacing old capital investment by, for instance, embedding equipment with smart monitoring 
+and preventive maintenance. Third, the link between microeconomic behavior and the impact 
+of AI has not been made clearly. It is important to consider this link given the fact that the 
+impact of AI depends on the level of its adoption by corporations and government entities, and 
+that this pace of adoption is closely linked to microeconomic factors such as competition and 
+the ability of organizations to deploy new technologies. Last but not least, research has tended 
+to estimate the gross potential of AI, not taking into account the cost of implementation of these 
+technologies into the socioeconomic system or negative externalities such as the impact of 
+major disruptions on economic groups. The latter can be material. Consider, for instance, the 
+cannibalization of old business models through AI-based innovation, or potentially extensive 
+job reallocation due to the adoption of AI. Such negative externalities may be sufficiently large, 
+and affect enough entities, to create the risk of a societal backlash against AI that could limit 
+the full potential anticipated from these technologies.24
+This research attempts to take a deeper and more detailed view of the impact of AI. (For a brief 
+summary of the scope of the research, drawing on our extensive previous analysis of AI and 
+applying a simulation-based approach, see Box 3, “Modeling approach and limitations.”) We 
+have leveraged our previous research on automation to assess tasks and jobs that are at risk 
+of being replaced by AI and automation technologies.25 On the issue of new jobs that may be 
+created as AI becomes adopted and absorbed, we rely on early estimates in a set of countries 
+highlighted in December 2017 MGI research.26 In this paper we mainly focus on the effect of AI 
+on employment, whereas in earlier MGI research we also considered other broad economic 
+effects likely to impact future employment such as the aging of populations and infrastructure 
+investment, for instance. We also use what we learned from analyzing more than 400 AI use 
+cases to assess the potential of AI in analytics, as well as its possible role in reducing costs and 
+enhancing the generation of revenue.27
+22 See, for instance, Nicholas Chen et al., Global economic impacts associated with artificial intelligence, Analysis 
+Group, February 2016; Artificial intelligence, automation, and the economy, Executive Office of the President 
+of the United States, December 2016; and Philippe Aghion, Benjamin F. Jones, and Charles I. Jones, Artificial 
+intelligence and economic growth, Stanford Institute for Economic Policy Research working paper number 17
+027, October 10, 2017.
+23 Digitally-enabled automation and artificial intelligence: Shaping the future of work in Europe’s digital front-runners, 
+McKinsey & Company, October 2017.
+24 Other social concerns about AI, including those related to privacy and security, could also mitigate against AI 
+adoption and therefore limit its economic impact.
+25 See, for instance, A future that works: Automation, employment, and productivity, McKinsey Global Institute, 
+January 2017.
+26 Jobs lost, jobs gained: Workforce transitions in a time of automation, McKinsey Global Institute, December 2017.
+27 Notes from the AI frontier: Insights from hundreds of use cases, McKinsey Global Institute, April 2018.
+McKinsey Global Institute
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+9
+Box 3. Modeling approach and limitations
+This research focuses on AI’s potential impact on global 
+economic activity at the country, sector, company, 
+and worker levels, using a simulation. It does not 
+consider other important aspects including ethics 
+and cybersecurity, or the effect of these technologies 
+on sustainability. Nor do we quantify aspects of the 
+consumer surplus that may arise out of using AI 
+technologies, such as saving time or living a healthier life. 
+Some clarifications that may be useful include:
+Definition of AI used in the economic modeling. 
+Characterizing AI precisely is difficult because the 
+definition tends to change depending on the specific 
+context of research and application. For the purposes 
+of our modeling, we used several data sources, 
+including previous research on automation, analytics, 
+and corporate surveys.1 Although the scope of AI 
+technologies covered in various data sets is largely 
+consistent, the data may include some variations at 
+the detailed technical level. In the future of work and 
+automation database, we took an expansive view of 
+AI that included not only natural language processing, 
+machine vision, and deep learning, but also robotics 
+and other automation systems (consistent with 
+many other researchers considering the impact of 
+automation and AI on work). In our analysis of potential 
+AI use cases, we employed a narrower view, focusing 
+on deep learning techniques (especially feed forward 
+neural networks, recurrent neural networks, and 
+convolutional neural networks).2 The company-level 
+survey used for our modeling of AI adoption and 
+absorption covers five broad sets of AI technologies, 
+namely computer vision, natural language, virtual 
+assistants, robotic process automation, and advanced 
+machine learning.
+Data sources. We used both AI-specific and 
+macroeconomic data sets. For AI-specific data, 
+we used three sources. The first combined MGI’s 
+regular survey of approximately 3,000 corporations 
+in 14 sectors on digital technologies, undertaken for 
+the VivaTechnology conference in Paris in June 2017, 
+and the McKinsey annual survey on the extent of 
+digitization in corporations worldwide.3 The second 
+was MGI’s proprietary database of 400 potential AI 
+use cases across industries and functions, used in 
+this research to assess the impact on business.4 The 
+third was MGI’s database that analyzes the potential 
+to automate individual jobs—looking at activities 
+rather than entire jobs—in 46 countries; this work 
+assessed 800 existing occupations and around 2,000 
+activities undertaken within these occupations.5 
+For macroeconomic data, we used statistics from 
+external organizations including the United Nations, 
+the World Bank, the Organisation for Economic Co
+operation and Development (OECD), and the World 
+Economic Forum.
+Simulation and econometrics approach. We 
+used economic modeling and simulation to see how 
+the impact of AI may change in response to certain 
+assumptions and inputs. Rather than forecasting 
+outcomes, based on the best evidence collected so 
+far, the research simulates the likely impact from AI 
+given different contexts at the country, sector, and 
+company levels. For the econometric simulation of 
+f
+irm-level AI adoption and absorption, we used a 
+double blind and multi-sample approach to ensure 
+that our results were solid. MGI’s econometrics team 
+and a team from the Free University of Brussels 
+independently analyzed both surveys mentioned 
+above.6 Both teams estimated and converged on 
+the dynamics of propensity to adopt and absorb 
+technologies. Each team found that consistent 
+dynamics of adoption and absorption were visible 
+in both samples used. Our simulation of economic 
+impact and competitive dynamics also drew 
+1 
+2
+3
+4
+5
+6
+See A future that works: Automation, employment, and productivity, McKinsey Global Institute, January 2017; and Jobs lost, jobs gained: 
+Workforce transitions in a time of automation, McKinsey Global Institute, December 2017.
+Notes from the AI frontier: Insights from hundreds of use cases, McKinsey Global Institute, April 2018.
+Artificial intelligence: The next digital frontier? McKinsey Global Institute, June 2017. The online survey was conducted from June 20 to July 10, 
+2017, and garnered responses from 1,619 C-level executives and senior managers representing the full range of regions, industries, company 
+sizes, and functional specialties. See How digital reinventors are pulling away from the pack, McKinsey & Company survey, October 2017.
+Notes from the AI frontier: Insights from several hundred use cases, McKinsey Global Institute, April 2018.
+A future that works: Automation, employment, and productivity, McKinsey Global Institute, January 2017.
+The results of these surveys have been discussed previously in Jacques Bughin, “Wait-and-see could be a costly AI strategy,” MIT Sloan 
+Management Review, June 15, 2018; and Jacques Bughin, Tanguy Catlin, Martin Hirt, and Paul Wilmott, “Why digital strategies fail,” McKinsey 
+Quarterly, January 2018.
+McKinsey Global Institute
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+10
+on academic literature (for further detail on our 
+econometric approach, see the technical appendix).7
+Approach to AI adoption and full absorption. The 
+concepts of adoption and full (and partial) absorption 
+have been used in various contexts. In this research, 
+we use an economic entity—notably a company—
+and its activities as a unit for adoption. Adoption 
+of AI is when that entity chooses to invest in one of 
+the five generic AI technologies (computer vision, 
+natural language, virtual assistants, robotic process 
+automation, and advanced machine learning) either 
+for experimentation or for a narrow functional use.8 Full 
+absorption means that all five generic AI technologies 
+are adopted and integrated into broad enterprise 
+workflows. Full absorption is the stage at which 
+economic benefits tend to kick in and recur.9 However, 
+we note that full absorption does not mean that there 
+is a fixed range of technologies. New technologies and 
+applications will continue to emerge. In this report, we 
+use the term “full” as opposed to “partial” to indicate 
+much broader use of AI technologies than is the case 
+in adoption or a pilot.
+Limitations and sensitivities. Our firm-level 
+simulation is dependent on the quality of data from the 
+surveys used as inputs, and we acknowledge that this 
+approach has two potential limitations. First, survey 
+answers depend on the knowledge and perceptions 
+of respondents, and their understanding of AI may 
+vary, possibly affecting the quality of the insights 
+and data gathered in this way. Second, the data set 
+from our survey results may be skewed toward early 
+movers. Extrapolating insights from the survey may 
+therefore lead us to overestimate the economic impact 
+because the next wave of companies adopting AI may 
+display different behavior in terms of AI adoption. For 
+these reasons, the result of our simulation should be 
+interpreted as being the upper bound of estimates 
+of AI’s economic impact. However, we also note 
+that competitive pressure is a key factor driving 
+up the adoption level. If new companies that are 
+more agile and embrace AI more rapidly join the AI 
+race quicker than expected, this could push up the 
+adoption curve.10 Notwithstanding, the findings in this 
+research are directionally consistent with our previous 
+research. We also acknowledge that our simulation 
+is highly sensitive to the results of corporate surveys 
+on AI absorption. The adoption and absorption 
+of AI by companies are the foundation of several 
+dimensions of impact we have modeled, including 
+labor augmentation, substitution, and innovation as 
+well as transition costs. We have conducted three 
+annual surveys, and, in general, the results of the 
+simulation have remained broadly similar. However, we 
+acknowledge that, when new data are gathered, the 
+adoption and full absorption curve and the results of 
+the simulation could change.
+Note: While simulated figures are given that emerge from 
+the above methods, the numbers presented in this report 
+should not be read as forecasts, but rather are intended to 
+provide a directional perspective on the potential impact 
+of AI.
+
+What is new about this latest research is its attempt to gauge the macroeconomic impact of 
+AI globally, and the fact that we have included in our estimate both the cost of implementing 
+AI and the impact of a competitive race for adoption and absorption of these technologies. 
+First, it builds on an understanding of the behavior of firms and the dynamics of various 
+sectors to develop a bottom-up view of how AI technologies are adopted and absorbed 
+(see the description of our seven-step micro-to-macro approach in the technical appendix). 
+Second, the research takes into account the likely disruptions that countries, companies, 
+and workers are likely to experience as they transition to AI. There will probably be costs 
+during this transition period, and they need to be factored into any estimate. We look closely 
+at how economic gains and losses are likely to be distributed among firms, employees, and 
+countries, and how this distribution could potentially hamper the capture of AI benefits. And 
+third, the research examines the dynamics of AI for a wide range of countries—clustered into 
+groups with similar characteristics—with the aim of giving a more global view.
+The primary goal of this research is to move the discussion forward by presenting our 
+approach to simulating the economic benefits and challenges that AI creates, rather than 
+producing specific forecasts. We will continue to update our analysis as we learn more 
+about AI technologies and their use on the ground, and accumulate newer data sets. The 
+numbers presented in this discussion paper will inevitably change, and therefore readers 
+should take this analysis not as a conclusion but as a guide to the potential economic impact 
+of AI based on the best knowledge we have at this stage.
+2. AI HAS THE POTENTIAL TO BE A SIGNIFICANT 
+DRIVER OF ECONOMIC GROWTH
+Predicting the economic impact of AI or any disruptive technology is a highly speculative 
+exercise. This is a world of near-continuous discontinuity. We have already highlighted in 
+our previous work that the scope and pace of automation deployment depend on several 
+variables—some more predictable than others—including technical feasibility, the cost of 
+developing and deploying technologies for specific uses in the workplace, labor-market 
+dynamics including the quality and quantity of labor and associated wages, the benefits 
+of automation beyond labor substitution, and regulatory and social acceptance. Similar 
+factors are likely to determine the pace of AI adoption.28 In addition to these factors, 
+competitors enabled by digital technologies can burst upon the scene, seemingly from 
+nowhere, putting apparently well-protected and robust incumbent businesses under 
+attack. Vast new markets can rise at a rapid pace. Consider, for instance, that only ten 
+years ago, China accounted for 1 percent of global e-commerce transactions; today, its 
+share is over 40 percent.29 Technology has accelerated and intensified the natural forces 
+of market competition, and developments are extremely hard to read. It is because of such 
+considerations that we have built scenarios in our previous work, and here extend those 
+through the use of simulations (please refer to Box 3 for methodology and sources).
+28 Jobs lost, jobs gained: Workforce transitions in a time of automation, McKinsey Global Institute, December 
+2017.
+29 Digital China: Powering the economy to global competitiveness, McKinsey Global Institute, December 2017.
+12
+Notes from the AI frontier: Modeling the impact of AI on the world economy
+McKinsey Global Institute
+All this said, the results of our simulation of AI’s gross and net effect on GDP and labor 
+markets show that AI could add around 16 percent to global output by 2030, or about 
+$13 trillion, compared with today. This would be incremental value created in addition to 
+current global output. This simulation is a combination of a large increase of 26 percent 
+in GDP growth driven by AI, and costs related to the transition to these technologies (for 
+instance, labor displacement) and their implementation (for example, the deployment of AI 
+solutions), as well as negative externalities for the baseline of economic activity (such as loss 
+of consumption during unemployment). Together these elements may produce an annual 
+average net contribution of about 1.2 percent of activity growth between now and 2030.
+The impact on economies would be significant if this scenario were to materialize. In the 
+case of steam engines, it has been estimated that, between 1850 and 1910, they enabled 
+productivity growth of 0.3 percent per year. Research has found that the introduction 
+of robots in manufacturing and the introduction of IT accounted for 0.4 percent and 
+0.6 percent in annual productivity increases, respectively.30 Recent estimates put the 
+productivity impact of information and communications technology (ICT) and early digital 
+technologies such as broadband at 0.6 percent annually during the 2000s.31
+WE EXAMINED SEVEN POSSIBLE CHANNELS FOR AI IMPACT
+Several factors affect AI-driven productivity growth, including labor automation, innovation, 
+and new competition. Micro factors, such as the pace of adoption of AI, and macro factors 
+such as a country’s global connectedness and labor-market structure contribute to the 
+size of the impact. Our simulation examined seven possible channels of impact. The first 
+three relate to the impact of AI adoption on the need for, and mix of, production factors that 
+have direct impact on the productivity of firms. The other four are externalities linked to the 
+adoption of AI and related to the broad economic environment and the transition to AI. We 
+acknowledge that these seven channels are not definitive or necessarily comprehensive, but 
+rather a starting point based on our current understanding and trends currently underway. 
+As AI continues to develop, our approach to understanding the implications of AI will need to 
+continue to evolve.
+Production channels
+We considered the direct economic impact of AI on three production dimensions. First, we 
+examined additional complementary inputs to improve  productivity—what economists call 
+labor and capital “augmentation.”32 The inputs needed to operate new AI capacity include 
+new engineers and big data analysts who will develop and deploy AI solutions. Second, 
+investment in AI technologies will save not only on labor as machines take over tasks that 
+humans currently perform, but also on old capital, for instance by enabling preventative 
+maintenance that increases the life span of assets and thereby reduces the need to invest 
+in new equipment. Third, we looked at more and better innovation associated with AI 
+technologies. In general, process innovation should enable firms to produce the same 
+output with lower inputs, while product and service innovation tends to boost output and the 
+level of inputs such as employment and capital
