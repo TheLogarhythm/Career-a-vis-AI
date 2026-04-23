@@ -3,81 +3,132 @@ import * as d3 from "d3";
 import WordCloud from "wordcloud";
 import "./introduction.css";
 
-// ─── Heatmap ─────────────────────────────────────────────
-function AIIntensityHeatmap() {
+// ─── Heatmap + BarChart Animation Component ─────────────────
+function AIIntensityHeatmap({ showBarChart }) {
   const containerRef = useRef(null);
   const tooltipRef   = useRef(null);
+  const svgRef = useRef(null);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
     d3.select(containerRef.current).selectAll("*").remove();
 
-    // 居中大图尺寸
-    const margin = { top: 60, right: 100, bottom: 60, left: 120 };
-    const W = 650 - margin.left - margin.right;
-    const H = 450 - margin.top  - margin.bottom;
+    const svgW = 900;
+    const svgH = 450;
+    const heatW = 380;
+    const heatH = 320;
+    const barW = 300;
+    const barH = 320;
 
     const svg = d3.select(containerRef.current)
       .append("svg")
-      .attr("width",  W + margin.left + margin.right)
-      .attr("height", H + margin.top  + margin.bottom)
-      .append("g")
-      .attr("transform", `translate(${margin.left},${margin.top})`);
+      .attr("viewBox", `0 0 ${svgW} ${svgH}`)
+      .attr("width", "100%")
+      .attr("height", "100%");
 
-    const industries = ["Agriculture","Education","Energy","Finance","Government","Healthcare","Manufacturing","Retail","Tech"];
-    const decades    = ["2010-2014","2015-2019","2020-2025"];
+    const industries = ["Agriculture", "Education", "Energy", "Finance", "Government", "Healthcare", "Manufacturing", "Retail", "Tech"];
+    const decades = ["2010-2014", "2015-2019", "2020-2025"];
     const data = [];
+    const decadeSums = { "2010-2014": 0, "2015-2019": 0, "2020-2025": 0 };
+    
     industries.forEach(ind => decades.forEach((dec, i) => {
-      data.push({ industry: ind, decade: dec, value: 0.1 + i*0.15 + Math.random()*0.15 });
+      const val = 0.1 + i * 0.15 + Math.random() * 0.15;
+      data.push({ industry: ind, decade: dec, value: val });
+      decadeSums[dec] += val;
     }));
 
-    const x = d3.scaleBand().range([0, W]).domain(decades).padding(0.08);
-    const y = d3.scaleBand().range([H, 0]).domain([...industries].reverse()).padding(0.08);
-    const color = d3.scaleLinear().domain([0.1,0.35,0.6]).range(["#22c55e","#facc15","#ef4444"]);
+    const decadeAvgs = decades.map(dec => ({
+      decade: dec,
+      value: decadeSums[dec] / industries.length
+    }));
+
+    const xHeat = d3.scaleBand().range([0, heatW]).domain(decades).padding(0.08);
+    const yHeat = d3.scaleBand().range([heatH, 0]).domain([...industries].reverse()).padding(0.08);
+    const color = d3.scaleLinear().domain([0.1, 0.35, 0.6]).range(["#22c55e", "#facc15", "#ef4444"]);
+
+    const xBar = d3.scaleBand().range([0, barW]).domain(decades).padding(0.3);
+    const yBar = d3.scaleLinear().domain([0, 0.6]).range([barH, 0]);
+
+    // Groups
+    const gHeat = svg.append("g").attr("class", "g-heat").attr("transform", "translate(240, 60)");
+    const gBar = svg.append("g").attr("class", "g-bar").attr("transform", "translate(550, 60)").style("opacity", 0);
+    const gFly = svg.append("g").attr("class", "g-fly");
+
     const tooltipEl = tooltipRef.current;
 
-    svg.append("g").attr("transform",`translate(0,${H})`).call(d3.axisBottom(x).tickSize(0)).style("font-size","14px").select(".domain").remove();
-    svg.append("g").call(d3.axisLeft(y).tickSize(0)).style("font-size","14px").select(".domain").remove();
-
-    svg.selectAll("rect.cell")
+    // Heatmap Cells
+    gHeat.selectAll("rect.cell")
       .data(data).enter().append("rect")
-      .attr("class","cell")
-      .attr("x", d => x(d.decade)).attr("y", d => y(d.industry))
-      .attr("rx",4).attr("ry",4)
-      .attr("width", x.bandwidth()).attr("height", y.bandwidth())
+      .attr("x", d => xHeat(d.decade)).attr("y", d => yHeat(d.industry))
+      .attr("rx", 4).attr("ry", 4)
+      .attr("width", xHeat.bandwidth()).attr("height", yHeat.bandwidth())
       .style("fill", d => color(d.value))
-      .on("mouseover", function(event, d) {
-        d3.select(this).style("stroke","#334155").style("stroke-width",3);
+      .style("cursor", "pointer")
+      .on("mouseover", (e, d) => {
         tooltipEl.style.opacity = "1";
-        tooltipEl.innerHTML = `<b>${d.industry}</b><br/>Value: <span style="color:${color(d.value)};font-weight:700">${d.value.toFixed(3)}</span>`;
+        tooltipEl.innerHTML = `<b>${d.industry}</b><br/>Value: <span style="color:${color(d.value)};font-weight:bold">${d.value.toFixed(3)}</span>`;
       })
-      .on("mousemove", function(event) {
-        tooltipEl.style.left = (event.clientX + 15) + "px";
-        tooltipEl.style.top  = (event.clientY - 40) + "px";
+      .on("mousemove", (e) => {
+        tooltipEl.style.left = (e.clientX + 15) + "px";
+        tooltipEl.style.top = (e.clientY - 40) + "px";
       })
-      .on("mouseleave", function() {
-        d3.select(this).style("stroke","none");
-        tooltipEl.style.opacity = "0";
-      });
+      .on("mouseleave", () => tooltipEl.style.opacity = "0");
 
-    // Title inside SVG
-    svg.append("text")
-      .attr("x", W / 2).attr("y", -30).attr("text-anchor", "middle")
-      .style("font-size", "18px").style("font-weight", "900").style("fill", "#0f172a")
-      .text("General view of AI intensity change on job market across industries");
+    // Heatmap Axes
+    gHeat.append("g").attr("transform", `translate(0,${heatH})`).call(d3.axisBottom(xHeat).tickSize(0)).style("font-size","13px").select(".domain").remove();
+    gHeat.append("g").call(d3.axisLeft(yHeat).tickSize(0)).style("font-size","13px").select(".domain").remove();
+    gHeat.append("text").attr("x", heatW/2).attr("y", -30).attr("text-anchor", "middle").style("font-size","16px").style("font-weight","900").text("General view of AI intensity change");
 
-    // Legend
-    const lg = svg.append("g").attr("transform",`translate(${W+30},0)`);
-    const ly = d3.scaleLinear().domain([0.1,0.6]).range([H,0]);
-    lg.selectAll("rect").data(d3.range(0.1,0.61,0.01)).enter().append("rect")
-      .attr("y", d => ly(d)).attr("width",12).attr("height", H/50).style("fill", d => color(d));
-    lg.append("g").attr("transform","translate(12,0)").call(d3.axisRight(ly).ticks(5)).select(".domain").remove();
+    // Heatmap Legend
+    const lg = gHeat.append("g").attr("transform", `translate(${heatW + 20},0)`);
+    const ly = d3.scaleLinear().domain([0.1, 0.6]).range([heatH, 0]);
+    lg.selectAll("rect").data(d3.range(0.1, 0.61, 0.01)).enter().append("rect")
+      .attr("y", d => ly(d)).attr("width", 12).attr("height", heatH / 50).style("fill", d => color(d));
+    lg.append("g").attr("transform", "translate(12,0)").call(d3.axisRight(ly).ticks(5)).select(".domain").remove();
+
+    // Bar Chart Axes
+    gBar.append("g").attr("transform", `translate(0,${barH})`).call(d3.axisBottom(xBar)).style("font-size","13px");
+    gBar.append("g").call(d3.axisLeft(yBar).ticks(5)).style("font-size","13px");
+    gBar.append("text").attr("x", barW/2).attr("y", -30).attr("text-anchor", "middle").style("font-size","16px").style("font-weight","900").style("fill","#ef4444").text("Average Intensity Growth");
+
+    svg.append("defs").append("marker").attr("id", "arrowhead").attr("viewBox", "0 -5 10 10").attr("refX", 8).attr("refY", 0).attr("orient", "auto").attr("markerWidth", 6).attr("markerHeight", 6).append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#ef4444");
+
+    svgRef.current = { gHeat, gBar, gFly, decadeAvgs, xHeat, xBar, yBar, color, heatH, barH };
   }, []);
 
-  return <div className="heatmap-wrapper"><div ref={containerRef} className="intro-heatmap-viz" /><div ref={tooltipRef} className="heatmap-tooltip" /></div>;
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const { gHeat, gBar, gFly, decadeAvgs, xHeat, xBar, yBar, color, barH } = svgRef.current;
+
+    if (showBarChart && !hasAnimated.current) {
+      hasAnimated.current = true;
+      gHeat.transition().duration(1000).attr("transform", "translate(40, 60)");
+      gBar.transition().delay(500).duration(500).style("opacity", 1);
+      gFly.selectAll("rect.fly").data(decadeAvgs).enter().append("rect").attr("class","fly")
+        .attr("fill", d => color(d.value)).attr("rx", 4)
+        .attr("x", d => 40 + xHeat(d.decade)).attr("y", 60)
+        .attr("width", xHeat.bandwidth()).attr("height", 320).style("opacity", 0.7)
+        .transition().delay(1000).duration(1200)
+        .attr("x", d => 550 + xBar(d.decade))
+        .attr("y", d => 60 + yBar(d.value))
+        .attr("width", xBar.bandwidth())
+        .attr("height", d => barH - yBar(d.value));
+      const line = d3.line().x(d => 550 + xBar(d.decade) + xBar.bandwidth()/2).y(d => 60 + yBar(d.value)).curve(d3.curveMonotoneX);
+      const path = gFly.append("path").attr("d", line(decadeAvgs)).attr("fill", "none").attr("stroke", "#ef4444").attr("stroke-width", 3).attr("marker-end", "url(#arrowhead)");
+      const len = path.node().getTotalLength();
+      path.attr("stroke-dasharray", len).attr("stroke-dashoffset", len).transition().delay(2200).duration(1000).attr("stroke-dashoffset", 0);
+    }
+  }, [showBarChart]);
+
+  return (
+    <div className="heatmap-wrapper">
+      <div ref={containerRef} style={{ width: "900px", height: "450px" }} />
+      <div ref={tooltipRef} className="heatmap-tooltip" />
+    </div>
+  );
 }
 
-// ─── Introduction ─────────────────────────────────────────
 function Introduction({ scrollParentRef, onStageChange }) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const canvasRef = useRef(null);
@@ -91,7 +142,7 @@ function Introduction({ scrollParentRef, onStageChange }) {
     ["Skills Gap", 50], ["Digital Shift", 48], ["AI Literacy", 45], ["New Roles", 42],
     ["Innovation", 38], ["Algorithms", 36], ["Employment", 34], ["Workforce", 32],
     ["Technology", 30], ["Economy", 28], ["Adaptability", 26], ["Analytics", 24],
-    ["Intelligence", 20], ["Soft Skills", 18], ["Upskilling", 17],
+    ["Collaboration", 22], ["Intelligence", 20], ["Soft Skills", 18], ["Upskilling", 17]
   ];
   const palette = ["#2563eb", "#7c3aed", "#0891b2", "#4f46e5", "#0f172a"];
 
@@ -99,9 +150,9 @@ function Introduction({ scrollParentRef, onStageChange }) {
     if (!canvasRef.current || cloudGenerated.current) return;
     WordCloud(canvasRef.current, {
       list: cloudList,
-      gridSize: 6, weightFactor: 1.05, fontFamily: "Inter", fontWeight: "700",
+      gridSize: 6, weightFactor: 1.2, fontFamily: "'Inter','Impact',sans-serif", fontWeight: "700",
       color: (word) => HIGHLIGHTS.has(word) ? "#ef4444" : palette[Math.floor(Math.random() * palette.length)],
-      rotateRatio: 0.25, backgroundColor: "transparent", shape: "circle", shrinkToFit: true,
+      rotateRatio: 0.3, backgroundColor: "transparent", shape: "circle", shrinkToFit: true,
     });
     cloudGenerated.current = true;
   }, []);
@@ -112,11 +163,11 @@ function Introduction({ scrollParentRef, onStageChange }) {
     const handle = () => {
       const intro = container.querySelector('[data-section="intro"]');
       if (!intro) return;
-      const pos = Math.min(Math.max(container.scrollTop - intro.offsetTop, 0), 200);
+      const pos = Math.min(Math.max(container.scrollTop - intro.offsetTop, 0), 600);
       setScrollProgress(pos);
       if (onStageChange) {
-        if (pos < 50) onStageChange(0);
-        else if (pos < 200) onStageChange(1);
+        if (pos < 60) onStageChange(0);
+        else if (pos < 250) onStageChange(1);
         else onStageChange(2);
       }
     };
@@ -124,40 +175,35 @@ function Introduction({ scrollParentRef, onStageChange }) {
     return () => container.removeEventListener("scroll", handle);
   }, [scrollParentRef, onStageChange]);
 
-  const s0Opacity = Math.max(0, 1 - scrollProgress / 40);
-  const cloudOpacity = scrollProgress < 30 ? 0 : scrollProgress < 120 ? 1 : Math.max(0, 1 - (scrollProgress - 120) / 40);
-  const contentOpacity = scrollProgress < 140 ? 0 : Math.min(1, (scrollProgress - 140) / 40);
+  const s0Opacity = Math.max(0, 1 - scrollProgress / 50);
+  const cloudOpacity = scrollProgress < 40 ? 0 : scrollProgress < 200 ? 1 : Math.max(0, 1 - (scrollProgress - 200) / 60);
+  const contentOpacity = scrollProgress < 240 ? 0 : Math.min(1, (scrollProgress - 240) / 60);
+  const showBarChart = scrollProgress > 450;
 
   return (
     <div className="intro-container" data-section="intro">
       <div className="intro-sticky-viewport">
-        {/* Stage 0 ─ 引导语 */}
+        {/* Stage 0 */}
         <div className="layer" style={{ opacity: s0Opacity }}>
           <span className="highlight-audience">Dear job seekers,</span>
           <p className="pre-intro-text">AI is reshaping the job market. Are you ready?</p>
         </div>
 
-        {/* Stage 1 ─ 词云 */}
+        {/* Stage 1 */}
         <div className="layer stage-cloud" style={{ opacity: cloudOpacity }}>
           <h2 className="cloud-title">Key words when people talked about "Job and AI"</h2>
-          <div className="cloud-canvas-wrap">
-            <canvas ref={canvasRef} width="900" height="500" className="intro-cloud-canvas" />
-          </div>
+          <canvas ref={canvasRef} width="900" height="500" />
           <div className="cloud-sources">
             <span className="cloud-src-label">Sources:</span>
-            <a className="cloud-src-link" href="https://www.pwc.com/gx/en/issues/artificial-intelligence/job-barometer/2025/methodology-report.pdf" target="_blank" rel="noreferrer">PwC</a>
-            <span className="cloud-src-sep">·</span>
-            <a className="cloud-src-link" href="https://www.mckinsey.com" target="_blank" rel="noreferrer">McKinsey</a>
-            <span className="cloud-src-sep">·</span>
+            <a className="cloud-src-link" href="https://www.pwc.com/gx/en/issues/artificial-intelligence/job-barometer/2025/methodology-report.pdf" target="_blank" rel="noreferrer">PwC,</a>
+            <a className="cloud-src-link" href="https://www.mckinsey.com" target="_blank" rel="noreferrer">McKinsey,</a>
             <a className="cloud-src-link" href="https://www.oecd.org" target="_blank" rel="noreferrer">OECD</a>
           </div>
         </div>
 
-        {/* Stage 2 ─ 详情 (现在仅保留居中的热力图) */}
+        {/* Stage 2 */}
         <div className="layer stage-content" style={{ opacity: contentOpacity, pointerEvents: contentOpacity > 0.1 ? 'auto' : 'none' }}>
-          <div className="heatmap-centered-wrapper">
-             <AIIntensityHeatmap />
-          </div>
+           <AIIntensityHeatmap showBarChart={showBarChart} />
         </div>
       </div>
     </div>

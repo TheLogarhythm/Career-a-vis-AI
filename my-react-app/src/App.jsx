@@ -105,9 +105,15 @@ function App() {
       {/* SCROLLABLE RIGHT SIDE */}
       <div className="right-container" ref={rightContainerRef}>
         
-        <section className="task-section" data-task="intro">
+        <section className="task-section" data-task="intro" style={{ paddingBottom: 0, borderBottom: "none" }}>
           <Introduction scrollParentRef={rightContainerRef} onStageChange={setIntroStage} />
         </section>
+
+        {/* ── 过渡横幅设计 ── */}
+        <div className="transition-band">
+          <h2>How does this impact look globally?</h2>
+          <p>We mapped out the AI job distributions to see which regions are leading the revolution.</p>
+        </div>
 
         <section className="task-section" data-task="section1">
           <Task1 />

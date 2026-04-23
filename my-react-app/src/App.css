@@ -85,6 +85,34 @@ body, html {
   border-bottom: 1px solid #f0f0f0;
 }
 
+/* 过渡横幅设计 (Shorthand-style transition band) */
+.transition-band {
+  width: 100%;
+  padding: 120px 40px;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.transition-band h2 {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.transition-band p {
+  font-size: 18px;
+  color: #94a3b8;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
 .bottom-spacer {
   height: 40vh;
 }
