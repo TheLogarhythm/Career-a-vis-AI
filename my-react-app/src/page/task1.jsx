@@ -1,815 +1,540 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
-import * as THREE from "three";
 import "./task1.css";
 
-const BASE_WIDTH = 1180;
-const BASE_HEIGHT = 760;
-
-const REGION_COLORS = d3
-  .scaleOrdinal()
-  .domain(["North America", "Europe", "East Asia", "South Asia", "Southeast Asia", "Latin America", "Middle East", "Other"])
-  .range(["#FF3131", "#FF7F50", "#7DF9FF", "#FF5E00", "#FFFFFF", "#FF1493", "#E5E4E2", "#DE3163"]);
-
-const INTENSITY_COLOR_SCALE = d3
-  .scaleLinear()
-  .domain([0, 0.2, 0.5, 0.8, 1.0])
-  .range(["#00e5ff", "#00b0ff", "#7c4dff", "#ff00ff", "#ff006e"]);
-
-const REGION_ANCHORS = {
-  Africa: [20, 6],
-  "East Asia": [115, 30],
-  Europe: [12, 52],
-  "Middle East": [45, 30],
-  "North America": [-100, 40],
-  Oceania: [140, -25],
-  "South America": [-60, -15],
-  "South Asia": [78, 20],
-  "Southeast Asia": [102, 17],
+// ── Mapping: TopoJSON .name → DS1 region ─────────────────────────────────
+// (DS1 region values: North America / South America / Europe / East Asia /
+//  South Asia / Southeast Asia / Middle East / Africa / Oceania)
+const GEO_TO_DS1_REGION = {
+  // North America
+  "United States of America": "North America",
+  "Canada": "North America",
+  "Mexico": "North America",
+  // South America
+  "Brazil": "South America",
+  "Colombia": "South America",
+  "Peru": "South America",
+  "Argentina": "South America",
+  "Chile": "South America",
+  // Europe  (DS1 uses "Europe" as single region)
+  "United Kingdom": "Europe",
+  "Germany": "Europe",
+  "France": "Europe",
+  "Italy": "Europe",
+  "Spain": "Europe",
+  "Netherlands": "Europe",
+  "Sweden": "Europe",
+  "Poland": "Europe",
+  "Portugal": "Europe",
+  "Belgium": "Europe",
+  "Switzerland": "Europe",
+  "Austria": "Europe",
+  "Norway": "Europe",
+  "Denmark": "Europe",
+  "Finland": "Europe",
+  "Greece": "Europe",
+  "Czechia": "Europe",
+  "Hungary": "Europe",
+  "Romania": "Europe",
+  "Ukraine": "Europe",
+  "Russia": "Europe",
+  // East Asia
+  "China": "East Asia",
+  "Japan": "East Asia",
+  "South Korea": "East Asia",
+  "Taiwan": "East Asia",
+  "North Korea": "East Asia",
+  "Mongolia": "East Asia",
+  // South Asia
+  "India": "South Asia",
+  "Pakistan": "South Asia",
+  "Bangladesh": "South Asia",
+  "Sri Lanka": "South Asia",
+  "Nepal": "South Asia",
+  "Bhutan": "South Asia",
+  // Southeast Asia
+  "Indonesia": "Southeast Asia",
+  "Vietnam": "Southeast Asia",
+  "Singapore": "Southeast Asia",
+  "Thailand": "Southeast Asia",
+  "Philippines": "Southeast Asia",
+  "Malaysia": "Southeast Asia",
+  "Myanmar": "Southeast Asia",
+  "Cambodia": "Southeast Asia",
+  "Laos": "Southeast Asia",
+  // Middle East
+  "United Arab Emirates": "Middle East",
+  "Jordan": "Middle East",
+  "Israel": "Middle East",
+  "Qatar": "Middle East",
+  "Saudi Arabia": "Middle East",
+  "Iraq": "Middle East",
+  "Iran": "Middle East",
+  "Turkey": "Middle East",
+  "Kuwait": "Middle East",
+  "Oman": "Middle East",
+  // Africa
+  "Kenya": "Africa",
+  "Egypt": "Africa",
+  "South Africa": "Africa",
+  "Ghana": "Africa",
+  "Morocco": "Africa",
+  "Nigeria": "Africa",
+  "Ethiopia": "Africa",
+  "Tanzania": "Africa",
+  "Algeria": "Africa",
+  "Angola": "Africa",
+  // Oceania
+  "Australia": "Oceania",
+  "New Zealand": "Oceania",
 };
 
-const COUNTRY_COORDS = {
-  Argentina: [-63.6, -38.4], Australia: [133.8, -25.3], Bangladesh: [90.3, 23.7], Brazil: [-51.9, -14.2],
-  Canada: [-106.3, 56.1], Chile: [-71.5, -35.7], China: [104.2, 35.9], Colombia: [-74.1, 4.6],
-  Egypt: [30.8, 26.8], France: [2.2, 46.2], Germany: [10.4, 51.2], Ghana: [-1.0, 7.9],
-  India: [78.9, 21.0], Indonesia: [113.9, -0.8], Israel: [34.8, 31.0], Italy: [12.6, 41.9],
-  Japan: [138.3, 36.2], Jordan: [36.2, 31.2], Kenya: [37.9, 0.0], Malaysia: [102.0, 4.2],
-  Mexico: [-102.5, 23.6], Morocco: [-7.1, 31.8], Nepal: [84.1, 28.4], Netherlands: [5.3, 52.1],
-  "New Zealand": [174.9, -40.9], Nigeria: [8.7, 9.1], Pakistan: [69.3, 30.4], Peru: [-75.0, -9.2],
-  Philippines: [121.8, 12.8], Poland: [19.1, 51.9], Qatar: [51.2, 25.3], "Saudi Arabia": [45.1, 23.9],
-  Singapore: [103.8, 1.35], "South Africa": [24.9, -30.6], "South Korea": [127.8, 36.5],
-  Spain: [-3.7, 40.4], "Sri Lanka": [80.7, 7.9], Sweden: [18.6, 60.1], Taiwan: [121.0, 23.7],
-  Thailand: [100.99, 15.9], UAE: [54.4, 24.4], "United Kingdom": [-3.4, 55.4],
-  "United States": [-98.6, 39.8], Vietnam: [108.3, 14.1],
+// ── Mapping: TopoJSON .name → Continent (for DS2) ────────────────────────
+const GEO_TO_CONTINENT = {
+  "United States of America": "North America",
+  "Canada": "North America",
+  "Mexico": "North America",
+  "Brazil": "South America",
+  "Colombia": "South America",
+  "Peru": "South America",
+  "Argentina": "South America",
+  "Chile": "South America",
+  "Venezuela": "South America",
+  "Ecuador": "South America",
+  "Bolivia": "South America",
+  "Paraguay": "South America",
+  "Uruguay": "South America",
+  "United Kingdom": "Europe",
+  "Germany": "Europe",
+  "France": "Europe",
+  "Italy": "Europe",
+  "Spain": "Europe",
+  "Netherlands": "Europe",
+  "Sweden": "Europe",
+  "Poland": "Europe",
+  "Portugal": "Europe",
+  "Belgium": "Europe",
+  "Switzerland": "Europe",
+  "Austria": "Europe",
+  "Norway": "Europe",
+  "Denmark": "Europe",
+  "Finland": "Europe",
+  "Greece": "Europe",
+  "Czechia": "Europe",
+  "Hungary": "Europe",
+  "Romania": "Europe",
+  "Ukraine": "Europe",
+  "Russia": "Europe",
+  "China": "Asia",
+  "Japan": "Asia",
+  "South Korea": "Asia",
+  "Taiwan": "Asia",
+  "India": "Asia",
+  "Pakistan": "Asia",
+  "Bangladesh": "Asia",
+  "Sri Lanka": "Asia",
+  "Nepal": "Asia",
+  "Indonesia": "Asia",
+  "Vietnam": "Asia",
+  "Singapore": "Asia",
+  "Thailand": "Asia",
+  "Philippines": "Asia",
+  "Malaysia": "Asia",
+  "United Arab Emirates": "Asia",
+  "Jordan": "Asia",
+  "Israel": "Asia",
+  "Qatar": "Asia",
+  "Saudi Arabia": "Asia",
+  "Iraq": "Asia",
+  "Iran": "Asia",
+  "Turkey": "Asia",
+  "Kazakhstan": "Asia",
+  "Kenya": "Africa",
+  "Egypt": "Africa",
+  "South Africa": "Africa",
+  "Ghana": "Africa",
+  "Morocco": "Africa",
+  "Nigeria": "Africa",
+  "Ethiopia": "Africa",
+  "Tanzania": "Africa",
+  "Algeria": "Africa",
+  "Angola": "Africa",
+  "Australia": "Oceania",
+  "New Zealand": "Oceania",
 };
 
-function hashString(value) {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash << 5) - hash + value.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash);
-}
+// ── DS2 Location string → Continent ──────────────────────────────────────
+const DS2_LOC_TO_CONTINENT = {
+  "UK": "Europe",
+  "USA": "North America",
+  "Canada": "North America",
+  "Australia": "Oceania",
+  "Germany": "Europe",
+  "China": "Asia",
+  "India": "Asia",
+  "France": "Europe",
+  "Japan": "Asia",
+  "Brazil": "South America",
+  "South Korea": "Asia",
+  "Italy": "Europe",
+  "Spain": "Europe",
+  "Mexico": "North America",
+  "Netherlands": "Europe",
+  "Russia": "Europe",
+  "Switzerland": "Europe",
+  "Sweden": "Europe",
+  "Singapore": "Asia",
+  "New Zealand": "Oceania",
+  "South Africa": "Africa",
+  "Egypt": "Africa",
+  "Nigeria": "Africa",
+  "Argentina": "South America",
+  "Chile": "South America",
+  "Colombia": "South America",
+  "Saudi Arabia": "Asia",
+  "UAE": "Asia",
+  "United Arab Emirates": "Asia",
+  "Israel": "Asia",
+  "Poland": "Europe",
+  "Indonesia": "Asia",
+  "Malaysia": "Asia",
+  "Thailand": "Asia",
+  "Vietnam": "Asia",
+  "Philippines": "Asia",
+  "Pakistan": "Asia",
+  "Bangladesh": "Asia",
+  "Ireland": "Europe",
+  "Denmark": "Europe",
+  "Finland": "Europe",
+  "Norway": "Europe",
+  "Belgium": "Europe",
+  "Austria": "Europe",
+  "Portugal": "Europe",
+  "Greece": "Europe",
+  "Turkey": "Asia",
+  "Iran": "Asia",
+  "Iraq": "Asia",
+  "Qatar": "Asia",
+  "Kuwait": "Asia",
+  "Jordan": "Asia",
+  "Taiwan": "Asia",
+  "Hong Kong": "Asia",
+  "Nepal": "Asia",
+  "Sri Lanka": "Asia",
+  "Myanmar": "Asia",
+  "Cambodia": "Asia",
+  "Kenya": "Africa",
+  "Morocco": "Africa",
+  "Ghana": "Africa",
+  "Tanzania": "Africa",
+  "Ethiopia": "Africa",
+  "Algeria": "Africa",
+  "Angola": "Africa",
+  "Peru": "South America",
+  "Ecuador": "South America",
+  "Venezuela": "South America",
+};
 
-function resolveCoordinates(country, region) {
-  if (COUNTRY_COORDS[country]) return COUNTRY_COORDS[country];
-  const [baseLon, baseLat] = REGION_ANCHORS[region] || [0, 0];
-  const seed = hashString(country);
-  const lonOffset = (seed % 24) - 12;
-  const latOffset = (Math.floor(seed / 24) % 14) - 7;
-  return [baseLon + lonOffset, baseLat + latOffset];
-}
+const SALARY_PALETTE = ["#d73027", "#fc8d59", "#fee08b", "#91cf60", "#1a9850"];
+const INTENSITY_PALETTE = ["#1a9850", "#91cf60", "#fee08b", "#fc8d59", "#d73027"];
 
-function normalizeHistoryRow(row) {
-  const [lon, lat] = resolveCoordinates(row.country, row.region);
-  return {
-    postingYear: +row.posting_year,
-    country: row.country,
-    region: row.region,
-    industry: row.industry,
-    aiIntensityScore: +row.ai_intensity_score,
-    salaryUsd: +row.salary_usd,
-    lon, lat,
-  };
-}
-
-function computeRegionSummary(rows) {
-  const allRegions = Object.keys(REGION_ANCHORS);
-  const existingData = d3.rollups(
-    rows,
-    (values) => {
-      const region = values[0].region;
-      const [anchorLon, anchorLat] = REGION_ANCHORS[region] || [0, 0];
-      return {
-        lon: anchorLon, lat: anchorLat,
-        aiIntensity: d3.mean(values, (d) => d.aiIntensityScore) || 0,
-        salary: d3.mean(values, (d) => d.salaryUsd) || 0,
-        count: values.length,
-        hasData: true
-      };
-    },
-    (d) => d.region,
-  );
-  const dataMap = new Map(existingData);
-  return allRegions.map(region => {
-    if (dataMap.has(region)) return { region, ...dataMap.get(region) };
-    const [anchorLon, anchorLat] = REGION_ANCHORS[region];
-    return {
-      region, lon: anchorLon, lat: anchorLat,
-      aiIntensity: 0, salary: 0, count: 0, hasData: false
-    };
-  });
-}
-
-function computeCountrySummary(rows, region) {
-  if (!region) return [];
-  const regionRows = rows.filter((d) => d.region === region);
-  return d3.rollups(
-    regionRows,
-    (values) => {
-      const country = values[0].country;
-      const [lon, lat] = COUNTRY_COORDS[country] || [0, 0];
-      return {
-        country, lon, lat,
-        aiIntensity: d3.mean(values, (d) => d.aiIntensityScore) || 0,
-        salary: d3.mean(values, (d) => d.salaryUsd) || 0,
-        count: values.length,
-      };
-    },
-    (d) => d.country,
-  ).map(([_, stats]) => stats);
-}
-
-function latLonToVector3(lat, lon, radius) {
-  const phi = (90 - lat) * (Math.PI / 180);
-  const theta = lon * (Math.PI / 180);
-  return new THREE.Vector3(
-    radius * Math.sin(phi) * Math.cos(theta),
-    radius * Math.cos(phi),
-    -radius * Math.sin(phi) * Math.sin(theta)
-  );
-}
-
-function drawGlobeScene(layer, regionSummary, worldData, width, height, currentRotation, onRegionClick) {
-  layer.selectAll("*").remove();
-
-  const defs = layer.append("defs");
-  const filter = defs.append("filter").attr("id", "marker-glow").attr("x", "-100%").attr("y", "-100%").attr("width", "300%").attr("height", "300%");
-  filter.append("feGaussianBlur").attr("stdDeviation", "8").attr("result", "blur");
-  filter.append("feComposite").attr("in", "SourceGraphic").attr("in2", "blur").attr("operator", "over");
-
-  const globeCenterX = width / 2;
-  const globeCenterY = height / 2 - 20;
-  const globeScale = Math.min(width, height) * 0.45;
-
-  const projection = d3.geoOrthographic().scale(globeScale).translate([globeCenterX, globeCenterY]).rotate(currentRotation).clipAngle(90).precision(0.3);
-  const path = d3.geoPath(projection);
-
-  layer.append("path").datum({ type: "Sphere" }).attr("class", "globe-water").attr("d", path);
-  layer.append("path").datum(d3.geoGraticule10()).attr("class", "globe-graticule").attr("d", path);
-
-  if (worldData) {
-    const countries = topojson.feature(worldData, worldData.objects.countries);
-    layer.append("path").datum(countries).attr("class", "globe-land").attr("d", path).style("pointer-events", "none");
-    layer.append("path").datum(topojson.mesh(worldData, worldData.objects.countries, (a, b) => a !== b)).attr("class", "globe-borders").attr("d", path).style("pointer-events", "none");
-  }
-
-
-
-  const radiusScale = d3.scaleSqrt().domain([0, d3.max(regionSummary, (d) => d.salary) || 100000]).range([0, 60]);
-
-  // 1. Drag catcher (moved down so markers are on top of it)
-  layer.append("circle").attr("class", "globe-drag-catcher").attr("cx", globeCenterX).attr("cy", globeCenterY).attr("r", globeScale).attr("fill", "transparent").style("pointer-events", "all").style("cursor", "grab")
-    .on("mousedown", function() { d3.select(this).style("cursor", "grabbing"); })
-    .on("mouseup mouseleave", function() { d3.select(this).style("cursor", "grab"); });
-
-  // 2. Markers (Clickable)
-  const markersGroup = layer.append("g").attr("class", "globe-markers").style("pointer-events", "none");
-  const markers = markersGroup.selectAll("g").data(regionSummary).join("g").attr("class", "region-marker").style("filter", "url(#marker-glow)").style("cursor", "pointer").style("pointer-events", "auto").on("click", (event, d) => onRegionClick && onRegionClick(d.region));
-
-  // Invisible Hitbox (Large target area for easier clicking)
-  markers
-    .append("circle")
-    .attr("class", "marker-hitbox")
-    .attr("r", 60)
-    .attr("fill", "none")
-    .attr("stroke", "none")
-    .style("pointer-events", "all");
-
-  const visuals = markers.append("g").attr("class", "marker-visuals");
-  visuals.append("circle").attr("class", "ring-outer").attr("r", (d) => radiusScale(d.salary) * 1.4).attr("fill", "none").attr("stroke", (d) => INTENSITY_COLOR_SCALE(d.aiIntensity)).attr("stroke-width", 2).attr("stroke-opacity", 0.6);
-  visuals.append("circle").attr("class", "ring-middle").attr("r", (d) => radiusScale(d.salary) * 1.0).attr("fill", "none").attr("stroke", (d) => INTENSITY_COLOR_SCALE(d.aiIntensity)).attr("stroke-width", 3).attr("stroke-opacity", 0.8);
-  visuals.append("circle").attr("class", "ring-inner").attr("r", (d) => radiusScale(d.salary) * 0.6).attr("fill", "none").attr("stroke", (d) => INTENSITY_COLOR_SCALE(d.aiIntensity)).attr("stroke-width", 4).attr("stroke-opacity", 1);
-  visuals.append("circle").attr("class", "beacon-dot").attr("r", 6).attr("fill", "#fff");
-
-  markers.append("text").attr("class", "region-label").attr("y", (d) => -radiusScale(d.salary) - 24).attr("text-anchor", "middle").attr("fill", "#fff").style("font-size", "18px").style("font-weight", "800").style("text-shadow", "0 2px 8px rgba(0,0,0,1)").text((d) => d.region);
-
-  const countryLabelsLayer = layer.append("g").attr("class", "country-labels-layer").style("pointer-events", "none");
-
-  let trackedZoom = 1;
-  let trackedRotation = currentRotation;
-
-  let labelNodes = [];
-  const labelForce = d3.forceSimulation(labelNodes)
-    .force("collide", d3.forceCollide().radius(45).iterations(4)) 
-    .force("x", d3.forceX().x(d => d.targetX).strength(0.15))
-    .force("y", d3.forceY().y(d => d.targetY).strength(0.15))
-    .stop();
-
-  const redraw = (newRot, zoom = null) => {
-    if (newRot) trackedRotation = newRot;
-    if (zoom !== null) trackedZoom = zoom;
-
-    const zoomedScale = globeScale * trackedZoom;
-    projection.scale(zoomedScale).rotate(trackedRotation);
-    const center = [-trackedRotation[0], -trackedRotation[1]];
-
-    layer.selectAll(".globe-water, .globe-graticule, .globe-land, .globe-borders").attr("d", path);
-    layer.selectAll(".globe-drag-catcher").attr("r", zoomedScale);
-
-    markers.each(function (d) {
-      const coord = [d.lon, d.lat];
-      const dist = d3.geoDistance(coord, center);
-      const point = projection(coord);
-      const selection = d3.select(this);
-      if (!point || dist > Math.PI / 2 || !d.hasData || trackedZoom > 1.5) {
-        selection.style("opacity", 0).attr("transform", "translate(-9999, -9999)");
-        return;
-      }
-      const fadeThreshold = Math.PI / 2 - 0.25;
-      const opacity = dist < fadeThreshold ? 1 : Math.max(0, 1 - (dist - fadeThreshold) / 0.25);
-      const f = Math.cos(dist);
-      const angle = Math.atan2(point[1] - globeCenterY, point[0] - globeCenterX) * (180 / Math.PI);
-      selection.style("opacity", opacity).attr("transform", `translate(${point[0]}, ${point[1]})`);
-      selection.select(".marker-visuals").attr("transform", `rotate(${angle}) scale(${f}, 1)`);
-    });
-
-
-
-    const activeNodes = [];
-    countryLabelsLayer.selectAll(".country-label-group")
-      .each(function (d) {
-        const node = labelNodes.find(n => n.country === d.country);
-        if (!node) return;
-        
-        const coord = [d.lon, d.lat];
-        const dist = d3.geoDistance(coord, center);
-        const point = projection(coord);
-        
-        if (!point || dist > Math.PI / 2 - 0.1 || trackedZoom <= 1.5) {
-          node.visible = false;
-          d3.select(this).style("opacity", 0).attr("transform", "translate(-9999, -9999)");
-          return;
-        }
-        
-        const maxSalary = d3.max(labelNodes, n => n.salary) || 100000;
-        const height3D = (d.salary / maxSalary) * 150 + 25; 
-        
-        let dx = point[0] - globeCenterX;
-        let dy = point[1] - globeCenterY;
-        const radius2D = Math.hypot(dx, dy) || 1;
-        dx /= radius2D;
-        dy /= radius2D;
-        
-        const tipOffset = height3D * trackedZoom * Math.sin(dist);
-        const tipX = point[0] + dx * tipOffset;
-        const tipY = point[1] + dy * tipOffset;
-        
-        node.anchorX = tipX;
-        node.anchorY = tipY;
-        
-        node.targetX = tipX + dx * 20;
-        node.targetY = tipY + dy * 20; 
-        node.visible = true;
-        
-        if (!node.x && !node.y) {
-           node.x = node.targetX;
-           node.y = node.targetY;
-        }
-        
-        activeNodes.push(node);
-      });
-      
-    if (activeNodes.length > 0) {
-      labelForce.nodes(activeNodes);
-      labelForce.alpha(1);
-      for (let i = 0; i < 30; i++) labelForce.tick();
-      
-      countryLabelsLayer.selectAll(".country-label-group")
-        .each(function(d) {
-          const node = activeNodes.find(n => n.country === d.country);
-          if(!node || !node.visible) return;
-          
-          const sel = d3.select(this);
-          sel.style("opacity", 1)
-             .attr("transform", `translate(${node.x}, ${node.y})`);
-             
-          sel.select(".leader-line")
-             .attr("d", `M 0,0 L ${node.anchorX - node.x}, ${node.anchorY - node.y}`);
-             
-          const isRight = node.targetX > node.anchorX;
-          sel.selectAll("text")
-             .attr("text-anchor", isRight ? "start" : "end")
-             .attr("dx", isRight ? 6 : -6);
-        });
-    }
-  };
-
-  const update = (newSummary) => {
-    const rScale = d3.scaleSqrt().domain([0, d3.max(newSummary, d => d.salary) || 100000]).range([0, 60]);
-    markers.data(newSummary, d => d.region).each(function(d) {
-      const sel = d3.select(this);
-      sel.select(".ring-outer").attr("r", rScale(d.salary) * 1.4).attr("stroke", INTENSITY_COLOR_SCALE(d.aiIntensity));
-      sel.select(".ring-middle").attr("r", rScale(d.salary)).attr("stroke", INTENSITY_COLOR_SCALE(d.aiIntensity));
-      sel.select(".ring-inner").attr("r", rScale(d.salary) * 0.6).attr("stroke", INTENSITY_COLOR_SCALE(d.aiIntensity));
-      sel.select(".region-label").attr("y", -rScale(d.salary) - 24);
-    });
-  };
-
-  const updateCountryLabels = (cSummary) => {
-    labelNodes = cSummary.map(d => ({ ...d, x: globeCenterX, y: globeCenterY }));
-    countryLabelsLayer.selectAll(".country-label-group").remove();
-    
-    if (cSummary.length === 0) {
-      labelForce.nodes([]);
-      return;
-    }
-    
-    const labels = countryLabelsLayer.selectAll(".country-label-group")
-      .data(labelNodes, d => d.country)
-      .join("g")
-      .attr("class", "country-label-group")
-      .style("opacity", 0);
-      
-    labels.append("path")
-      .attr("class", "leader-line")
-      .attr("fill", "none")
-      .attr("stroke", "rgba(255,255,255,0.7)")
-      .attr("stroke-width", 1.5)
-      .attr("stroke-dasharray", "2 3");
-      
-    labels.append("text")
-      .attr("class", "marker-glow-bg")
-      .attr("y", 4)
-      .attr("stroke", "rgba(0,0,0,0.8)")
-      .attr("stroke-width", 4)
-      .attr("stroke-linejoin", "round")
-      .style("font-size", "14px")
-      .style("font-weight", 700)
-      .style("cursor", "default")
-      .text(d => `${d.country} ($${d3.format(",.0f")(d.salary)})`);
-
-    labels.append("text")
-      .attr("y", 4)
-      .attr("fill", "#fff")
-      .style("font-size", "14px")
-      .style("font-weight", 700)
-      .style("cursor", "default")
-      .text(d => `${d.country} ($${d3.format(",.0f")(d.salary)})`);
-
-    labels.transition().duration(300).style("opacity", 1);
-    
-    let layoutTicks = 0;
-    const settleTimer = d3.timer(() => {
-       redraw(null, null);
-       layoutTicks++;
-       if (layoutTicks > 40) settleTimer.stop();
-    });
-  };
-
-  return { redraw, update, updateCountryLabels };
-}
-
-
-function Task1() {
-  const [historyRows, setHistoryRows] = useState([]);
-  const [worldData, setWorldData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [rotation, setRotation] = useState([-35, -16, 0]);
-  const [selectedRegion, setSelectedRegion] = useState(null);
-  const [isZooming, setIsZooming] = useState(false);
-
+function Task1({ scrollParentRef, onStageChange }) {
   const svgRef = useRef(null);
-  const threeContainerRef = useRef(null);
-  const miniSvgRef = useRef(null);
-  const sceneRef = useRef(null);
-  const threeSceneRef = useRef(null);
-  const rotationRef = useRef(rotation);
-  const isInteractingRef = useRef(false);
-  const globeTimerRef = useRef(null);
+  const tooltipRef = useRef(null);
+  const fixedRef = useRef(null);
 
-  useEffect(() => {
-    rotationRef.current = rotation;
-  }, [rotation]);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [metric, setMetric] = useState("salary");
+  const [geoData, setGeoData] = useState(null);
+  const [ds1, setDs1] = useState(null);
+  const [ds2, setDs2] = useState(null);
 
+  // ── Load data ───────────────────────────────────────────────────────────
   useEffect(() => {
-    const baseUrl = import.meta.env.BASE_URL;
     Promise.all([
-      d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`, normalizeHistoryRow),
-      d3.json(`${baseUrl}world-110m.json`),
-    ]).then(([rows, world]) => {
-      setHistoryRows(rows);
-      setWorldData(world);
-      setSelectedYear(d3.min(rows, (d) => d.postingYear) ?? null);
-      setIsLoading(false);
+      d3.json("/world-110m.json"),       // local file — has properties.name already
+      d3.csv("/ai_impact_jobs_2010_2025.csv"),
+      d3.csv("/ai_job_trends_dataset.csv"),
+    ]).then(([world, csv1, csv2]) => {
+      // geo features — local file already has name in properties
+      const features = topojson.feature(world, world.objects.countries).features;
+      setGeoData(features);
+
+      // ── DS1: group by `region` (lowercase column name confirmed) ──
+      const regionGroups = d3.group(csv1, (d) => d.region);
+      const ds1Map = new Map();
+      for (const [region, rows] of regionGroups) {
+        if (!region) continue;
+        const byCountryMap = d3.rollup(
+          rows,
+          (v) => ({
+            avgSalary: d3.mean(v, (r) => +r.salary_usd) || 0,
+            avgIntensity: d3.mean(v, (r) => +r.ai_intensity_score) || 0,
+          }),
+          (r) => r.country
+        );
+        const countries = Array.from(byCountryMap, ([name, vals]) => ({ name, ...vals }))
+          .sort((a, b) => b.avgSalary - a.avgSalary);
+        ds1Map.set(region, {
+          avgSalary: d3.mean(rows, (r) => +r.salary_usd) || 0,
+          avgIntensity: d3.mean(rows, (r) => +r.ai_intensity_score) || 0,
+          countries,
+        });
+      }
+      setDs1(ds1Map);
+
+      // ── DS2: group Location → continent ──
+      const continentAccum = new Map();
+      csv2.forEach((d) => {
+        const loc = d.Location;
+        const cont = DS2_LOC_TO_CONTINENT[loc];
+        if (!cont) return;
+        if (!continentAccum.has(cont)) continentAccum.set(cont, []);
+        continentAccum.get(cont).push(d);
+      });
+
+      const ds2Map = new Map();
+      for (const [continent, rows] of continentAccum) {
+        const byLocMap = d3.rollup(
+          rows,
+          (v) => ({
+            avgSalary: d3.mean(v, (r) => +r["Median Salary (USD)"]) || 0,
+            avgIntensity: d3.mean(v, (r) => +r["Automation Risk (%)"]) / 100 || 0,
+          }),
+          (r) => r.Location
+        );
+        const countries = Array.from(byLocMap, ([name, vals]) => ({ name, ...vals }))
+          .sort((a, b) => b.avgSalary - a.avgSalary);
+        ds2Map.set(continent, {
+          avgSalary: d3.mean(rows, (r) => +r["Median Salary (USD)"]) || 0,
+          avgIntensity: d3.mean(rows, (r) => +r["Automation Risk (%)"]) / 100 || 0,
+          countries,
+        });
+      }
+      setDs2(ds2Map);
     });
   }, []);
 
-  const years = useMemo(() => Array.from(new Set(historyRows.map((r) => r.postingYear))).sort(), [historyRows]);
-  const regionSummary = useMemo(() => computeRegionSummary(selectedYear ? historyRows.filter(r => r.postingYear === selectedYear) : historyRows), [historyRows, selectedYear]);
-  const countrySummary = useMemo(() => computeCountrySummary(selectedYear ? historyRows.filter(r => r.postingYear === selectedYear) : historyRows, selectedRegion), [historyRows, selectedYear, selectedRegion]);
-
-
-  const resetView = () => {
-    setSelectedRegion(null);
-    setIsZooming(false);
-    const startRotation = [...rotation];
-    const endRotation = [-15, -10, 0];
-    const interpolator = d3.interpolate(startRotation, endRotation);
-    const zoomInterpolator = d3.interpolate(2.2, 1);
-    const transitionDuration = 1000;
-    
-    if (globeTimerRef.current) globeTimerRef.current.stop();
-    globeTimerRef.current = d3.timer((elapsed) => {
-      const t = Math.min(1, elapsed / transitionDuration);
-      const easedT = d3.easeCubicInOut(t);
-      const currentRot = interpolator(easedT);
-      const currentZoom = zoomInterpolator(easedT);
-      setRotation(currentRot);
-      rotationRef.current = currentRot;
-      
-      if (sceneRef.current?.globeBundle) {
-          sceneRef.current.globeBundle.redraw(currentRot, currentZoom);
-      }
-      
-      if (threeSceneRef.current) {
-        const { renderer, scene: tScene, camera, group } = threeSceneRef.current;
-        group.rotation.y = currentRot[0] * (Math.PI / 180) - Math.PI / 2;
-        group.rotation.x = -currentRot[1] * (Math.PI / 180);
-        group.scale.set(currentZoom, currentZoom, currentZoom);
-        renderer.render(tScene, camera);
-      }
-      
-      if (t === 1) {
-        isInteractingRef.current = false; // Allow auto-rotate to resume
-        return true; 
-      }
-    });
-  };
-
+  // ── Scroll listener ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (!threeSceneRef.current || !selectedRegion) {
-       if (threeSceneRef.current && threeSceneRef.current.barsGroup) {
-         threeSceneRef.current.barsGroup.clear();
-       }
-       return;
-    }
+    const container = scrollParentRef?.current;
+    if (!container) return;
+    const handle = () => {
+      const section = container.querySelector('[data-task="section1"]');
+      if (!section) return;
+      const relScroll = Math.max(0, container.scrollTop - section.offsetTop);
+      const total = Math.max(1, section.offsetHeight - container.clientHeight);
+      const p = Math.min(1, relScroll / total);
+      setScrollProgress(p);
+      if (onStageChange) onStageChange(p < 0.2 ? 0 : p < 0.65 ? 1 : 2);
+    };
+    container.addEventListener("scroll", handle, { passive: true });
+    handle();
+    return () => container.removeEventListener("scroll", handle);
+  }, [scrollParentRef, onStageChange]);
 
-    const { barsGroup, renderer, scene: tScene, camera } = threeSceneRef.current;
-    barsGroup.clear();
+  // ── Render map ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!geoData || !ds1 || !ds2 || !svgRef.current) return;
 
-    const commonScale = Math.min(BASE_WIDTH, BASE_HEIGHT) * 0.45;
-    const maxSalary = d3.max(countrySummary, d => d.salary) || 100000;
+    const W = 1000, H = 500;
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
 
-    countrySummary.forEach(d => {
-      const height = (d.salary / maxSalary) * 150 + 25; 
-      const geometry = new THREE.BoxGeometry(6, 1, 6); 
-      geometry.translate(0, 0.5, 0); 
-      
-      const material = new THREE.MeshStandardMaterial({
-        color: INTENSITY_COLOR_SCALE(d.aiIntensity),
-        transparent: true,
-        opacity: 0.9,
-        emissive: INTENSITY_COLOR_SCALE(d.aiIntensity),
-        emissiveIntensity: 0.5
+    const projection = d3.geoNaturalEarth1().scale(175).translate([W / 2, H / 2]);
+    const pathGen = d3.geoPath().projection(projection);
+    const g = svg.append("g");
+    const tip = d3.select(tooltipRef.current);
+
+    const frame = scrollProgress < 0.2 ? "base" : scrollProgress < 0.65 ? "ds1" : "ds2";
+
+    // Unified color scales across both datasets for consistency
+    const allSalaries = [
+      ...Array.from(ds1.values()).map((d) => d.avgSalary),
+      ...Array.from(ds2.values()).map((d) => d.avgSalary),
+    ].filter((v) => v > 0);
+    const allIntensities = [
+      ...Array.from(ds1.values()).map((d) => d.avgIntensity),
+      ...Array.from(ds2.values()).map((d) => d.avgIntensity),
+    ].filter((v) => v > 0);
+
+    const salaryScale = d3.scaleQuantize()
+      .domain(d3.extent(allSalaries))
+      .range(SALARY_PALETTE);
+    const intensityScale = d3.scaleQuantize()
+      .domain(d3.extent(allIntensities))
+      .range(INTENSITY_PALETTE);
+
+    const getColor = (geoName) => {
+      if (frame === "base") return "#e8edf2";
+
+      if (frame === "ds1") {
+        const region = GEO_TO_DS1_REGION[geoName];
+        if (!region) return "#dde3ea";
+        const stats = ds1.get(region);
+        if (!stats) return "#dde3ea";
+        const val = metric === "salary" ? stats.avgSalary : stats.avgIntensity;
+        return metric === "salary" ? salaryScale(val) : intensityScale(val);
+      }
+
+      // ds2
+      const continent = GEO_TO_CONTINENT[geoName];
+      if (!continent) return "#dde3ea";
+      const stats = ds2.get(continent);
+      if (!stats) return "#dde3ea";
+      const val = metric === "salary" ? stats.avgSalary : stats.avgIntensity;
+      return metric === "salary" ? salaryScale(val) : intensityScale(val);
+    };
+
+    // Build tooltip HTML
+    const buildTip = (geoName) => {
+      if (frame === "base") {
+        return `<div class="tp-title">${geoName}</div><div class="tp-note">Scroll down to reveal data →</div>`;
+      }
+
+      if (frame === "ds1") {
+        const region = GEO_TO_DS1_REGION[geoName];
+        if (!region) return `<div class="tp-title">${geoName}</div><div class="tp-note">No DS1 data for this country</div>`;
+        const stats = ds1.get(region);
+        const avgLabel = metric === "salary"
+          ? `$${Math.round(stats.avgSalary).toLocaleString()}`
+          : `${(stats.avgIntensity * 100).toFixed(1)}%`;
+        const rows = stats.countries.slice(0, 8).map((c) => {
+          const v = metric === "salary"
+            ? `$${Math.round(c.avgSalary).toLocaleString()}`
+            : `${(c.avgIntensity * 100).toFixed(1)}%`;
+          return `<div class="tp-row"><span class="tp-label">${c.name}</span><span class="tp-val">${v}</span></div>`;
+        }).join("");
+        return `
+          <div class="tp-title">${region}</div>
+          <div class="tp-subtitle">2010–2025 · ${metric === "salary" ? "Avg Salary" : "Avg AI Intensity"}: <b>${avgLabel}</b></div>
+          <div class="tp-divider"></div>
+          <div class="tp-country-header">Some average data of the country in ${region}:</div>
+          ${rows}
+        `;
+      }
+
+      // ds2
+      const continent = GEO_TO_CONTINENT[geoName];
+      if (!continent) return `<div class="tp-title">${geoName}</div><div class="tp-note">No DS2 data for this country</div>`;
+      const stats = ds2.get(continent);
+      if (!stats) return `<div class="tp-title">${geoName} (${continent})</div><div class="tp-note">No DS2 data for this continent</div>`;
+      const avgLabel = metric === "salary"
+        ? `$${Math.round(stats.avgSalary).toLocaleString()}`
+        : `${(stats.avgIntensity * 100).toFixed(1)}%`;
+      const rows = stats.countries.slice(0, 8).map((c) => {
+        const v = metric === "salary"
+          ? `$${Math.round(c.avgSalary).toLocaleString()}`
+          : `${(c.avgIntensity * 100).toFixed(1)}%`;
+        return `<div class="tp-row"><span class="tp-label">${c.name}</span><span class="tp-val">${v}</span></div>`;
+      }).join("");
+      return `
+        <div class="tp-title">${continent}</div>
+        <div class="tp-subtitle">2024–2030 · ${metric === "salary" ? "Avg Salary" : "Avg AI Risk"}: <b>${avgLabel}</b></div>
+        <div class="tp-divider"></div>
+        <div class="tp-country-header">Countries in this continent:</div>
+        ${rows}
+      `;
+    };
+
+    // Draw
+    g.selectAll("path")
+      .data(geoData)
+      .enter()
+      .append("path")
+      .attr("class", "country-path")
+      .attr("d", pathGen)
+      .attr("fill", (d) => getColor(d.properties.name))
+      .on("mouseover", function(event, d) {
+        d3.select(this).raise()
+          .style("stroke", "#1e293b")
+          .style("stroke-width", "1.5");
+        tip.style("opacity", 1).html(buildTip(d.properties.name));
+      })
+      .on("mousemove", (event) => {
+        tip.style("left", `${event.clientX + 20}px`).style("top", `${event.clientY - 18}px`);
+      })
+      .on("mouseleave", function() {
+        d3.select(this).style("stroke", "#ffffff").style("stroke-width", "0.4");
+        tip.style("opacity", 0);
       });
 
-      const mesh = new THREE.Mesh(geometry, material);
-      const pos = latLonToVector3(d.lat, d.lon, commonScale);
-      mesh.position.copy(pos);
-      
-      const normal = pos.clone().normalize();
-      mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
-      
-      mesh.scale.set(1, 0.01, 1);
-      barsGroup.add(mesh);
+    // Update legend
+    const domain = metric === "salary" ? d3.extent(allSalaries) : d3.extent(allIntensities);
+    const palette = metric === "salary" ? SALARY_PALETTE : INTENSITY_PALETTE;
+    const step = (domain[1] - domain[0]) / palette.length;
 
-      const duration = 1200;
-      const delay = Math.random() * 500;
-      const start = Date.now() + delay;
-
-      const animateGrowth = () => {
-        const now = Date.now();
-        if (now < start) {
-          requestAnimationFrame(animateGrowth);
-          return;
-        }
-        
-        const elapsed = now - start;
-        const t = Math.min(1, elapsed / duration);
-        const easedT = d3.easeElasticOut(t, 1, 0.5);
-        
-        mesh.scale.set(1, height * easedT, 1);
-        
-        if (t < 1) {
-          requestAnimationFrame(animateGrowth);
-        }
-      };
-      animateGrowth();
-    });
-
-    const frame = () => {
-       renderer.render(tScene, camera);
-       if (selectedRegion) requestAnimationFrame(frame);
-    };
-    frame();
-
-  }, [selectedRegion, countrySummary]);
-
-  useEffect(() => {
-    if (!historyRows.length || !worldData || !svgRef.current || !miniSvgRef.current) return;
-    
-    if (!sceneRef.current) {
-      const svg = d3.select(svgRef.current).attr("viewBox", `0 0 ${BASE_WIDTH} ${BASE_HEIGHT}`).attr("preserveAspectRatio", "xMidYMid meet");
-      svg.selectAll("*").remove();
-
-      const globeLayer = svg.append("g").attr("class", "scene-layer scene-globe");
-
-      const onRegionClick = (region) => {
-        const anchor = REGION_ANCHORS[region];
-        if (!anchor) return;
-        
-        isInteractingRef.current = true;
-        if (globeTimerRef.current) globeTimerRef.current.stop();
-
-        setSelectedRegion(region);
-        setIsZooming(true);
-
-        const startRotation = [...rotationRef.current];
-        const endRotation = [-anchor[0], -anchor[1], 0];
-
-        const interpolator = d3.interpolate(startRotation, endRotation);
-        const zoomInterpolator = d3.interpolate(1, 2.2);
-
-        const transitionDuration = 1000;
-        globeTimerRef.current = d3.timer((elapsed) => {
-          const t = Math.min(1, elapsed / transitionDuration);
-          const easedT = d3.easeCubicInOut(t);
-          
-          const currentRot = interpolator(easedT);
-          const currentZoom = zoomInterpolator(easedT);
-
-          if (sceneRef.current && sceneRef.current.globeBundle) {
-            sceneRef.current.globeBundle.redraw(currentRot, currentZoom);
-          }
-          
-          if (threeSceneRef.current) {
-            const { renderer, scene: tScene, camera, group } = threeSceneRef.current;
-            group.rotation.y = currentRot[0] * (Math.PI / 180) - Math.PI / 2;
-            group.rotation.x = -currentRot[1] * (Math.PI / 180);
-            group.scale.set(currentZoom, currentZoom, currentZoom);
-            renderer.render(tScene, camera);
-          }
-
-          if (t === 1) {
-            setRotation(currentRot); 
-            return true; // Stop timer
-          }
-        });
-      };
-
-      const globeBundle = drawGlobeScene(globeLayer, regionSummary, worldData, BASE_WIDTH, BASE_HEIGHT, rotation, onRegionClick);
-
-      sceneRef.current = {
-        svg,
-        globeLayer,
-        globeBundle,
-      };
-
-      // Three.js Photorealistic Globe Setup
-      if (threeContainerRef.current) {
-        threeContainerRef.current.innerHTML = "";
-
-        const scene = new THREE.Scene();
-        const camera = new THREE.OrthographicCamera(-BASE_WIDTH / 2, BASE_WIDTH / 2, BASE_HEIGHT / 2, -BASE_HEIGHT / 2, 0.1, 2000);
-        camera.position.z = 1000;
-
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(BASE_WIDTH, BASE_HEIGHT);
-        threeContainerRef.current.appendChild(renderer.domElement);
-
-        const group = new THREE.Group();
-        group.position.y = 20;
-        scene.add(group);
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-        scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        dirLight.position.set(5, 3, 5);
-        scene.add(dirLight);
-
-        const loader = new THREE.TextureLoader();
-        const texture = loader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg");
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-
-        const commonScale = Math.min(BASE_WIDTH, BASE_HEIGHT) * 0.45;
-        const geometry = new THREE.SphereGeometry(commonScale, 128, 128);
-        const material = new THREE.MeshStandardMaterial({
-          map: texture,
-          roughness: 1,
-        });
-        const globe = new THREE.Mesh(geometry, material);
-        group.add(globe);
-
-        const barsGroup = new THREE.Group();
-        group.add(barsGroup);
-
-        threeSceneRef.current = { scene, camera, renderer, globe, group, barsGroup };
-
-        const handleResize = () => {
-          if (!threeContainerRef.current || !threeSceneRef.current) return;
-
-          const container = threeContainerRef.current;
-          const rect = container.getBoundingClientRect();
-          const domWidth = rect.width;
-          const domHeight = rect.height;
-
-          if (domWidth === 0 || domHeight === 0) return;
-
-          const aspect = BASE_WIDTH / BASE_HEIGHT;
-          const domAspect = domWidth / domHeight;
-
-          let viewWidth, viewHeight;
-          if (domAspect > aspect) {
-            viewHeight = BASE_HEIGHT;
-            viewWidth = BASE_HEIGHT * domAspect;
-          } else {
-            viewWidth = BASE_WIDTH;
-            viewHeight = BASE_WIDTH / domAspect;
-          }
-
-          const { camera: tCamera, renderer: tRenderer } = threeSceneRef.current;
-          tCamera.left = -viewWidth / 2;
-          tCamera.right = viewWidth / 2;
-          tCamera.top = viewHeight / 2;
-          tCamera.bottom = -viewHeight / 2;
-          tCamera.updateProjectionMatrix();
-
-          tRenderer.setSize(domWidth, domHeight);
-          tRenderer.setPixelRatio(window.devicePixelRatio);
-          tRenderer.render(scene, tCamera);
-        };
-
-        const resizeObserver = new ResizeObserver(handleResize);
-        resizeObserver.observe(threeContainerRef.current);
-        handleResize();
-      }
-
-      // Mini Globe Controller
-      const miniWidth = 120;
-      const miniHeight = 120;
-      const miniSvg = d3.select(miniSvgRef.current).attr("width", miniWidth).attr("height", miniHeight);
-
-      miniSvg.selectAll("*").remove();
-
-      const miniProjection = d3.geoOrthographic().scale(55).translate([miniWidth / 2, miniHeight / 2]).rotate(rotation).clipAngle(90);
-      const miniPath = d3.geoPath(miniProjection);
-
-      miniSvg.append("circle").attr("cx", miniWidth / 2).attr("cy", miniHeight / 2).attr("r", 60).attr("class", "mini-water");
-
-      if (worldData) {
-        miniSvg.append("path").datum(topojson.feature(worldData, worldData.objects.land)).attr("class", "mini-land").attr("d", miniPath);
-      }
-
-      const dragHandler = d3.drag()
-        .on("start", (event) => {
-          isInteractingRef.current = true;
-          if (globeTimerRef.current) globeTimerRef.current.stop();
-          
-          const isMini = !!event.sourceEvent.target.closest('svg[width="120"]');
-          if (isMini) {
-            setSelectedRegion(null);
-            setIsZooming(false);
-          }
-        })
-        .on("drag", (event) => {
-          const r = rotationRef.current;
-          const sensitivity = 0.25;
-          const nextRotation = [r[0] + event.dx * sensitivity, r[1] - event.dy * sensitivity, r[2]];
-
-          miniProjection.rotate(nextRotation);
-          miniSvg.selectAll(".mini-land").attr("d", miniPath);
-
-          const isMini = !!event.sourceEvent.target.closest('svg[width="120"]');
-          const activeZoom = isMini ? 1.0 : (threeSceneRef.current ? threeSceneRef.current.group.scale.x : 1.0);
-
-          if (sceneRef.current && sceneRef.current.globeBundle) {
-            sceneRef.current.globeBundle.redraw(nextRotation, activeZoom);
-          }
-
-          if (threeSceneRef.current) {
-            const { renderer, scene: tScene, camera, group } = threeSceneRef.current;
-            group.rotation.y = nextRotation[0] * (Math.PI / 180) - Math.PI / 2;
-            group.rotation.x = -nextRotation[1] * (Math.PI / 180);
-            group.scale.set(activeZoom, activeZoom, activeZoom);
-            renderer.render(tScene, camera);
-          }
-
-          rotationRef.current = nextRotation; 
-          setRotation(nextRotation);
-        })
-        .on("end", () => {
-          // Keep auto-rotate off while user is manual, but don't block
-          isInteractingRef.current = true;
-        });
-
-      miniSvg.call(dragHandler);
-      svg.call(dragHandler); // Bind to entire container for robust dragging
-
-      // Start Auto-Rotate
-      globeTimerRef.current = d3.timer(() => {
-        if (isInteractingRef.current) {
-            globeTimerRef.current.stop();
-            return;
-        }
-
-        const newRotation = [rotationRef.current[0] + 0.1, rotationRef.current[1], 0];
-        if (sceneRef.current && sceneRef.current.globeBundle) {
-            sceneRef.current.globeBundle.redraw(newRotation);
-        }
-
-        if (threeSceneRef.current) {
-            const { renderer, scene: tScene, camera, group } = threeSceneRef.current;
-            group.rotation.y = newRotation[0] * (Math.PI / 180) - Math.PI / 2;
-            group.rotation.x = -newRotation[1] * (Math.PI / 180);
-            renderer.render(tScene, camera);
-        }
-        setRotation(newRotation);
-      });
+    const binsWrap = fixedRef.current?.querySelector(".legend-bins-wrap");
+    if (binsWrap) {
+      binsWrap.innerHTML = palette.map((color, i) => {
+        const lo = domain[0] + step * i;
+        const hi = domain[0] + step * (i + 1);
+        const loStr = metric === "salary" ? `$${Math.round(lo / 1000)}k` : `${(lo * 100).toFixed(0)}%`;
+        const hiStr = metric === "salary" ? `$${Math.round(hi / 1000)}k` : `${(hi * 100).toFixed(0)}%`;
+        return `<div class="legend-bin">
+          <span class="legend-swatch" style="background:${color}"></span>
+          <span>${loStr} – ${hiStr}</span>
+        </div>`;
+      }).join("");
     }
-  }, [historyRows, worldData]);
 
+    const legendTitle = fixedRef.current?.querySelector(".legend-title");
+    if (legendTitle) legendTitle.textContent = metric === "salary" ? "Salary Range (USD)" : "AI Intensity / Risk";
 
-  useEffect(() => {
-    if (sceneRef.current?.globeBundle) {
-      sceneRef.current.globeBundle.update(regionSummary);
-      sceneRef.current.globeBundle.updateCountryLabels(countrySummary);
+    // Update badge
+    const badgeMain = fixedRef.current?.querySelector(".badge-main");
+    const badgeSub = fixedRef.current?.querySelector(".badge-sub");
+    if (badgeMain) {
+      badgeMain.textContent = frame === "base"
+        ? "Scroll to reveal AI impact data"
+        : frame === "ds1"
+          ? "Dataset 1: Global AI Impact (2010-2025)"
+          : "Dataset 2: AI Job Trends (2024-2030)";
     }
-  }, [regionSummary, countrySummary]);
+    if (badgeSub) {
+      badgeSub.textContent = frame === "base"
+        ? "Three stages: blank → historical regions → future continents"
+        : frame === "ds1"
+          ? "Colored by Region · Hover for country breakdown"
+          : "Colored by Continent · Hover for country breakdown";
+    }
+  }, [geoData, ds1, ds2, metric, scrollProgress]);
 
-  useEffect(() => {
-    return () => {
-      if (globeTimerRef.current) {
-        globeTimerRef.current.stop();
-      }
-    };
-  }, []);
+  const frame = scrollProgress < 0.2 ? "base" : scrollProgress < 0.65 ? "ds1" : "ds2";
 
   return (
-    <div className="task1-root">
-      <div className="three-globe-container" ref={threeContainerRef} />
-      <svg ref={svgRef} className="story-svg" />
+    <div className="task1-scroll-container">
+      <div className="task1-fixed-viewport" ref={fixedRef}>
 
-      {selectedRegion && (
-        <div className="drilldown-controls">
-          <button className="back-btn" onClick={resetView}>
-            ← Back to Global View
-          </button>
-          <div className="drilldown-title">
-            <h3>{selectedRegion}</h3>
-          </div>
-        </div>
-      )}
-
-      {years.length > 0 && (
-        <div className="year-slider-wrap">
-          <input
-            id="year-slider"
-            type="range"
-            min={years[0]}
-            max={years[years.length - 1]}
-            step={1}
-            value={selectedYear || years[0]}
-            onChange={(event) => setSelectedYear(Number(event.target.value))}
-          />
-          <span className="year-val">{selectedYear}</span>
-        </div>
-      )}
-
-       <div className="viz-legend">
-          <div className="legend-section">
-            <h4>AI Intensity Score</h4>
-            <div className="intensity-ramp"></div>
-            <div className="legend-labels">
-              <span>Low</span>
-              <span>High</span>
-            </div>
-          </div>
-          <div className="legend-divider"></div>
-          <div className="legend-section">
-            <h4>Avg Salary (USD)</h4>
-            <div className="salary-circles">
-              <div className="salary-circle s1"></div>
-              <div className="salary-circle s2"></div>
-              <div className="salary-circle s3"></div>
-            </div>
-            <div className="legend-labels">
-              <span>Larger = Higher</span>
-            </div>
-          </div>
+        <div className="dataset-badge">
+          <div className="badge-main">Scroll to reveal AI impact data</div>
+          <div className="badge-sub">Three stages: blank → historical regions → future continents</div>
         </div>
 
-      <div className="mini-globe-wrap">
-        <svg ref={miniSvgRef} className="mini-svg" />
+        <svg ref={svgRef} viewBox="0 0 1000 500" className="task1-map-svg" />
+        <div ref={tooltipRef} className="task1-tooltip" />
+
+        <div className="stage-dots">
+          {[["base","Blank Canvas"],["ds1","DS1: 2010-2025"],["ds2","DS2: 2024-2030"]].map(([key,label]) => (
+            <div key={key} className={`stage-dot-wrap ${frame === key ? "active" : ""}`}>
+              <div className="stage-dot" />
+              <span className="stage-dot-label">{label}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="metric-toggle">
+          <button className={metric === "salary" ? "active" : ""} onClick={() => setMetric("salary")}>💰 Avg Salary</button>
+          <button className={metric === "intensity" ? "active" : ""} onClick={() => setMetric("intensity")}>🤖 AI Intensity / Risk</button>
+        </div>
+
+        <div className="legend-container">
+          <div className="legend-title">Salary Range (USD)</div>
+          <div className="legend-bins-wrap" />
+        </div>
+
       </div>
-
-      {isLoading ? <p className="loading-text">Loading...</p> : null}
     </div>
   );
 }
