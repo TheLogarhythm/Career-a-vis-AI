@@ -3,6 +3,8 @@ import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import "./task1.css";
 
+const baseUrl = import.meta.env.BASE_URL || "/";
+
 // ── Mapping: TopoJSON .name → DS1 region ─────────────────────────────────
 // (DS1 region values: North America / South America / Europe / East Asia /
 //  South Asia / Southeast Asia / Middle East / Africa / Oceania)
@@ -253,9 +255,9 @@ function Task1({ scrollParentRef, onStageChange }) {
   // ── Load data ───────────────────────────────────────────────────────────
   useEffect(() => {
     Promise.all([
-      d3.json("/world-110m.json"),       // local file — has properties.name already
-      d3.csv("/ai_impact_jobs_2010_2025.csv"),
-      d3.csv("/ai_job_trends_dataset.csv"),
+      d3.json(`${baseUrl}world-110m.json`),       // local file — has properties.name already
+      d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`),
+      d3.csv(`${baseUrl}ai_job_trends_dataset.csv`),
     ]).then(([world, csv1, csv2]) => {
       // geo features — local file already has name in properties
       const features = topojson.feature(world, world.objects.countries).features;

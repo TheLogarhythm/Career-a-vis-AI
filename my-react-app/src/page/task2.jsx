@@ -77,7 +77,8 @@ const Task2 = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const rawData = await d3.csv("/ai_impact_jobs_2010_2025.csv");
+        const baseUrl = import.meta.env.BASE_URL || "/";
+        const rawData = await d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`);
         
         // 检查数据结构
         if (rawData.length > 0) {

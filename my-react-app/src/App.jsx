@@ -77,7 +77,7 @@ function App() {
 
   let displayDescription = currentDetail.description;
 
-  // �?Intro 部分的状态联�?
+  // Intro state handling
   if (activeTask === "intro") {
     if (introStage === 1) {
       displayDescription = (
@@ -107,7 +107,7 @@ function App() {
               rel="noreferrer"
               style={{ color: "#2563eb" }}
             >
-              Dataset 1: Global AI Impact on Jobs (2010�?025)
+              Dataset 1: Global AI Impact on Jobs (2010-2025)
             </a>
             <a
               href="https://www.kaggle.com/datasets/sahilislam007/ai-impact-on-job-market-20242030/data"
@@ -129,7 +129,7 @@ function App() {
     } else if (task1Stage === 1) {
       displayDescription = (
         <div>
-          <p><b>2000–2025 Historical Phase</b></p>
+          <p><b>2000-2025 Historical Phase</b></p>
           <p style={{marginTop:"6px"}}>Avg salary = mean of AI Engineer, Data Scientist, and ML Engineer salaries. Colors reveal which economies led in compensation and automation during this era.</p>
           <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see salary breakdown and year-by-year trend.</p>
         </div>
@@ -137,7 +137,7 @@ function App() {
     } else {
       displayDescription = (
         <div>
-          <p><b>2026–2036 Projected Phase</b></p>
+          <p><b>2026-2036 Projected Phase</b></p>
           <p style={{marginTop:"6px"}}>Model projections show how automation intensity and salary levels are expected to diverge across economies as AI matures.</p>
           <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see projected metrics.</p>
         </div>

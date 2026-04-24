@@ -29,7 +29,7 @@ function SummaryStats({ selectedTask }) {
 
   const loadStats = async () => {
     try {
-      const filePath = "/ai_impact_jobs_2010_2025.csv";
+      const filePath = import.meta.env.BASE_URL + "ai_impact_jobs_2010_2025.csv";
 
       const response = await fetch(filePath);
       const text = await response.text();
