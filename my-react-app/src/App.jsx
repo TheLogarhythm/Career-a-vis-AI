@@ -82,16 +82,7 @@ function App() {
     if (introStage === 1) {
       displayDescription = (
         <div>
-          <p>AI's impact on job market is a hot topic and many people discuss this topic.</p>
-          <p style={{ marginTop: "8px" }}>
-            Keywords: <b>Automation Risk, Job Opening, AI Exposure, Wage...</b>
-          </p>
-        </div>
-      );
-    } else if (introStage >= 2) {
-      displayDescription = (
-        <div>
-          <p>Jobs are much more exposed to AI recently. Investigate the data:</p>
+          <p>Jobs are increasingly exposed to AI. The heatmap shows how AI intensity has grown across industries and time periods.</p>
           <div
             style={{
               marginTop: "8px",
@@ -118,6 +109,12 @@ function App() {
               Dataset 2: AI Impact on Job Market (2024-2030)
             </a>
           </div>
+        </div>
+      );
+    } else if (introStage >= 3) {
+      displayDescription = (
+        <div>
+          <p>AI adoption across industries has accelerated in recent years — and there are signs that AI intensity correlates with higher salaries.</p>
         </div>
       );
     }

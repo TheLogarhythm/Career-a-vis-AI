@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
-import WordCloud from "wordcloud";
 import "./introduction.css";
 
 // ─── Heatmap + BarChart Animation Component ─────────────────
-function AIIntensityHeatmap({ showBarChart }) {
+function AIIntensityHeatmap({ showBarChart, tooltipRef }) {
   const containerRef = useRef(null);
-  const tooltipRef   = useRef(null);
   const svgRef = useRef(null);
   const hasAnimated = useRef(false);
 
@@ -14,7 +12,7 @@ function AIIntensityHeatmap({ showBarChart }) {
     if (!containerRef.current) return;
     d3.select(containerRef.current).selectAll("*").remove();
 
-    const svgW = 900;
+    const svgW = 1100;
     const svgH = 450;
     const heatW = 380;
     const heatH = 320;
@@ -23,7 +21,7 @@ function AIIntensityHeatmap({ showBarChart }) {
 
     const svg = d3.select(containerRef.current)
       .append("svg")
-      .attr("viewBox", `0 0 ${svgW} ${svgH}`)
+      .attr("viewBox", `-100 0 ${svgW} ${svgH}`)
       .attr("width", "100%")
       .attr("height", "100%");
 
@@ -31,7 +29,7 @@ function AIIntensityHeatmap({ showBarChart }) {
     const decades = ["2010-2014", "2015-2019", "2020-2025"];
     const data = [];
     const decadeSums = { "2010-2014": 0, "2015-2019": 0, "2020-2025": 0 };
-    
+
     industries.forEach(ind => decades.forEach((dec, i) => {
       const val = 0.1 + i * 0.15 + Math.random() * 0.15;
       data.push({ industry: ind, decade: dec, value: val });
@@ -50,14 +48,12 @@ function AIIntensityHeatmap({ showBarChart }) {
     const xBar = d3.scaleBand().range([0, barW]).domain(decades).padding(0.3);
     const yBar = d3.scaleLinear().domain([0, 0.6]).range([barH, 0]);
 
-    // Groups
     const gHeat = svg.append("g").attr("class", "g-heat").attr("transform", "translate(240, 60)");
-    const gBar = svg.append("g").attr("class", "g-bar").attr("transform", "translate(550, 60)").style("opacity", 0);
+    const gBar = svg.append("g").attr("class", "g-bar").attr("transform", "translate(640, 60)").style("opacity", 0);
     const gFly = svg.append("g").attr("class", "g-fly");
 
-    const tooltipEl = tooltipRef.current;
+    const tooltipEl = tooltipRef?.current;
 
-    // Heatmap Cells
     gHeat.selectAll("rect.cell")
       .data(data).enter().append("rect")
       .attr("x", d => xHeat(d.decade)).attr("y", d => yHeat(d.industry))
@@ -66,36 +62,35 @@ function AIIntensityHeatmap({ showBarChart }) {
       .style("fill", d => color(d.value))
       .style("cursor", "pointer")
       .on("mouseover", (e, d) => {
+        if (!tooltipEl) return;
         tooltipEl.style.opacity = "1";
-        tooltipEl.innerHTML = `<b>${d.industry}</b><br/>Value: <span style="color:${color(d.value)};font-weight:bold">${d.value.toFixed(3)}</span>`;
+        tooltipEl.innerHTML = `<b>${d.industry}</b> · ${d.decade}<br/>AI Intensity: <span style="color:${color(d.value)};font-weight:bold">${d.value.toFixed(3)}</span>`;
       })
       .on("mousemove", (e) => {
+        if (!tooltipEl) return;
         tooltipEl.style.left = (e.clientX + 15) + "px";
         tooltipEl.style.top = (e.clientY - 40) + "px";
       })
-      .on("mouseleave", () => tooltipEl.style.opacity = "0");
+      .on("mouseleave", () => { if (tooltipEl) tooltipEl.style.opacity = "0"; });
 
-    // Heatmap Axes
     gHeat.append("g").attr("transform", `translate(0,${heatH})`).call(d3.axisBottom(xHeat).tickSize(0)).style("font-size","13px").select(".domain").remove();
     gHeat.append("g").call(d3.axisLeft(yHeat).tickSize(0)).style("font-size","13px").select(".domain").remove();
     gHeat.append("text").attr("x", heatW/2).attr("y", -30).attr("text-anchor", "middle").style("font-size","16px").style("font-weight","900").text("General view of AI intensity change");
 
-    // Heatmap Legend
     const lg = gHeat.append("g").attr("transform", `translate(${heatW + 20},0)`);
     const ly = d3.scaleLinear().domain([0.1, 0.6]).range([heatH, 0]);
     lg.selectAll("rect").data(d3.range(0.1, 0.61, 0.01)).enter().append("rect")
       .attr("y", d => ly(d)).attr("width", 12).attr("height", heatH / 50).style("fill", d => color(d));
     lg.append("g").attr("transform", "translate(12,0)").call(d3.axisRight(ly).ticks(5)).select(".domain").remove();
 
-    // Bar Chart Axes
     gBar.append("g").attr("transform", `translate(0,${barH})`).call(d3.axisBottom(xBar)).style("font-size","13px");
     gBar.append("g").call(d3.axisLeft(yBar).ticks(5)).style("font-size","13px");
     gBar.append("text").attr("x", barW/2).attr("y", -30).attr("text-anchor", "middle").style("font-size","16px").style("font-weight","900").style("fill","#ef4444").text("Average Intensity Growth");
 
     svg.append("defs").append("marker").attr("id", "arrowhead").attr("viewBox", "0 -5 10 10").attr("refX", 8).attr("refY", 0).attr("orient", "auto").attr("markerWidth", 6).attr("markerHeight", 6).append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#ef4444");
 
-    svgRef.current = { gHeat, gBar, gFly, decadeAvgs, xHeat, xBar, yBar, color, heatH, barH };
-  }, []);
+    svgRef.current = { gHeat, gBar, gFly, decadeAvgs, xHeat, xBar, yBar, color, barH };
+  }, [tooltipRef]);
 
   useEffect(() => {
     if (!svgRef.current) return;
@@ -103,59 +98,228 @@ function AIIntensityHeatmap({ showBarChart }) {
 
     if (showBarChart && !hasAnimated.current) {
       hasAnimated.current = true;
-      gHeat.transition().duration(1000).attr("transform", "translate(40, 60)");
+      gHeat.transition().duration(1000).attr("transform", "translate(140, 60)");
       gBar.transition().delay(500).duration(500).style("opacity", 1);
       gFly.selectAll("rect.fly").data(decadeAvgs).enter().append("rect").attr("class","fly")
         .attr("fill", d => color(d.value)).attr("rx", 4)
-        .attr("x", d => 40 + xHeat(d.decade)).attr("y", 60)
+        .attr("x", d => 140 + xHeat(d.decade)).attr("y", 60)
         .attr("width", xHeat.bandwidth()).attr("height", 320).style("opacity", 0.7)
         .transition().delay(1000).duration(1200)
-        .attr("x", d => 550 + xBar(d.decade))
+        .attr("x", d => 640 + xBar(d.decade))
         .attr("y", d => 60 + yBar(d.value))
         .attr("width", xBar.bandwidth())
         .attr("height", d => barH - yBar(d.value));
-      const line = d3.line().x(d => 550 + xBar(d.decade) + xBar.bandwidth()/2).y(d => 60 + yBar(d.value)).curve(d3.curveMonotoneX);
+      const line = d3.line().x(d => 640 + xBar(d.decade) + xBar.bandwidth()/2).y(d => 60 + yBar(d.value)).curve(d3.curveMonotoneX);
       const path = gFly.append("path").attr("d", line(decadeAvgs)).attr("fill", "none").attr("stroke", "#ef4444").attr("stroke-width", 3).attr("marker-end", "url(#arrowhead)");
       const len = path.node().getTotalLength();
       path.attr("stroke-dasharray", len).attr("stroke-dashoffset", len).transition().delay(2200).duration(1000).attr("stroke-dashoffset", 0);
     }
   }, [showBarChart]);
 
+  return <div ref={containerRef} style={{ width: "900px", height: "450px" }} />;
+}
+
+// ─── Salary by Industry Bar Chart (colored by AI intensity) ──
+function SalaryByIndustryChart({ visible, tooltipRef }) {
+  const svgRef = useRef(null);
+  const hasDrawn = useRef(false);
+
+  useEffect(() => {
+    if (!visible || hasDrawn.current || !svgRef.current) return;
+    hasDrawn.current = true;
+
+    const container = svgRef.current;
+    d3.select(container).selectAll("*").remove();
+
+    const csvUrl = "/ai_impact_jobs_2010_2025.csv";
+    const margin = { top: 40, right: 110, bottom: 25, left: 130 };
+    const totalW = 510;
+    const totalH = 380;
+    const width = totalW - margin.left - margin.right;
+    const height = totalH - margin.top - margin.bottom;
+
+    d3.csv(csvUrl).then(raw => {
+      const grouped = d3.rollup(
+        raw,
+        v => ({
+          avgSalary: d3.mean(v, d => +d.salary_usd),
+          avgIntensity: d3.mean(v, d => +d.ai_intensity_score),
+          count: v.length,
+        }),
+        d => d.industry
+      );
+
+      const data = Array.from(grouped, ([industry, vals]) => ({
+        industry,
+        ...vals,
+      })).sort((a, b) => b.avgSalary - a.avgSalary);
+
+      const xMax = d3.max(data, d => d.avgSalary);
+      const x = d3.scaleLinear().domain([0, xMax * 1.12]).range([0, width]);
+      const y = d3.scaleBand().domain(data.map(d => d.industry)).range([0, height]).padding(0.25);
+
+      const [iMin, iMax] = d3.extent(data, d => d.avgIntensity);
+      const colorScale = d3.scaleLinear()
+        .domain([iMin, (iMin + iMax) / 2, iMax])
+        .range(["#fca5a5", "#ef4444", "#7f1d1d"]);
+
+      const svg = d3.select(container)
+        .append("svg")
+        .attr("viewBox", `0 0 ${totalW} ${totalH}`)
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .style("opacity", 0);
+
+      const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+      const tooltipEl = tooltipRef?.current;
+
+      g.append("g")
+        .call(d3.axisLeft(y).tickSize(0))
+        .style("font-size", "11px")
+        .select(".domain").remove();
+
+      g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(4).tickFormat(d => `$${Math.round(d / 1000)}k`))
+        .style("font-size", "11px")
+        .select(".domain").remove();
+
+      g.selectAll(".bar")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("y", d => y(d.industry))
+        .attr("x", 0)
+        .attr("height", y.bandwidth())
+        .attr("width", 0)
+        .attr("rx", 4)
+        .attr("fill", d => colorScale(d.avgIntensity))
+        .style("cursor", "pointer")
+        .on("mouseover", (e, d) => {
+          if (!tooltipEl) return;
+          tooltipEl.style.opacity = "1";
+          tooltipEl.innerHTML = `<b>${d.industry}</b><br/>Avg Salary: $${Math.round(d.avgSalary).toLocaleString()}<br/>AI Intensity: ${d.avgIntensity.toFixed(2)}`;
+        })
+        .on("mousemove", (e) => {
+          if (!tooltipEl) return;
+          tooltipEl.style.left = (e.clientX + 15) + "px";
+          tooltipEl.style.top = (e.clientY - 40) + "px";
+        })
+        .on("mouseleave", () => { if (tooltipEl) tooltipEl.style.opacity = "0"; })
+        .transition()
+        .duration(800)
+        .delay((d, i) => i * 60)
+        .attr("width", d => x(d.avgSalary));
+
+      g.append("text")
+        .attr("x", width / 2)
+        .attr("y", -16)
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("font-weight", "700")
+        .style("fill", "#0f172a")
+        .text("Avg Salary by Industry");
+
+      const legendG = svg.append("g").attr("transform", `translate(${margin.left + width + 15}, ${margin.top})`);
+      const legendH = height;
+      const legendScale = d3.scaleLinear().domain([iMin, iMax]).range([legendH, 0]);
+      legendG.selectAll("rect").data(d3.range(iMin, iMax + 0.01, (iMax - iMin) / 30)).enter().append("rect")
+        .attr("y", d => legendScale(d)).attr("width", 12).attr("height", legendH / 30)
+        .attr("fill", d => colorScale(d));
+      legendG.append("g").attr("transform", "translate(12,0)")
+        .call(d3.axisRight(legendScale).ticks(5))
+        .style("font-size", "10px")
+        .select(".domain").remove();
+
+      svg.transition().duration(600).style("opacity", 1);
+    });
+  }, [visible, tooltipRef]);
+
+  return <div ref={svgRef} style={{ width: "510px", height: "380px" }} />;
+}
+
+// ─── Roadmap Steps ──────────────────────────────────────────
+const ROADMAP = [
+  {
+    icon: "🌍",
+    question: "Where to work?",
+    desc: "Global salary & AI intensity distribution across 10 major tech economies",
+  },
+  {
+    icon: "🏭",
+    question: "Which industry is better?",
+    desc: "How different sectors have evolved over the past decade",
+  },
+  {
+    icon: "💰",
+    question: "Does AI really impact salary?",
+    desc: "How AI intensity correlates with wages across industries",
+  },
+  {
+    icon: "📈",
+    question: "Which roles have more openings?",
+    desc: "Job openings analysis & our evaluation for job seekers",
+  },
+];
+
+// ─── Stage 3: Roadmap ───────────────────────────────────────
+function RoadmapView({ scrollPos }) {
+  // Each item fades in over a 50px scroll range, staggered by 60px
   return (
-    <div className="heatmap-wrapper">
-      <div ref={containerRef} style={{ width: "900px", height: "450px" }} />
-      <div ref={tooltipRef} className="heatmap-tooltip" />
+    <div className="roadmap-container">
+      <div className="roadmap-title">
+        <span className="roadmap-title-highlight">To find a job</span>{" "}
+        under AI era, you may wonder:
+      </div>
+
+      <div className="roadmap-track">
+        {/* Vertical connecting line */}
+        <div className="roadmap-line" />
+
+        {ROADMAP.map((item, i) => {
+          const itemStart = i * 60;
+          const opacity = scrollPos < itemStart ? 0 : scrollPos < itemStart + 50
+            ? (scrollPos - itemStart) / 50
+            : 1;
+          const translateY = scrollPos < itemStart ? 16 : scrollPos < itemStart + 50
+            ? 16 * (1 - (scrollPos - itemStart) / 50)
+            : 0;
+
+          return (
+            <div
+              key={i}
+              className="roadmap-node"
+              style={{ opacity, transform: `translateY(${translateY}px)` }}
+            >
+              <div className="roadmap-badge">
+                <span className="roadmap-icon">{item.icon}</span>
+                <span className="roadmap-num">{i + 1}</span>
+              </div>
+              <div className="roadmap-card">
+                <div className="roadmap-question">{item.question}</div>
+                <div className="roadmap-desc">{item.desc}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Scroll prompt */}
+      {scrollPos > 250 && (
+        <div className="roadmap-scroll-hint">
+          <span>Then, scroll down and explore with us</span>
+          <span className="scroll-arrow">↓</span>
+        </div>
+      )}
     </div>
   );
 }
 
+// ─── Main Introduction Component ────────────────────────────
 function Introduction({ scrollParentRef, onStageChange }) {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const canvasRef = useRef(null);
-  const cloudGenerated = useRef(false);
-
-  const HIGHLIGHTS = new Set(["Automation Risk", "Job Opening", "AI Exposure", "Wage Premium"]);
-  const cloudList = [
-    ["Automation Risk", 100], ["Job Opening", 95], ["AI Exposure", 92], ["Wage Premium", 88],
-    ["Future of Work", 78], ["Job Market", 75], ["AI Revolution", 70], ["Worker Impact", 65],
-    ["Augmentation", 62], ["Productivity", 58], ["Displacement", 55], ["Reskilling", 52],
-    ["Skills Gap", 50], ["Digital Shift", 48], ["AI Literacy", 45], ["New Roles", 42],
-    ["Innovation", 38], ["Algorithms", 36], ["Employment", 34], ["Workforce", 32],
-    ["Technology", 30], ["Economy", 28], ["Adaptability", 26], ["Analytics", 24],
-    ["Collaboration", 22], ["Intelligence", 20], ["Soft Skills", 18], ["Upskilling", 17]
-  ];
-  const palette = ["#2563eb", "#7c3aed", "#0891b2", "#4f46e5", "#0f172a"];
-
-  useEffect(() => {
-    if (!canvasRef.current || cloudGenerated.current) return;
-    WordCloud(canvasRef.current, {
-      list: cloudList,
-      gridSize: 6, weightFactor: 1.2, fontFamily: "'Inter','Impact',sans-serif", fontWeight: "700",
-      color: (word) => HIGHLIGHTS.has(word) ? "#ef4444" : palette[Math.floor(Math.random() * palette.length)],
-      rotateRatio: 0.3, backgroundColor: "transparent", shape: "circle", shrinkToFit: true,
-    });
-    cloudGenerated.current = true;
-  }, []);
+  const tooltipRef = useRef(null);
 
   useEffect(() => {
     const container = scrollParentRef?.current;
@@ -163,22 +327,31 @@ function Introduction({ scrollParentRef, onStageChange }) {
     const handle = () => {
       const intro = container.querySelector('[data-section="intro"]');
       if (!intro) return;
-      const pos = Math.min(Math.max(container.scrollTop - intro.offsetTop, 0), 600);
+      const maxScroll = intro.offsetHeight - container.clientHeight;
+      const pos = Math.min(Math.max(container.scrollTop - intro.offsetTop, 0), maxScroll);
       setScrollProgress(pos);
       if (onStageChange) {
-        if (pos < 60) onStageChange(0);
-        else if (pos < 250) onStageChange(1);
-        else onStageChange(2);
+        if (pos < 80) onStageChange(0);
+        else if (pos < 300) onStageChange(1);
+        else if (pos < 550) onStageChange(2);
+        else onStageChange(3);
       }
     };
     container.addEventListener("scroll", handle);
     return () => container.removeEventListener("scroll", handle);
   }, [scrollParentRef, onStageChange]);
 
-  const s0Opacity = Math.max(0, 1 - scrollProgress / 50);
-  const cloudOpacity = scrollProgress < 40 ? 0 : scrollProgress < 200 ? 1 : Math.max(0, 1 - (scrollProgress - 200) / 60);
-  const contentOpacity = scrollProgress < 240 ? 0 : Math.min(1, (scrollProgress - 240) / 60);
-  const showBarChart = scrollProgress > 450;
+  // Stage 0
+  const s0Opacity = Math.max(0, 1 - scrollProgress / 60);
+
+  // Stage 1 + 2
+  const contentOpacity = scrollProgress < 100 ? 0 : Math.min(1, (scrollProgress - 100) / 60);
+  const showBarChart = scrollProgress > 250;
+  const salaryChartVisible = scrollProgress > 400;
+
+  // Stage 3: stage 2 fades out, roadmap fades in
+  const stage2Fade = scrollProgress < 550 ? 1 : Math.max(0, 1 - (scrollProgress - 550) / 80);
+  const stage3Local = Math.max(0, scrollProgress - 580); // 0-based progress within stage 3
 
   return (
     <div className="intro-container" data-section="intro">
@@ -189,23 +362,24 @@ function Introduction({ scrollParentRef, onStageChange }) {
           <p className="pre-intro-text">AI is reshaping the job market. Are you ready?</p>
         </div>
 
-        {/* Stage 1 */}
-        <div className="layer stage-cloud" style={{ opacity: cloudOpacity }}>
-          <h2 className="cloud-title">Key words when people talked about "Job and AI"</h2>
-          <canvas ref={canvasRef} width="900" height="500" />
-          <div className="cloud-sources">
-            <span className="cloud-src-label">Sources:</span>
-            <a className="cloud-src-link" href="https://www.pwc.com/gx/en/issues/artificial-intelligence/job-barometer/2025/methodology-report.pdf" target="_blank" rel="noreferrer">PwC,</a>
-            <a className="cloud-src-link" href="https://www.mckinsey.com" target="_blank" rel="noreferrer">McKinsey,</a>
-            <a className="cloud-src-link" href="https://www.oecd.org" target="_blank" rel="noreferrer">OECD</a>
+        {/* Stage 1 + 2 — combined in one card */}
+        <div className="layer stage-content" style={{ opacity: contentOpacity * stage2Fade, pointerEvents: contentOpacity * stage2Fade > 0.1 ? 'auto' : 'none' }}>
+          <div className="charts-wrapper">
+            <AIIntensityHeatmap showBarChart={showBarChart} tooltipRef={tooltipRef} />
+            <div className={`chart-right ${salaryChartVisible ? 'visible' : ''}`}>
+              <SalaryByIndustryChart visible={salaryChartVisible} tooltipRef={tooltipRef} />
+            </div>
           </div>
         </div>
 
-        {/* Stage 2 */}
-        <div className="layer stage-content" style={{ opacity: contentOpacity, pointerEvents: contentOpacity > 0.1 ? 'auto' : 'none' }}>
-           <AIIntensityHeatmap showBarChart={showBarChart} />
+        {/* Stage 3 — Roadmap */}
+        <div className="layer layer-roadmap" style={{ opacity: 1 - stage2Fade }}>
+          <RoadmapView scrollPos={stage3Local} />
         </div>
       </div>
+
+      {/* Shared tooltip */}
+      <div ref={tooltipRef} className="chart-tooltip" />
     </div>
   );
 }
