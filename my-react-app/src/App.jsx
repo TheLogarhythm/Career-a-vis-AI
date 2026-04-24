@@ -45,7 +45,10 @@ function App() {
   const rightContainerRef = useRef(null);
   const [introStage, setIntroStage] = useState(0);
   const [task1Stage, setTask1Stage] = useState(0);
+  const transitionRef = useRef(null);
+  const earthRef = useRef(null);
 
+  // Intersection observer for active section
   useEffect(() => {
     const options = {
       root: rightContainerRef.current,
@@ -68,9 +71,47 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
+  // Scroll-driven earth animation: fade in from left → slide right
+  useEffect(() => {
+    const container = rightContainerRef.current;
+    if (!container) return;
+    const handle = () => {
+      const band = transitionRef.current;
+      const earth = earthRef.current;
+      if (!band || !earth) return;
+
+      const bandRect = band.getBoundingClientRect();
+      const viewportH = container.clientHeight;
+      const totalTravel = viewportH + bandRect.height;
+      const traveled = viewportH - bandRect.top;
+      const p = Math.max(0, Math.min(1, traveled / totalTravel));
+
+      // Phase 1 (0–0.3): fade in from left
+      // Phase 2 (0.3–1.0): slide right
+      let opacity, tx, bgx;
+      if (p < 0.3) {
+        const t = p / 0.3;
+        opacity = t;
+        tx = -350 * (1 - t);
+        bgx = 0;
+      } else {
+        const t = (p - 0.3) / 0.7;
+        opacity = 1; // 保持透明度为1，不再消失
+        tx = Math.min(t * 280, 200); // 限制向右移动的最大距离
+        bgx = t * 3500;
+      }
+
+      earth.style.opacity = opacity;
+      earth.style.transform = `translateX(${tx}px)`;
+      earth.style.backgroundPositionX = `-${bgx}px`;
+    };
+    container.addEventListener("scroll", handle, { passive: true });
+    handle();
+    return () => container.removeEventListener("scroll", handle);
+  }, []);
+
   const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.intro;
 
-  // 调试用：如果 activeTask 没有匹配到配置，输出警告
   if (!TASK_DETAILS[activeTask] && process.env.NODE_ENV === "development") {
     console.warn(`⚠️ No task detail found for: ${activeTask}`);
   }
@@ -125,7 +166,6 @@ function App() {
       );
     }
   }
-  // �?Section1 部分 - 使用 task1Stage 而非 introStage
   else if (activeTask === "section1") {
     if (task1Stage === 0) {
       displayDescription = "10 major tech economies mapped. Scroll down to reveal how AI investment and automation reshaped the global job market.";
@@ -163,6 +203,12 @@ function App() {
 
       {/* SCROLLABLE RIGHT SIDE */}
       <div className="right-container" ref={rightContainerRef}>
+        
+        {/* 新增：STICKY EARTH BACKGROUND - 固定在屏幕底层的地球图层 */}
+        <div className="earth-sticky-layer">
+          <div className="earth-viewport" ref={earthRef} />
+        </div>
+
         {/* Intro Section */}
         <section
           className="task-section"
@@ -176,12 +222,15 @@ function App() {
         </section>
 
         {/* Transition Banner */}
-        <div className="transition-band">
-          <h2>How does this impact look globally?</h2>
-          <p>
-            We mapped out the AI job distributions to see which regions are
-            leading the revolution.
-          </p>
+        <div className="transition-band" ref={transitionRef}>
+          <div className="transition-content">
+            <h2>First stop: the world map.</h2>
+            <p>
+              10 major economies, 15 years of data — let's see how salary
+              and AI intensity distribute across the globe.
+            </p>
+          </div>
+          {/* 这里原本的 .earth-viewport 已经被移动到了顶层的 earth-sticky-layer 中 */}
         </div>
 
         {/* Task1 - Location */}
