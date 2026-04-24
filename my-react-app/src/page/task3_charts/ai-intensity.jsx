@@ -3,9 +3,14 @@ import * as d3 from "d3";
 
 function AiIntensityHeatmap() {
   const [data, setData] = useState([]);
+  const [jobDensityData, setJobDensityData] = useState([]);
+  const [segmentedContainerWidth, setSegmentedContainerWidth] = useState(980);
   const [intensityThreshold, setIntensityThreshold] = useState(0.5); 
   const svgRef = useRef(null);
+  const segmentedSvgRef = useRef(null);
+  const segmentedContainerRef = useRef(null);
   const tooltipRef = useRef(null);
+  const segmentedTooltipRef = useRef(null);
 
   const width = 800;
   const height = 480; 
@@ -22,6 +27,40 @@ function AiIntensityHeatmap() {
       }));
       setData(parsedData);
     }).catch((error) => console.error(error));
+
+    d3.csv(`${baseUrl}jobstreet_all_job_dataset.csv`).then((raw) => {
+      const parsed = raw
+        .map((d) => ({
+          category: (d.category || "").trim(),
+          subcategory: (d.subcategory || "").trim(),
+        }))
+        .filter((d) => d.category && d.subcategory);
+
+      const categorySegments = d3
+        .rollups(parsed, (v) => v.length, (d) => d.category, (d) => d.subcategory)
+        .map(([category, subcategories]) => ({
+          category,
+          total: d3.sum(subcategories, ([, count]) => count),
+          segments: subcategories
+            .map(([subcategory, count]) => ({ subcategory, count }))
+            .sort((a, b) => d3.descending(a.count, b.count)),
+        }))
+        .sort((a, b) => d3.descending(a.total, b.total));
+
+      setJobDensityData(categorySegments);
+    }).catch((error) => console.error(error));
+  }, []);
+
+  useEffect(() => {
+    if (!segmentedContainerRef.current || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect?.width;
+      if (width) setSegmentedContainerWidth(width);
+    });
+
+    observer.observe(segmentedContainerRef.current);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -182,8 +221,135 @@ function AiIntensityHeatmap() {
 
   }, [intensityThreshold, data]);
 
+  useEffect(() => {
+    if (jobDensityData.length === 0) return;
+
+    const segmentedWidth = Math.max(860, Math.floor(segmentedContainerWidth || 860));
+    const segmentedHeight = Math.max(520, jobDensityData.length * 26 + 170);
+    const segmentedMargin = { top: 50, right: 40, bottom: 45, left: 260 };
+
+    const svg = d3.select(segmentedSvgRef.current);
+    const tooltip = d3.select(segmentedTooltipRef.current);
+    svg.selectAll("*").remove();
+
+    const innerWidth = segmentedWidth - segmentedMargin.left - segmentedMargin.right;
+    const innerHeight = segmentedHeight - segmentedMargin.top - segmentedMargin.bottom;
+
+    const categoryColorScale = d3
+      .scaleOrdinal()
+      .domain(jobDensityData.map((d) => d.category))
+      .range(
+        jobDensityData.map((_, i) =>
+          d3.interpolateTurbo(i / Math.max(jobDensityData.length - 1, 1))
+        )
+      );
+
+    const xScale = d3
+      .scaleLinear()
+      .domain([0, d3.max(jobDensityData, (d) => d.total) || 0])
+      .nice()
+      .range([0, innerWidth]);
+
+    const yScale = d3
+      .scaleBand()
+      .domain(jobDensityData.map((d) => d.category))
+      .range([0, innerHeight])
+      .padding(0.16);
+
+    const colorBySegmentIndex = (baseColor, idx, totalSegments) => {
+      const base = d3.hsl(baseColor);
+      const ratio = totalSegments > 1 ? idx / (totalSegments - 1) : 0;
+      const lightness = Math.min(0.88, base.l + ratio * 0.38);
+      const saturation = Math.max(0.28, base.s - ratio * 0.25);
+      return d3.hsl(base.h, saturation, lightness).formatHex();
+    };
+
+    const segmentData = jobDensityData.flatMap((categoryRow) => {
+      const baseColor = categoryColorScale(categoryRow.category);
+      let cumulative = 0;
+
+      return categoryRow.segments.map((segment, idx) => {
+        const start = cumulative;
+        cumulative += segment.count;
+
+        return {
+          category: categoryRow.category,
+          subcategory: segment.subcategory,
+          segmentCount: segment.count,
+          total: categoryRow.total,
+          x0: start,
+          x1: cumulative,
+          color: colorBySegmentIndex(baseColor, idx, categoryRow.segments.length),
+        };
+      });
+    });
+
+    const mainGroup = svg
+      .attr("width", segmentedWidth)
+      .attr("height", segmentedHeight)
+      .append("g")
+      .attr("transform", `translate(${segmentedMargin.left},${segmentedMargin.top})`);
+
+    mainGroup
+      .append("g")
+      .call(d3.axisLeft(yScale))
+      .selectAll("text")
+      .style("font-size", "11px");
+
+    mainGroup
+      .append("g")
+      .attr("transform", `translate(0,${innerHeight})`)
+      .call(d3.axisBottom(xScale).ticks(8).tickFormat(d3.format(",")));
+
+    mainGroup
+      .append("text")
+      .attr("x", innerWidth / 2)
+      .attr("y", innerHeight + 36)
+      .attr("text-anchor", "middle")
+      .style("font-size", "13px")
+      .style("fill", "#1f2937")
+      .text("Number of Jobs");
+
+    mainGroup
+      .selectAll(".category-segment")
+      .data(segmentData)
+      .enter()
+      .append("rect")
+      .attr("class", "category-segment")
+      .attr("x", (d) => xScale(d.x0))
+      .attr("y", (d) => yScale(d.category) || 0)
+      .attr("width", (d) => Math.max(0, xScale(d.x1) - xScale(d.x0)))
+      .attr("height", yScale.bandwidth())
+      .attr("fill", (d) => d.color)
+      .attr("stroke", "#ffffff")
+      .attr("stroke-width", 0.8)
+      .on("mouseover", function(event, d) {
+        const percentage = d.total > 0 ? (d.segmentCount / d.total) * 100 : 0;
+        tooltip.style("opacity", 1);
+        tooltip.html(
+          `<strong>${d.category}</strong><br/>Subcategory: ${d.subcategory}<br/>Jobs: ${d.segmentCount}<br/>Share: ${percentage.toFixed(1)}%`
+        );
+        d3.select(this).attr("stroke", "#111827").attr("stroke-width", 1.2);
+      })
+      .on("mousemove", function(event) {
+        const [x, y] = d3.pointer(event, segmentedSvgRef.current);
+        tooltip
+          .style("left", `${x + 15}px`)
+          .style("top", `${y + 15}px`);
+      })
+      .on("mouseout", function() {
+        tooltip.style("opacity", 0);
+        d3.select(this).attr("stroke", "#ffffff").attr("stroke-width", 0.8);
+      });
+
+    svg
+      .attr("viewBox", `0 0 ${segmentedWidth} ${segmentedHeight}`)
+      .attr("preserveAspectRatio", "xMinYMin meet");
+
+  }, [jobDensityData, segmentedContainerWidth]);
+
   return (
-    <div style={{ position: "relative", width: `${width}px`, margin: "0 auto", textAlign: "center", fontFamily: "sans-serif" }}>
+    <div style={{ position: "relative", width: "100%", maxWidth: "980px", margin: "0 auto", textAlign: "center", fontFamily: "sans-serif" }}>
       <h2>Job Density: Industry vs. Salary Brackets</h2>
       
       <svg ref={svgRef}></svg>
@@ -219,6 +385,35 @@ function AiIntensityHeatmap() {
           onChange={(e) => setIntensityThreshold(+e.target.value)}
           style={{ width: "80%", cursor: "pointer" }}
         />
+      </div>
+
+      <div
+        ref={segmentedContainerRef}
+        style={{ marginTop: "36px", textAlign: "left", position: "relative", background: "#ffffff", borderRadius: "10px", width: "100%", overflowX: "hidden" }}
+      >
+        <h3 style={{ textAlign: "center", marginBottom: "6px" }}>Job Count by Category (Segmented by Subcategory)</h3>
+        <p style={{ textAlign: "center", marginTop: 0, color: "#4b5563", fontSize: "12px" }}>
+          Each horizontal bar is a category, and each segment represents its subcategory job count.
+        </p>
+
+        <svg ref={segmentedSvgRef} style={{ width: "100%", height: "auto", display: "block" }}></svg>
+
+        <div
+          ref={segmentedTooltipRef}
+          style={{
+            position: "absolute",
+            opacity: 0,
+            backgroundColor: "white",
+            border: "1px solid #ddd",
+            padding: "8px",
+            borderRadius: "4px",
+            pointerEvents: "none",
+            fontSize: "12px",
+            textAlign: "left",
+            boxShadow: "0px 2px 5px rgba(0,0,0,0.15)",
+            zIndex: 10
+          }}
+        ></div>
       </div>
     </div>
   );
