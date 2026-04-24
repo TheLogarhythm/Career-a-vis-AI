@@ -111,10 +111,16 @@ function App() {
           </div>
         </div>
       );
+    } else if (introStage === 2) {
+      displayDescription = (
+        <div>
+          <p>AI adoption across industries has accelerated — and there are signs that AI intensity correlates with higher salaries.</p>
+        </div>
+      );
     } else if (introStage >= 3) {
       displayDescription = (
         <div>
-          <p>AI adoption across industries has accelerated in recent years — and there are signs that AI intensity correlates with higher salaries.</p>
+          <p>Ready to explore? We'll walk through four key questions to help you navigate the AI-driven job market.</p>
         </div>
       );
     }
