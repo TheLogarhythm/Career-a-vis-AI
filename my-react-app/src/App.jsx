@@ -3,7 +3,7 @@ import Introduction from "./page/introduction";
 import Task1 from "./page/task1";
 import Task2 from "./page/task2";
 import AiWordGraph from "./page/task3_charts/ai-keyword";
-import Radar from "./page/task3_charts/radar";
+import Radar, { DraggablePie } from "./page/task3_charts/radar"; 
 import AiIntensity from "./page/task3_charts/ai-intensity";
 import LinechartComponent from "./page/task3_charts/linechart";
 import Task4 from "./page/task4";
@@ -47,7 +47,24 @@ function App() {
   const [task1Stage, setTask1Stage] = useState(0);
   const transitionRef = useRef(null);
   const earthRef = useRef(null);
-
+   const [weights, setWeights] = useState({
+    salary_usd: 1,
+    ai_intensity_score: 1,
+    automation_risk_score: 1,
+    reskilling_rate: 1,
+    displacement_risk: 1,
+    skill_complexity: 1
+  });
+const [activeMetrics, setActiveMetrics] = useState(
+  Object.keys({
+    salary_usd: 1, 
+    ai_intensity_score: 1, 
+    automation_risk_score: 1,
+    reskilling_rate: 1, 
+    displacement_risk: 1, 
+    skill_complexity: 1
+  }).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+);
   // Intersection observer for active section
   useEffect(() => {
     const options = {
@@ -197,6 +214,14 @@ function App() {
           <h2>{currentDetail.title}</h2>
           <div className="description" style={{ whiteSpace: "pre-wrap" }}>
             {displayDescription}
+            {activeTask === "section3a" && (
+              <div style={{ marginTop: "24px", borderTop: "1px solid #eee", paddingTop: "20px" }}>
+                <DraggablePie  weights={weights} 
+                  setWeights={setWeights} 
+                  activeMetrics={activeMetrics} 
+                   />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -253,7 +278,7 @@ function App() {
 
         {/* Radar - AI Risk Comparison (section3a) */}
         <section className="task-section" data-task="section3a">
-          <Radar scrollParentRef={rightContainerRef} />
+          <Radar scrollParentRef={rightContainerRef} weights={weights} />
         </section>
 
         {/* Task4 - Evaluation */}
@@ -269,3 +294,4 @@ function App() {
 }
 
 export default App;
+
