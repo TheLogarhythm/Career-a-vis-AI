@@ -66,6 +66,33 @@ const [activeMetrics, setActiveMetrics] = useState(
     skill_complexity: 1
   }).reduce((acc, key) => ({ ...acc, [key]: true }), {})
 );
+  // Visualization badges available in public/VisualizationBadges
+  const visualizationBadges = [
+    "Aggregated_Data.png",
+    "AI-Generated_Data.png",
+    "Can_Mouse_Over.png",
+    "Can_Sort_&_Filter.png",
+    "Contains_Predictions.png",
+    "Correlation_≠_Causation.png",
+    "Dataset_Linked.png",
+    "Data_Normalized.png",
+    "Data_Quality_Constraints.png",
+    "Details-on-Demand.png",
+    "Human-Verified_AI.png",
+    "Open_Data.png"
+  ];
+  // Map specific badges to app sections / stage keys (descKey)
+  const BADGE_MAP = {
+    // Intro stage where datasets are shown
+    "intro-1": ["AI-Generated_Data.png", "Dataset_Linked.png", "Open_Data.png"],
+    // Location Consideration: historical and projected phases
+    "section1-1": ["Can_Mouse_Over.png"],
+    "section1-2": ["Can_Mouse_Over.png"],
+    // Across Industries
+    "section2": ["Aggregated_Data.png", "Data_Normalized.png"],
+    // Trend: Historical Analysis
+    "section3b": ["Can_Sort_&_Filter.png"],
+  };
   // Intersection observer for active section
   useEffect(() => {
     const options = {
@@ -218,6 +245,9 @@ const [activeMetrics, setActiveMetrics] = useState(
       ? `section1-${task1Stage}`
       : activeTask;
 
+  // pick badges for current view: exact descKey, or fallback to activeTask
+  const badgesToShow = BADGE_MAP[descKey] || BADGE_MAP[activeTask] || [];
+
   useEffect(() => {
     // On first mount, just set the content without animation
     if (!leftDescRef.current) {
@@ -254,6 +284,19 @@ const [activeMetrics, setActiveMetrics] = useState(
               </div>
             )}
           </div>
+          {badgesToShow.length > 0 && (
+            <div className="visualization-badges" aria-label="Visualization badges">
+              {badgesToShow.map((f) => (
+                <img
+                  key={f}
+                  src={`/VisualizationBadges/${encodeURIComponent(f)}`}
+                  alt={f.replace(/[_-]/g, ' ')}
+                  className="vis-badge"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
