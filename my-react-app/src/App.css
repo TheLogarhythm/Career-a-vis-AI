@@ -49,8 +49,8 @@ body, html {
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { transform: translateX(-20px); }
+  to { transform: translateX(0); }
 }
 
 .badge {
@@ -66,6 +66,20 @@ body, html {
 
 .description {
   margin-top: 15px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 260ms ease, transform 260ms ease;
+  will-change: opacity, transform;
+}
+
+.description.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.description.fade-out {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 /* RIGHT SIDE: Scrollable */
@@ -120,6 +134,12 @@ body, html {
   font-size: 17px;
   color: #64748b;
   line-height: 1.7;
+}
+
+.inline-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+  display: inline-block;
 }
 
 /* 新增：地球图层的粘性容器，它会让地球永远固定在右侧屏幕视野内 */

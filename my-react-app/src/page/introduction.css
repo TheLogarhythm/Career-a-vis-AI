@@ -157,6 +157,10 @@
   font-size: 22px;
 }
 
+.roadmap-icon-svg {
+  color: #2563eb;
+}
+
 .roadmap-num {
   position: absolute;
   top: -6px;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
 import "./introduction.css";
+import { Globe, Briefcase, DollarSign, BarChart2 } from "lucide-react";
 
 // ─── Heatmap + BarChart Animation Component ─────────────────
 function AIIntensityHeatmap({ showBarChart, tooltipRef }) {
@@ -242,22 +243,22 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
 // ─── Roadmap Steps ──────────────────────────────────────────
 const ROADMAP = [
   {
-    icon: "🌍",
+    icon: <Globe size={20} className="roadmap-icon-svg" />,
     question: "Where to work?",
     desc: "Global salary & AI intensity distribution across 10 major tech economies",
   },
   {
-    icon: "🏭",
+    icon: <Briefcase size={20} className="roadmap-icon-svg" />,
     question: "Which industry is better?",
     desc: "How different sectors have evolved over the past decade",
   },
   {
-    icon: "💰",
+    icon: <DollarSign size={20} className="roadmap-icon-svg" />,
     question: "Does AI really impact salary?",
     desc: "How AI intensity correlates with wages across industries",
   },
   {
-    icon: "📈",
+    icon: <BarChart2 size={20} className="roadmap-icon-svg" />,
     question: "Which roles have more openings?",
     desc: "Job openings analysis & our evaluation for job seekers",
   },

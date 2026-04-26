@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+﻿import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import "./task1.css";
+import { DollarSign, Bot } from "lucide-react";
 
 const baseUrl = import.meta.env.BASE_URL || "/";
 
-// ── Mapping: TopoJSON .name → DS1 region ─────────────────────────────────
+// Mapping: TopoJSON .name -> DS1 region
 // (DS1 region values: North America / South America / Europe / East Asia /
 //  South Asia / Southeast Asia / Middle East / Africa / Oceania)
 const GEO_TO_DS1_REGION = {
@@ -92,7 +93,7 @@ const GEO_TO_DS1_REGION = {
   "New Zealand": "Oceania",
 };
 
-// ── Mapping: TopoJSON .name → Continent (for DS2) ────────────────────────
+// Mapping: TopoJSON .name -> Continent (for DS2)
 const GEO_TO_CONTINENT = {
   "United States of America": "North America",
   "Canada": "North America",
@@ -166,7 +167,7 @@ const GEO_TO_CONTINENT = {
   "New Zealand": "Oceania",
 };
 
-// ── DS2 Location string → Continent ──────────────────────────────────────
+// DS2 Location string -> Continent
 const DS2_LOC_TO_CONTINENT = {
   "UK": "Europe",
   "USA": "North America",
@@ -252,18 +253,18 @@ function Task1({ scrollParentRef, onStageChange }) {
   const [ds1, setDs1] = useState(null);
   const [ds2, setDs2] = useState(null);
 
-  // ── Load data ───────────────────────────────────────────────────────────
+  // Load data
   useEffect(() => {
     Promise.all([
-      d3.json(`${baseUrl}world-110m.json`),       // local file — has properties.name already
+      d3.json(`${baseUrl}world-110m.json`),       // local file (has properties.name already)
       d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`),
       d3.csv(`${baseUrl}ai_job_trends_dataset.csv`),
     ]).then(([world, csv1, csv2]) => {
-      // geo features — local file already has name in properties
+      // geo features - local file already has name in properties
       const features = topojson.feature(world, world.objects.countries).features;
       setGeoData(features);
 
-      // ── DS1: group by `region` (lowercase column name confirmed) ──
+      // DS1: group by `region` (lowercase column name confirmed)
       const regionGroups = d3.group(csv1, (d) => d.region);
       const ds1Map = new Map();
       for (const [region, rows] of regionGroups) {
@@ -286,7 +287,7 @@ function Task1({ scrollParentRef, onStageChange }) {
       }
       setDs1(ds1Map);
 
-      // ── DS2: group Location → continent ──
+      // DS2: group Location -> continent
       const continentAccum = new Map();
       csv2.forEach((d) => {
         const loc = d.Location;
@@ -318,7 +319,7 @@ function Task1({ scrollParentRef, onStageChange }) {
     });
   }, []);
 
-  // ── Scroll listener ─────────────────────────────────────────────────────
+  // Scroll listener
   useEffect(() => {
     const container = scrollParentRef?.current;
     if (!container) return;
@@ -336,7 +337,7 @@ function Task1({ scrollParentRef, onStageChange }) {
     return () => container.removeEventListener("scroll", handle);
   }, [scrollParentRef, onStageChange]);
 
-  // ── Render map ──────────────────────────────────────────────────────────
+  // Render map
   useEffect(() => {
     if (!geoData || !ds1 || !ds2 || !svgRef.current) return;
 
@@ -392,7 +393,7 @@ function Task1({ scrollParentRef, onStageChange }) {
     // Build tooltip HTML
     const buildTip = (geoName) => {
       if (frame === "base") {
-        return `<div class="tp-title">${geoName}</div><div class="tp-note">Scroll down to reveal data →</div>`;
+        return `<div class="tp-title">${geoName}</div><div class="tp-note">Scroll down to reveal data</div>`;
       }
 
       if (frame === "ds1") {
@@ -410,7 +411,7 @@ function Task1({ scrollParentRef, onStageChange }) {
         }).join("");
         return `
           <div class="tp-title">${region}</div>
-          <div class="tp-subtitle">2010–2025 · ${metric === "salary" ? "Avg Salary" : "Avg AI Intensity"}: <b>${avgLabel}</b></div>
+          <div class="tp-subtitle">2010-2025 · ${metric === "salary" ? "Avg Salary" : "Avg AI Intensity"}: <b>${avgLabel}</b></div>
           <div class="tp-divider"></div>
           <div class="tp-country-header">Some average data of the country in ${region}:</div>
           ${rows}
@@ -433,7 +434,7 @@ function Task1({ scrollParentRef, onStageChange }) {
       }).join("");
       return `
         <div class="tp-title">${continent}</div>
-        <div class="tp-subtitle">2024–2030 · ${metric === "salary" ? "Avg Salary" : "Avg AI Risk"}: <b>${avgLabel}</b></div>
+        <div class="tp-subtitle">2024-2030 · ${metric === "salary" ? "Avg Salary" : "Avg AI Risk"}: <b>${avgLabel}</b></div>
         <div class="tp-divider"></div>
         <div class="tp-country-header">Countries in this continent:</div>
         ${rows}
@@ -476,7 +477,7 @@ function Task1({ scrollParentRef, onStageChange }) {
         const hiStr = metric === "salary" ? `$${Math.round(hi / 1000)}k` : `${(hi * 100).toFixed(0)}%`;
         return `<div class="legend-bin">
           <span class="legend-swatch" style="background:${color}"></span>
-          <span>${loStr} – ${hiStr}</span>
+          <span>${loStr} — ${hiStr}</span>
         </div>`;
       }).join("");
     }
@@ -496,7 +497,7 @@ function Task1({ scrollParentRef, onStageChange }) {
     }
     if (badgeSub) {
       badgeSub.textContent = frame === "base"
-        ? "Three stages: blank → historical regions → future continents"
+        ? "Three stages: blank · historical regions · future continents"
         : frame === "ds1"
           ? "Colored by Region · Hover for country breakdown"
           : "Colored by Continent · Hover for country breakdown";
@@ -511,7 +512,7 @@ function Task1({ scrollParentRef, onStageChange }) {
 
         <div className="dataset-badge">
           <div className="badge-main">Scroll to reveal AI impact data</div>
-          <div className="badge-sub">Three stages: blank → historical regions → future continents</div>
+          <div className="badge-sub">Three stages: blank · historical regions · future continents</div>
         </div>
 
         <svg ref={svgRef} viewBox="0 0 1000 500" className="task1-map-svg" />
@@ -527,8 +528,12 @@ function Task1({ scrollParentRef, onStageChange }) {
         </div>
 
         <div className="metric-toggle">
-          <button className={metric === "salary" ? "active" : ""} onClick={() => setMetric("salary")}>💰 Avg Salary</button>
-          <button className={metric === "intensity" ? "active" : ""} onClick={() => setMetric("intensity")}>🤖 AI Intensity / Risk</button>
+          <button className={metric === "salary" ? "active" : ""} onClick={() => setMetric("salary")}>
+            <DollarSign size={16} className="icon" /> Avg Salary
+          </button>
+          <button className={metric === "intensity" ? "active" : ""} onClick={() => setMetric("intensity")}>
+            <Bot size={16} className="icon" /> AI Intensity / Risk
+          </button>
         </div>
 
         <div className="legend-container">

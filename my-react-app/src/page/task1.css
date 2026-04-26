@@ -93,6 +93,11 @@
   font-family: inherit;
   white-space: nowrap;
 }
+.metric-toggle .icon {
+  margin-right: 8px;
+  vertical-align: middle;
+  display: inline-block;
+}
 .metric-toggle button:hover {
   background: #f1f5f9;
   color: #0f172a;

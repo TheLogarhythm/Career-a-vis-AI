@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { BookOpen, Globe, Briefcase, MessageCircle, BarChart2, Zap } from "lucide-react";
 import Introduction from "./page/introduction";
 import Task1 from "./page/task1";
 import Task2 from "./page/task2";
@@ -6,12 +7,12 @@ import AiWordGraph from "./page/task3_charts/ai-keyword";
 import Radar, { DraggablePie } from "./page/task3_charts/radar"; 
 import AiIntensity from "./page/task3_charts/ai-intensity";
 import LinechartComponent from "./page/task3_charts/linechart";
-import Task4 from "./page/task4";
+// import Task4 from "./page/task4"; // temporarily disabled per user request
 import "./App.css";
 
 const TASK_DETAILS = {
   intro: {
-    title: "📖 Introduction",
+    title: (<><BookOpen size={18} className="inline-icon" /> Introduction</>),
     description:
       "Nowadays, AI's impact on the job market is a hot topic.\n\n" +
       "AI automation risk, job openings, AI exposure, and wage are key factors in this discussion.\n\n" +
@@ -19,25 +20,25 @@ const TASK_DETAILS = {
       "Details of the datasets are provided with links below.",
   },
   section1: {
-    title: "🌍 Location Consideration",
+    title: (<><Globe size={18} className="inline-icon" /> Location Consideration</>),
     description: "In this section, we analyze the geographic distribution of data.",
   },
   section2: {
-    title: "🏭 Across Industries",
+    title: (<><Briefcase size={18} className="inline-icon" /> Across Industries</>),
     description: "Analyzing how metrics have shifted over the last decade across different sectors.",
   },
   section3a: {
-    title: "💬 How AI automation risk affected",
+    title: (<><MessageCircle size={18} className="inline-icon" /> How AI automation risk affected</>),
     description: "Compare how different industries intersect with regional AI profiles and automation risks.",
   },
   section3b: {
-    title: "📊 Trend: Historical Analysis",
+    title: (<><BarChart2 size={18} className="inline-icon" /> Trend: Historical Analysis</>),
     description: "Detailed drill-down into historical performance trends.",
   },
-  section4: {
-    title: "🔮 An Evaluation",
+  /* section4: {
+    title: (<><Zap size={18} className="inline-icon" /> An Evaluation</>),
     description: "Forecasting the next 5 years based on current data models.",
-  },
+  }, */
 };
 
 function App() {
@@ -205,6 +206,36 @@ const [activeMetrics, setActiveMetrics] = useState(
     }
   }
 
+  // Left-panel description fade state: only animate when the actual
+  // content key changes (prevents repeated fades when JSX identity changes)
+  const leftDescRef = useRef(false);
+  const [leftDesc, setLeftDesc] = useState(displayDescription);
+  const [leftDescVisible, setLeftDescVisible] = useState(true);
+
+  const descKey = activeTask === "intro"
+    ? `intro-${introStage}`
+    : activeTask === "section1"
+      ? `section1-${task1Stage}`
+      : activeTask;
+
+  useEffect(() => {
+    // On first mount, just set the content without animation
+    if (!leftDescRef.current) {
+      leftDescRef.current = true;
+      setLeftDesc(displayDescription);
+      setLeftDescVisible(true);
+      return;
+    }
+
+    // If the key changed, animate: fade out → swap → fade in
+    setLeftDescVisible(false);
+    const timeout = setTimeout(() => {
+      setLeftDesc(displayDescription);
+      setLeftDescVisible(true);
+    }, 260); // match CSS transition duration
+    return () => clearTimeout(timeout);
+  }, [descKey]);
+
   return (
     <div className="web-container">
       {/* FIXED LEFT SIDE */}
@@ -212,8 +243,8 @@ const [activeMetrics, setActiveMetrics] = useState(
         <div className="detail-card">
           <span className="badge">Current Stage</span>
           <h2>{currentDetail.title}</h2>
-          <div className="description" style={{ whiteSpace: "pre-wrap" }}>
-            {displayDescription}
+          <div className={`description ${leftDescVisible ? "fade-in" : "fade-out"}`} style={{ whiteSpace: "pre-wrap" }}>
+            {leftDesc}
             {activeTask === "section3a" && (
               <div style={{ marginTop: "24px", borderTop: "1px solid #eee", paddingTop: "20px" }}>
                 <DraggablePie  weights={weights} 
@@ -281,10 +312,11 @@ const [activeMetrics, setActiveMetrics] = useState(
           <Radar scrollParentRef={rightContainerRef} weights={weights} />
         </section>
 
-        {/* Task4 - Evaluation */}
+        {/*
         <section className="task-section" data-task="section4">
           <Task4 />
         </section>
+        */}
 
         {/* Bottom Spacer for smooth scroll ending */}
         <div className="bottom-spacer" />
