@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import Introduction from "./page/introduction";
 import Task1 from "./page/task1";
 import Task2 from "./page/task2";
+import TransitionSection from "./components/TransitionSection";
 import AiWordGraph from "./page/task3_charts/ai-keyword";
-import Radar, { DraggablePie } from "./page/task3_charts/radar"; 
+import Radar, { DraggablePie } from "./page/task3_charts/radar";
 import AiIntensity from "./page/task3_charts/ai-intensity";
 import LinechartComponent from "./page/task3_charts/linechart";
 import Task4 from "./page/task4";
@@ -45,8 +46,6 @@ function App() {
   const rightContainerRef = useRef(null);
   const [introStage, setIntroStage] = useState(0);
   const [task1Stage, setTask1Stage] = useState(0);
-  const transitionRef = useRef(null);
-  const earthRef = useRef(null);
    const [weights, setWeights] = useState({
     salary_usd: 1,
     ai_intensity_score: 1,
@@ -57,11 +56,11 @@ function App() {
   });
 const [activeMetrics, setActiveMetrics] = useState(
   Object.keys({
-    salary_usd: 1, 
-    ai_intensity_score: 1, 
+    salary_usd: 1,
+    ai_intensity_score: 1,
     automation_risk_score: 1,
-    reskilling_rate: 1, 
-    displacement_risk: 1, 
+    reskilling_rate: 1,
+    displacement_risk: 1,
     skill_complexity: 1
   }).reduce((acc, key) => ({ ...acc, [key]: true }), {})
 );
@@ -87,50 +86,6 @@ const [activeMetrics, setActiveMetrics] = useState(
 
     return () => observer.disconnect();
   }, []);
-
-  // Scroll-driven earth animation: fade in from left → slide right
-  useEffect(() => {
-  const container = rightContainerRef.current;
-  if (!container) return;
-
-  // 缓动函数：让动画启动快、结尾慢，更自然
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-  const handle = () => {
-    const band = transitionRef.current;
-    const earth = earthRef.current;
-    if (!band || !earth) return;
-
-    const bandRect = band.getBoundingClientRect();
-    const viewportH = container.clientHeight;
-    const totalTravel = viewportH + bandRect.height;
-    const traveled = viewportH - bandRect.top;
-    const p = Math.max(0, Math.min(1, traveled / totalTravel));
-
-    let opacity, tx, bgx;
-    if (p < 0.3) {
-      const t = easeOutCubic(p / 0.3);
-      opacity = t;
-      tx = 350 * (1 - t); // 从右侧 350px 滑入到 right:0
-      bgx = 0;
-    } else {
-      const t = easeOutCubic((p - 0.3) / 0.7);
-      opacity = 1;
-      // ✅ 修正：正值向右，负值向左。这里改为向右微调 50px，更贴合“固定在右侧”
-      tx = Math.min(t * 50, 50); 
-      // 背景平移：根据实际图片宽度调整，避免穿帮
-      bgx = t * 30; 
-    }
-
-    earth.style.opacity = opacity;
-    earth.style.transform = `translateX(${tx}px)`;
-    earth.style.backgroundPositionX = `calc(100% - ${bgx}px)`; // 更安全的背景定位写法
-  };
-
-  container.addEventListener("scroll", handle, { passive: true });
-  handle();
-  return () => container.removeEventListener("scroll", handle);
-}, []);
 
   const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.intro;
 
@@ -177,7 +132,7 @@ const [activeMetrics, setActiveMetrics] = useState(
     } else if (introStage === 2) {
       displayDescription = (
         <div>
-          <p>AI adoption across industries has accelerated — and there are signs that AI intensity correlates with higher salaries.</p>
+          <p>AI adoption across industries has accelerated - and there are signs that AI intensity correlates with higher salaries.</p>
         </div>
       );
     } else if (introStage >= 3) {
@@ -234,9 +189,9 @@ const [activeMetrics, setActiveMetrics] = useState(
             {displayDescription}
             {activeTask === "section3a" && (
               <div style={{ marginTop: "24px", borderTop: "1px solid #eee", paddingTop: "20px" }}>
-                <DraggablePie  weights={weights} 
-                  setWeights={setWeights} 
-                  activeMetrics={activeMetrics} 
+                <DraggablePie  weights={weights}
+                  setWeights={setWeights}
+                  activeMetrics={activeMetrics}
                    />
               </div>
             )}
@@ -246,11 +201,6 @@ const [activeMetrics, setActiveMetrics] = useState(
 
       {/* SCROLLABLE RIGHT SIDE */}
       <div className="right-container" ref={rightContainerRef}>
-        
-        {/* 新增：STICKY EARTH BACKGROUND - 固定在屏幕底层的地球图层 */}
-        <div className="earth-sticky-layer">
-          <div className="earth-viewport" ref={earthRef} />
-        </div>
 
         {/* Intro Section */}
         <section
@@ -264,16 +214,13 @@ const [activeMetrics, setActiveMetrics] = useState(
           />
         </section>
 
-        {/* Transition Banner */}
-        <div className="transition-band" ref={transitionRef}>
-          <div className="transition-content">
-            <h2>First stop: the world map.</h2>
-            <p>
-              Explore how geography influenced salary and ai intensity from 2010 to 2025, and what projections say about the next decade. 
-            </p>
-          </div>
-          {/* 这里原本的 .earth-viewport 已经被移动到了顶层的 earth-sticky-layer 中 */}
-        </div>
+        {/* Transition: Intro → Task1 */}
+        <TransitionSection
+          scrollParentRef={rightContainerRef}
+          imageSrc="/Earth.png"
+          title="First stop: the world map."
+          description="Explore how geography influenced salary and AI intensity from 2010 to 2025, and what projections say about the next decade."
+        />
 
         {/* Task1 - Location */}
         <section className="task-section" data-task="section1" style={{ padding: 0 }}>
@@ -282,6 +229,14 @@ const [activeMetrics, setActiveMetrics] = useState(
             onStageChange={setTask1Stage}
           />
         </section>
+
+        {/* Transition: Task1 → Task2 */}
+        <TransitionSection
+          scrollParentRef={rightContainerRef}
+          imageSrc="/industries.png"
+          title="Next: across industries."
+          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities — and risks — lie."
+        />
 
         {/* Task2 - Line Chart (Industries) */}
         <section className="task-section" data-task="section2">
