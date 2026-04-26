@@ -430,7 +430,7 @@ function Task1({ scrollParentRef, onStageChange }) {
     if (badgeSub) {
       badgeSub.textContent =
         frame === "base"
-          ? "Four stages: historical salary \u2192 predicted salary \u2192 AI readiness"
+          ? "Four stages: historical salary \u2192 predicted salary \u2192 AI Index"
           : frame === "ds1"
             ? "Colored by Country \u00B7 Avg salary per country"
             : frame === "ds2"
@@ -515,7 +515,7 @@ function Task1({ scrollParentRef, onStageChange }) {
 
         <div className="dataset-badge">
           <div className="badge-main">Scroll to reveal AI impact data</div>
-          <div className="badge-sub">Four stages: historical salary &rarr; predicted salary &rarr; AI readiness</div>
+          <div className="badge-sub">Four stages: historical salary &rarr; predicted salary &rarr; AI Index</div>
         </div>
 
         {frame !== "base" && (
