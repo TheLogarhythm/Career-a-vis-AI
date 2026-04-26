@@ -147,30 +147,40 @@ export function DraggablePie({ weights, setWeights }) {
 /**
  * 2. MAIN RADAR COMPONENT
  */
-function Radar({ scrollParentRef, weights }) {
+function Radar({ scrollParentRef }) {
   const [industryData, setIndustryData] = useState([]);
   const [regionData, setRegionData] = useState([]);
   const [selectedIndustries, setSelectedIndustries] = useState(["Market Average"]);
   const [selectedRegions, setSelectedRegions] = useState(["Market Average"]);
   const [mergeFactor, setMergeFactor] = useState(0);
   const stickyRef = useRef(null);
-  // Initialize all metrics as true (active)
+
+  // Define metrics locally since weights are removed
+  const metricsList = ["salary_usd", "ai_intensity_score", "automation_risk_score", "reskilling_rate", "displacement_risk", "skill_complexity"];
+
+  // Initialize active metrics state for legend toggling
   const [activeMetrics, setActiveMetrics] = useState(
-    Object.keys(weights).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+    metricsList.reduce((acc, key) => ({ ...acc, [key]: true }), {})
   );
 
-  const toggleMetric = (m) => {
-    setActiveMetrics(prev => ({ ...prev, [m]: !prev[m] }));
+  // Helper: Geometric Area Calculation (No weighting)
+  const calculateArea = (d, currentActive) => {
+    const angleSlice = (Math.PI * 2) / metricsList.length;
+    let area = 0;
+    for (let i = 0; i < metricsList.length; i++) {
+      const m1 = metricsList[i];
+      const m2 = metricsList[(i + 1) % metricsList.length];
+      const r1 = currentActive[m1] ? (d[`${m1}_norm`] || 0) : 0;
+      const r2 = currentActive[m2] ? (d[`${m2}_norm`] || 0) : 0;
+      area += 0.5 * r1 * r2 * Math.sin(angleSlice);
+    }
+    return area;
   };
-
-  
 
   useEffect(() => {
     const baseUrl = import.meta.env.BASE_URL || "/";
     d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
       const riskMap = { Low: 0.33, Medium: 0.66, High: 1.0 };
-      const metrics = ["salary_usd", "ai_intensity_score", "automation_risk_score", "reskilling_rate", "displacement_risk", "skill_complexity"];
-
       const processGroup = (dimension) => {
         const rolled = d3.rollups(raw, (v) => ({
           salary_usd: d3.mean(v, d => +d.salary_usd),
@@ -181,13 +191,13 @@ function Radar({ scrollParentRef, weights }) {
           skill_complexity: d3.mean(v, d => d.ai_skills ? d.ai_skills.split(",").length : 0)
         }), (d) => d[dimension]);
 
-        let stats = rolled.map(([dimValue, values]) => ({ industry: dimValue, ...values }));
+        let stats = rolled.map(([k, v]) => ({ industry: k, ...v }));
         const marketAvg = { industry: "Market Average" };
-        metrics.forEach(key => marketAvg[key] = d3.mean(stats, s => s[key]));
+        metricsList.forEach(key => marketAvg[key] = d3.mean(stats, s => s[key]));
 
         return [marketAvg, ...stats].map(d => {
           const norm = { ...d };
-          metrics.forEach(key => {
+          metricsList.forEach(key => {
             const maxVal = d3.max([marketAvg, ...stats], s => s[key]) || 1;
             norm[`${key}_norm`] = d[key] / maxVal;
           });
@@ -199,49 +209,30 @@ function Radar({ scrollParentRef, weights }) {
     });
   }, []);
 
-  const getWeightedData = (dataset, selected) => {
-    if (!weights) return dataset;
-    const metrics = Object.keys(weights);
-    let maxVal = 0;
-
-    const weighted = dataset.map(d => {
+  const getProcessedData = (dataset) => {
+    return dataset.map(d => {
       const entry = { ...d };
-      metrics.forEach(m => {
-        const val = (d[`${m}_norm`] || 0) * (weights[m] || 1);
-        entry[`${m}_w`] = val;
-        if (selected.includes(d.industry) && val > maxVal) maxVal = val;
+      metricsList.forEach(m => {
+        entry[`${m}_norm`] = activeMetrics[m] ? (d[`${m}_norm`] || 0) : 0;
       });
       return entry;
     });
-
-    const factor = maxVal > 1 ? 1 / maxVal : 1;
-    return weighted.map(d => {
-      const final = { ...d };
-      metrics.forEach(m => final[`${m}_norm`] = d[`${m}_w`] * factor);
-      return final;
-    });
   };
-   const handleAutoSelect = () => {
+
+  const handleAutoSelect = () => {
     if (industryData.length === 0 || regionData.length === 0) return;
+    const findTop = (data) => data
+      .filter(d => d.industry !== "Market Average")
+      .reduce((prev, curr) => 
+        calculateArea(prev, activeMetrics) > calculateArea(curr, activeMetrics) ? prev : curr
+      ).industry;
 
-    const findTop = (dataset) => {
-      return dataset
-        .filter(d => d.industry !== "Market Average")
-        .reduce((prev, curr) => 
-          calculateArea(prev, weights) > calculateArea(curr, weights) ? prev : curr
-        ).industry;
-    };
-
-    const topIndustry = findTop(industryData);
-    const topRegion = findTop(regionData);
-
-    setSelectedIndustries(["Market Average", topIndustry]);
-    setSelectedRegions(["Market Average", topRegion]);
+    setSelectedIndustries(["Market Average", findTop(industryData)]);
+    setSelectedRegions(["Market Average", findTop(regionData)]);
   };
 
-
-  const weightedInd = useMemo(() => getWeightedData(industryData, selectedIndustries), [industryData, weights, selectedIndustries]);
-  const weightedReg = useMemo(() => getWeightedData(regionData, selectedRegions), [regionData, weights, selectedRegions]);
+  const processedInd = useMemo(() => getProcessedData(industryData), [industryData, activeMetrics]);
+  const processedReg = useMemo(() => getProcessedData(regionData), [regionData, activeMetrics]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -269,42 +260,29 @@ function Radar({ scrollParentRef, weights }) {
         <div style={{ position: "sticky", top: "0", height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", background: "white", overflow: "hidden", paddingTop: "40px" }}>
           <div style={{ textAlign: "center", marginBottom: "20px" }}>
             <h2 style={{ color: "#1e293b", margin: 0 }}>Comparative AI Profile</h2>
-            <p style={{ color: "#64748b", fontSize: "14px", margin: "5px 0" }}>Priority is controlled by the dashboard on the left</p>
-              <button 
+            <button 
               onClick={handleAutoSelect}
               style={{
-                marginTop: "12px",
-                padding: "8px 16px",
-                backgroundColor: "#3b82f6",
-                color: "white",
-                border: "none",
-                borderRadius: "20px",
-                fontSize: "12px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                boxShadow: "0 4px 6px rgba(59, 130, 246, 0.2)",
-                transition: "all 0.2s"
+                marginTop: "12px", padding: "8px 16px", backgroundColor: "#3b82f6", color: "white",
+                border: "none", borderRadius: "20px", fontSize: "12px", fontWeight: "bold", cursor: "pointer"
               }}
-              onMouseOver={(e) => e.target.style.backgroundColor = "#dedede"}
-              onMouseOut={(e) => e.target.style.backgroundColor = "#3b82f6"}
             >
               Show largest Area
             </button>
           </div>
 
-          {/* Selections buttons UI kept exactly same */}
           <div style={{ display: "flex", gap: "20px", width: "90%", maxWidth: "1000px", background: "white", padding: "15px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", zIndex: 10 }}>
             <div style={{ flex: 1, textAlign: "center" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
                 {industryData.map(d => (
-                  <button key={d.industry} onClick={() => setSelectedIndustries(p => p.includes(d.industry) ? p.filter(i => i !== d.industry) : [...p, d.industry])} style={btnStyle(selectedIndustries.includes(d.industry), industryColorScale(d.industry))}>{d.industry}</button>
+                  <button key={d.industry} onClick={() => setSelectedIndustries(["Market Average", d.industry])} style={btnStyle(selectedIndustries.includes(d.industry), industryColorScale(d.industry))}>{d.industry}</button>
                 ))}
               </div>
             </div>
             <div style={{ flex: 1, textAlign: "center" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
                 {regionData.map(d => (
-                  <button key={d.industry} onClick={() => setSelectedRegions(p => p.includes(d.industry) ? p.filter(i => i !== d.industry) : [...p, d.industry])} style={btnStyle(selectedRegions.includes(d.industry), regionColorScale(d.industry))}>{d.industry}</button>
+                  <button key={d.industry} onClick={() => setSelectedRegions(["Market Average", d.industry])} style={btnStyle(selectedRegions.includes(d.industry), regionColorScale(d.industry))}>{d.industry}</button>
                 ))}
               </div>
             </div>
@@ -312,10 +290,10 @@ function Radar({ scrollParentRef, weights }) {
 
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", position: "relative", marginTop: "20px" }}>
             <div style={{ transform: `translateX(${mergeFactor * 250}px)`, zIndex: 2 }}>
-              <SeniorityDashboard data={weightedInd} selectedIndustries={selectedIndustries} colorScale={industryColorScale} transparent={true} />
+              <SeniorityDashboard data={processedInd} selectedIndustries={selectedIndustries} colorScale={industryColorScale} transparent={true} />
             </div>
             <div style={{ transform: `translateX(-${mergeFactor * 250}px)`, mixBlendMode: "multiply", zIndex: 3, pointerEvents: "none" }}>
-              <SeniorityDashboard data={weightedReg} selectedIndustries={selectedRegions} colorScale={regionColorScale} transparent={true} />
+              <SeniorityDashboard data={processedReg} selectedIndustries={selectedRegions} colorScale={regionColorScale} transparent={true} />
             </div>
           </div>
         </div>
@@ -323,5 +301,6 @@ function Radar({ scrollParentRef, weights }) {
     </div>
   );
 }
+
 
 export default Radar;

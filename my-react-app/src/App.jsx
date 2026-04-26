@@ -7,6 +7,7 @@ import TransitionSection from "./components/TransitionSection";
 import AiWordGraph from "./page/task3_charts/ai-keyword";
 import Radar, { DraggablePie } from "./page/task3_charts/radar";
 import AiIntensity from "./page/task3_charts/ai-intensity";
+import WeightedBarChart from "./page/task3_charts/WeightedBarChart";
 import LinechartComponent from "./page/task3_charts/linechart";
 // import Task4 from "./page/task4"; // temporarily disabled per user request
 import "./App.css";
@@ -36,10 +37,10 @@ const TASK_DETAILS = {
     title: (<><BarChart2 size={18} className="inline-icon" /> Trend: Historical Analysis</>),
     description: "Detailed drill-down into historical performance trends.",
   },
-  /* section4: {
+  section4: {
     title: (<><Zap size={18} className="inline-icon" /> An Evaluation</>),
     description: "Forecasting the next 5 years based on current data models.",
-  }, */
+  }, 
 };
 
 function App() {
@@ -323,9 +324,18 @@ const [activeMetrics, setActiveMetrics] = useState(
         </section>
 
         {/* Radar - AI Risk Comparison (section3a) */}
-        <section className="task-section" data-task="section3a">
-          <Radar scrollParentRef={rightContainerRef} weights={weights} />
+        <section className="task-section" data-task="section4">
+          <Radar scrollParentRef={rightContainerRef}  />
         </section>
+        {/* Inside your render block */}
+        <section className="task-section" data-task="section3a" >
+          <WeightedBarChart 
+          weights={weights} 
+          activeMetrics={activeMetrics} 
+        />
+
+        </section>
+
 
         {/*
         <section className="task-section" data-task="section4">
