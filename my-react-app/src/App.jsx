@@ -3,8 +3,9 @@ import { BookOpen, Globe, Briefcase, MessageCircle, BarChart2, Zap } from "lucid
 import Introduction from "./page/introduction";
 import Task1 from "./page/task1";
 import Task2 from "./page/task2";
+import TransitionSection from "./components/TransitionSection";
 import AiWordGraph from "./page/task3_charts/ai-keyword";
-import Radar, { DraggablePie } from "./page/task3_charts/radar"; 
+import Radar, { DraggablePie } from "./page/task3_charts/radar";
 import AiIntensity from "./page/task3_charts/ai-intensity";
 import LinechartComponent from "./page/task3_charts/linechart";
 // import Task4 from "./page/task4"; // temporarily disabled per user request
@@ -46,8 +47,6 @@ function App() {
   const rightContainerRef = useRef(null);
   const [introStage, setIntroStage] = useState(0);
   const [task1Stage, setTask1Stage] = useState(0);
-  const transitionRef = useRef(null);
-  const earthRef = useRef(null);
    const [weights, setWeights] = useState({
     salary_usd: 1,
     ai_intensity_score: 1,
@@ -58,11 +57,11 @@ function App() {
   });
 const [activeMetrics, setActiveMetrics] = useState(
   Object.keys({
-    salary_usd: 1, 
-    ai_intensity_score: 1, 
+    salary_usd: 1,
+    ai_intensity_score: 1,
     automation_risk_score: 1,
-    reskilling_rate: 1, 
-    displacement_risk: 1, 
+    reskilling_rate: 1,
+    displacement_risk: 1,
     skill_complexity: 1
   }).reduce((acc, key) => ({ ...acc, [key]: true }), {})
 );
@@ -116,45 +115,6 @@ const [activeMetrics, setActiveMetrics] = useState(
     return () => observer.disconnect();
   }, []);
 
-  // Scroll-driven earth animation: fade in from left → slide right
-  useEffect(() => {
-    const container = rightContainerRef.current;
-    if (!container) return;
-    const handle = () => {
-      const band = transitionRef.current;
-      const earth = earthRef.current;
-      if (!band || !earth) return;
-
-      const bandRect = band.getBoundingClientRect();
-      const viewportH = container.clientHeight;
-      const totalTravel = viewportH + bandRect.height;
-      const traveled = viewportH - bandRect.top;
-      const p = Math.max(0, Math.min(1, traveled / totalTravel));
-
-      // Phase 1 (0–0.3): fade in from left
-      // Phase 2 (0.3–1.0): slide right
-      let opacity, tx, bgx;
-      if (p < 0.3) {
-        const t = p / 0.3;
-        opacity = t;
-        tx = -350 * (1 - t);
-        bgx = 0;
-      } else {
-        const t = (p - 0.3) / 0.7;
-        opacity = 1; // 保持透明度为1，不再消失
-        tx = Math.min(t * 280, 200); // 限制向右移动的最大距离
-        bgx = t * 3500;
-      }
-
-      earth.style.opacity = opacity;
-      earth.style.transform = `translateX(${tx}px)`;
-      earth.style.backgroundPositionX = `-${bgx}px`;
-    };
-    container.addEventListener("scroll", handle, { passive: true });
-    handle();
-    return () => container.removeEventListener("scroll", handle);
-  }, []);
-
   const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.intro;
 
   if (!TASK_DETAILS[activeTask] && process.env.NODE_ENV === "development") {
@@ -200,7 +160,7 @@ const [activeMetrics, setActiveMetrics] = useState(
     } else if (introStage === 2) {
       displayDescription = (
         <div>
-          <p>AI adoption across industries has accelerated — and there are signs that AI intensity correlates with higher salaries.</p>
+          <p>AI adoption across industries has accelerated - and there are signs that AI intensity correlates with higher salaries.</p>
         </div>
       );
     } else if (introStage >= 3) {
@@ -213,20 +173,33 @@ const [activeMetrics, setActiveMetrics] = useState(
   }
   else if (activeTask === "section1") {
     if (task1Stage === 0) {
-      displayDescription = "10 major tech economies mapped. Scroll down to reveal how AI investment and automation reshaped the global job market.";
+      displayDescription = "Global 2D map displayed here ro show how AI intensity and salary levels varied across countries in past years and future. Scroll down to see how.";
     } else if (task1Stage === 1) {
       displayDescription = (
         <div>
-          <p><b>2000-2025 Historical Phase</b></p>
-          <p style={{marginTop:"6px"}}>Avg salary = mean of AI Engineer, Data Scientist, and ML Engineer salaries. Colors reveal which economies led in compensation and automation during this era.</p>
+          <p><b>2010-2025 Historical Phase</b></p>
+          <p style={{marginTop:"6px"}}>Easy to see that salary distribution varies significantly across countries in past years. North America and Oceania seemsa good choice.</p>
+          <p style={{marginTop:"6px"}}>In the aspect of AI intensity, seems the average </p>
           <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see salary breakdown and year-by-year trend.</p>
         </div>
       );
-    } else {
+    } else if (task1Stage === 2){
       displayDescription = (
         <div>
-          <p><b>2026-2036 Projected Phase</b></p>
-          <p style={{marginTop:"6px"}}>Model projections show how automation intensity and salary levels are expected to diverge across economies as AI matures.</p>
+          <p><b>2030 Projected Phase</b></p>
+          <p style={{marginTop:"6px"}}>Model projections show how salary levels are expected to diverge across economies as AI matures. </p>
+          <p style={{marginTop:"6px"}}>Interested thing is that we can actually see that it seems salary may be not so related with the location in the future! </p>
+          <p style={{marginTop:"6px"}}>Only 8 countries' data is being studied in the dataset as they are somewhat representative.</p>
+          <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see projected metrics.</p>
+        </div>
+      );
+    }
+    else {
+      displayDescription = (
+        <div>
+          <p><b>Current AI index level</b></p>
+          <p style={{marginTop:"6px"}}>See how the AI index varies across different countries. This is also important as AI index may potentially influence your work in the future.</p>
+          <p style={{marginTop:"6px"}}>This only shows the current state of AI index, but it is enough to give you an idea.</p>
           <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see projected metrics.</p>
         </div>
       );
@@ -277,9 +250,9 @@ const [activeMetrics, setActiveMetrics] = useState(
             {leftDesc}
             {activeTask === "section3a" && (
               <div style={{ marginTop: "24px", borderTop: "1px solid #eee", paddingTop: "20px" }}>
-                <DraggablePie  weights={weights} 
-                  setWeights={setWeights} 
-                  activeMetrics={activeMetrics} 
+                <DraggablePie  weights={weights}
+                  setWeights={setWeights}
+                  activeMetrics={activeMetrics}
                    />
               </div>
             )}
@@ -302,11 +275,6 @@ const [activeMetrics, setActiveMetrics] = useState(
 
       {/* SCROLLABLE RIGHT SIDE */}
       <div className="right-container" ref={rightContainerRef}>
-        
-        {/* 新增：STICKY EARTH BACKGROUND - 固定在屏幕底层的地球图层 */}
-        <div className="earth-sticky-layer">
-          <div className="earth-viewport" ref={earthRef} />
-        </div>
 
         {/* Intro Section */}
         <section
@@ -320,17 +288,13 @@ const [activeMetrics, setActiveMetrics] = useState(
           />
         </section>
 
-        {/* Transition Banner */}
-        <div className="transition-band" ref={transitionRef}>
-          <div className="transition-content">
-            <h2>First stop: the world map.</h2>
-            <p>
-              10 major economies, 15 years of data — let's see how salary
-              and AI intensity distribute across the globe.
-            </p>
-          </div>
-          {/* 这里原本的 .earth-viewport 已经被移动到了顶层的 earth-sticky-layer 中 */}
-        </div>
+        {/* Transition: Intro → Task1 */}
+        <TransitionSection
+          scrollParentRef={rightContainerRef}
+          imageSrc="/Earth.png"
+          title="First stop: the world map."
+          description="Explore how geography influenced salary and AI intensity from 2010 to 2025, and what projections say about the next decade."
+        />
 
         {/* Task1 - Location */}
         <section className="task-section" data-task="section1" style={{ padding: 0 }}>
@@ -339,6 +303,14 @@ const [activeMetrics, setActiveMetrics] = useState(
             onStageChange={setTask1Stage}
           />
         </section>
+
+        {/* Transition: Task1 → Task2 */}
+        <TransitionSection
+          scrollParentRef={rightContainerRef}
+          imageSrc="/industries.png"
+          title="Next: across industries."
+          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities — and risks — lie."
+        />
 
         {/* Task2 - Line Chart (Industries) */}
         <section className="task-section" data-task="section2">
