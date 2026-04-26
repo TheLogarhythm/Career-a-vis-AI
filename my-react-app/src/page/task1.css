@@ -1,8 +1,8 @@
-/* ── Scroll container (400vh gives 3 scroll phases) */
+/* ── Scroll container (550vh gives 4 scroll phases) */
 .task1-scroll-container {
   position: relative;
   width: 100%;
-  height: 400vh;
+  height: 550vh;
   background: #ffffff;
 }
 
@@ -47,31 +47,32 @@
   background: rgba(239, 246, 255, 0.96);
   border: 1px solid #bfdbfe;
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 12px 20px;
   z-index: 10;
-  max-width: 320px;
+  max-width: 420px;
   box-shadow: 0 4px 16px rgba(37,99,235,0.07);
 }
 .badge-main {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   color: #1d4ed8;
   line-height: 1.3;
 }
 .badge-sub {
-  font-size: 11px;
+  font-size: 12px;
   color: #64748b;
-  margin-top: 4px;
+  margin-top: 5px;
   font-weight: 500;
 }
 
-/* ── Metric toggle (top-right) */
+/* ── Metric toggle (top-right, only for DS3) */
 .metric-toggle {
   position: absolute;
   top: 22px;
   right: 24px;
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
   z-index: 10;
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(10px);
@@ -79,14 +80,16 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 4px 16px rgba(15,23,42,0.07);
+  max-width: 400px;
+  transition: opacity 0.3s ease;
 }
 .metric-toggle button {
-  padding: 9px 18px;
+  padding: 7px 12px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: #64748b;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.25s ease;
@@ -101,6 +104,31 @@
   background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
   color: #fff;
   box-shadow: 0 3px 10px rgba(37,99,235,0.25);
+}
+
+/* ── Info panel (below badge) */
+.info-panel {
+  position: absolute;
+  top: 95px;
+  left: 24px;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 20px;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+  font-size: 13px;
+  line-height: 1.7;
+  color: #475569;
+}
+.info-panel p {
+  margin: 0;
+}
+.info-panel .hl {
+  color: #2563eb;
+  font-weight: 700;
 }
 
 /* ── Tooltip */

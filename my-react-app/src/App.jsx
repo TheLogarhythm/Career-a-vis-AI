@@ -90,42 +90,47 @@ const [activeMetrics, setActiveMetrics] = useState(
 
   // Scroll-driven earth animation: fade in from left → slide right
   useEffect(() => {
-    const container = rightContainerRef.current;
-    if (!container) return;
-    const handle = () => {
-      const band = transitionRef.current;
-      const earth = earthRef.current;
-      if (!band || !earth) return;
+  const container = rightContainerRef.current;
+  if (!container) return;
 
-      const bandRect = band.getBoundingClientRect();
-      const viewportH = container.clientHeight;
-      const totalTravel = viewportH + bandRect.height;
-      const traveled = viewportH - bandRect.top;
-      const p = Math.max(0, Math.min(1, traveled / totalTravel));
+  // 缓动函数：让动画启动快、结尾慢，更自然
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
-      // Phase 1 (0–0.3): fade in from left
-      // Phase 2 (0.3–1.0): slide right
-      let opacity, tx, bgx;
-      if (p < 0.3) {
-        const t = p / 0.3;
-        opacity = t;
-        tx = -350 * (1 - t);
-        bgx = 0;
-      } else {
-        const t = (p - 0.3) / 0.7;
-        opacity = 1; // 保持透明度为1，不再消失
-        tx = Math.min(t * 280, 200); // 限制向右移动的最大距离
-        bgx = t * 3500;
-      }
+  const handle = () => {
+    const band = transitionRef.current;
+    const earth = earthRef.current;
+    if (!band || !earth) return;
 
-      earth.style.opacity = opacity;
-      earth.style.transform = `translateX(${tx}px)`;
-      earth.style.backgroundPositionX = `-${bgx}px`;
-    };
-    container.addEventListener("scroll", handle, { passive: true });
-    handle();
-    return () => container.removeEventListener("scroll", handle);
-  }, []);
+    const bandRect = band.getBoundingClientRect();
+    const viewportH = container.clientHeight;
+    const totalTravel = viewportH + bandRect.height;
+    const traveled = viewportH - bandRect.top;
+    const p = Math.max(0, Math.min(1, traveled / totalTravel));
+
+    let opacity, tx, bgx;
+    if (p < 0.3) {
+      const t = easeOutCubic(p / 0.3);
+      opacity = t;
+      tx = 350 * (1 - t); // 从右侧 350px 滑入到 right:0
+      bgx = 0;
+    } else {
+      const t = easeOutCubic((p - 0.3) / 0.7);
+      opacity = 1;
+      // ✅ 修正：正值向右，负值向左。这里改为向右微调 50px，更贴合“固定在右侧”
+      tx = Math.min(t * 50, 50); 
+      // 背景平移：根据实际图片宽度调整，避免穿帮
+      bgx = t * 30; 
+    }
+
+    earth.style.opacity = opacity;
+    earth.style.transform = `translateX(${tx}px)`;
+    earth.style.backgroundPositionX = `calc(100% - ${bgx}px)`; // 更安全的背景定位写法
+  };
+
+  container.addEventListener("scroll", handle, { passive: true });
+  handle();
+  return () => container.removeEventListener("scroll", handle);
+}, []);
 
   const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.intro;
 
@@ -185,20 +190,33 @@ const [activeMetrics, setActiveMetrics] = useState(
   }
   else if (activeTask === "section1") {
     if (task1Stage === 0) {
-      displayDescription = "10 major tech economies mapped. Scroll down to reveal how AI investment and automation reshaped the global job market.";
+      displayDescription = "Global 2D map displayed here ro show how AI intensity and salary levels varied across countries in past years and future. Scroll down to see how.";
     } else if (task1Stage === 1) {
       displayDescription = (
         <div>
-          <p><b>2000-2025 Historical Phase</b></p>
-          <p style={{marginTop:"6px"}}>Avg salary = mean of AI Engineer, Data Scientist, and ML Engineer salaries. Colors reveal which economies led in compensation and automation during this era.</p>
+          <p><b>2010-2025 Historical Phase</b></p>
+          <p style={{marginTop:"6px"}}>Easy to see that salary distribution varies significantly across countries in past years. North America and Oceania seemsa good choice.</p>
+          <p style={{marginTop:"6px"}}>In the aspect of AI intensity, seems the average </p>
           <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see salary breakdown and year-by-year trend.</p>
         </div>
       );
-    } else {
+    } else if (task1Stage === 2){
       displayDescription = (
         <div>
-          <p><b>2026-2036 Projected Phase</b></p>
-          <p style={{marginTop:"6px"}}>Model projections show how automation intensity and salary levels are expected to diverge across economies as AI matures.</p>
+          <p><b>2030 Projected Phase</b></p>
+          <p style={{marginTop:"6px"}}>Model projections show how salary levels are expected to diverge across economies as AI matures. </p>
+          <p style={{marginTop:"6px"}}>Interested thing is that we can actually see that it seems salary may be not so related with the location in the future! </p>
+          <p style={{marginTop:"6px"}}>Only 8 countries' data is being studied in the dataset as they are somewhat representative.</p>
+          <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see projected metrics.</p>
+        </div>
+      );
+    }
+    else {
+      displayDescription = (
+        <div>
+          <p><b>Current AI index level</b></p>
+          <p style={{marginTop:"6px"}}>See how the AI index varies across different countries. This is also important as AI index may potentially influence your work in the future.</p>
+          <p style={{marginTop:"6px"}}>This only shows the current state of AI index, but it is enough to give you an idea.</p>
           <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see projected metrics.</p>
         </div>
       );
@@ -251,8 +269,7 @@ const [activeMetrics, setActiveMetrics] = useState(
           <div className="transition-content">
             <h2>First stop: the world map.</h2>
             <p>
-              10 major economies, 15 years of data — let's see how salary
-              and AI intensity distribute across the globe.
+              Explore how geography influenced salary and ai intensity from 2010 to 2025, and what projections say about the next decade. 
             </p>
           </div>
           {/* 这里原本的 .earth-viewport 已经被移动到了顶层的 earth-sticky-layer 中 */}

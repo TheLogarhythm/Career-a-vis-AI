@@ -132,17 +132,18 @@ body, html {
   pointer-events: none;
 }
 
-/* Earth viewport — scroll-driven: fades in from left, slides right */
+/* Earth viewport — scroll-driven: positioned on the right, twice the original size */
 .earth-viewport {
   position: absolute;
-  left: 0;
-  top: calc(100vh - 430px); /* 让地球精确贴靠在屏幕底端 */
-  width: 60%;
-  height: 450px;
+  right: 0;
+  top: calc(100vh - 860px); /* 让地球精确贴靠在屏幕底端（高度翻倍） */
+  width: 100%;
+  height: 900px; /* 原始 450px × 2 = 900px */
   background-image: url('/Earth.jpg');
   background-size: auto 100%;
   background-repeat: no-repeat;
   background-position-y: center;
+  background-position-x: right; /* 图片锚定在右侧 */
   opacity: 0;
   will-change: transform, opacity, background-position-x;
   mask-image: linear-gradient(
