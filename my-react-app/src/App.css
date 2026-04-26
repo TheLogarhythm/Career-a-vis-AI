@@ -88,7 +88,7 @@ body, html {
   height: 100vh;
   overflow-y: auto;
   scroll-behavior: smooth;
-  background: #ffffff;
+  background: transparent;
 }
 
 .task-section {
@@ -98,7 +98,8 @@ body, html {
   box-sizing: border-box;
   border-bottom: 1px solid #f0f0f0;
   position: relative;
-  z-index: 1; /* 保证内容覆盖在地球之上 */
+  z-index: 1;
+  background: #ffffff;
 }
 
 /* Transition Band — light with earth viewport */

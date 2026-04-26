@@ -171,7 +171,8 @@ function Task1({ scrollParentRef, onStageChange }) {
       d3.json(`${baseUrl}world-110m.json`),
       d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`),
       d3.csv(`${baseUrl}ai_job_trends_dataset.csv`),
-    ]).then(([world, csv1, csv2]) => {
+      d3.csv(`${baseUrl}AI_index_db.csv`),
+    ]).then(([world, csv1, csv2, csv3]) => {
       const features = topojson.feature(world, world.objects.countries).features;
       setGeoData(features);
 
@@ -205,8 +206,20 @@ function Task1({ scrollParentRef, onStageChange }) {
       for (const [c, d] of m2) ds2.set(c, { avgSalary: d.sum / d.count });
       setDs2Map(ds2);
 
-      // DS3: not provided in this workspace — set empty map to avoid runtime errors
-      setDs3Map(new Map());
+      // DS3: AI Index, one row per country
+      const ds3 = new Map();
+      csv3.forEach(r => {
+        ds3.set(r.Country, {
+          "Total score": +r["Total score"] || 0,
+          "Talent": +r.Talent || 0,
+          "Research": +r.Research || 0,
+          "Development": +r.Development || 0,
+          "Infrastructure": +r.Infrastructure || 0,
+          "Government Strategy": +r["Government Strategy"] || 0,
+          "Commercial": +r.Commercial || 0,
+        });
+      });
+      setDs3Map(ds3);
     });
   }, []);
 

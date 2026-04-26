@@ -45,7 +45,7 @@
   background-position-y: center;
   background-position-x: right;
   opacity: 0;
-  z-index: 0;
+  z-index: -1; /* behind ALL page content */
   pointer-events: none;
   will-change: transform, opacity, background-position-x;
   mask-image: linear-gradient(
