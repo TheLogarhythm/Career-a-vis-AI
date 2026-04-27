@@ -343,21 +343,14 @@ function AiJobCount() {
       .append("g")
       .call(d3.axisLeft(yScale))
       .selectAll("text")
-      .style("font-size", "11px");
+      .style("font-size", "11px")
+      .attr("dominant-baseline", "middle")
+      .attr("dy", "0");
 
     mainGroup
       .append("g")
       .attr("transform", `translate(0,${innerHeight})`)
       .call(d3.axisBottom(xScale).ticks(8).tickFormat(d3.format(",")));
-
-    mainGroup
-      .append("text")
-      .attr("x", innerWidth / 2)
-      .attr("y", innerHeight + 36)
-      .attr("text-anchor", "middle")
-      .style("font-size", "13px")
-      .style("fill", "#1f2937")
-      .text("Number of Jobs");
 
     mainGroup
       .selectAll(".category-segment")

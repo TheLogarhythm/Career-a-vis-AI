@@ -37,6 +37,10 @@ const TASK_DETAILS = {
     title: (<><BarChart2 size={18} className="inline-icon" /> How AI influences salaries across industries?</>),
     description: "Try filtering jobs by AI intensity and see how salary levels differ across industries. ",
   },
+  "section3b-2": {
+    title: (<><BarChart2 size={18} className="inline-icon" /> Job Volume by Category</>),
+    description: "Understanding job volume across categories and subcategories reveals where the demand — and competition — truly lies. This helps career seekers prioritize sectors with the most opportunities.",
+  },
   section4: {
     title: (<><Zap size={18} className="inline-icon" /> An Evaluation</>),
     description: "Forecasting the next 5 years based on current data models.",
@@ -333,6 +337,13 @@ const [activeMetrics, setActiveMetrics] = useState(
         <section className="task-section" data-task="section3b-2">
           <AiJobCount />
         </section>
+
+        <TransitionSection
+          scrollParentRef={rightContainerRef}
+          imageSrc="/Evaluation.png"
+          title="How does AI risk compare across industries?"
+          description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions — and adjust the weights to see what matters most to you."
+        />
 
         {/* Radar - AI Risk Comparison (section3a) */}
         <section className="task-section" data-task="section4">
