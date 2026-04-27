@@ -6,6 +6,11 @@ body, html {
   font-family: 'Inter', sans-serif;
 }
 
+:root {
+  --fixed-scroll-hold: 120vh;
+  --fixed-scroll-total: calc(100vh + var(--fixed-scroll-hold));
+}
+
 /* 统一所有 Task 的文字样式 */
 .task-section h2, .detail-card h2 {
   font-family: "Inter", -apple-system, sans-serif;

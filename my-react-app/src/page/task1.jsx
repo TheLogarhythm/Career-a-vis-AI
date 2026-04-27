@@ -158,12 +158,16 @@ function Task1({ scrollParentRef, onStageChange }) {
   const tooltipRef = useRef(null);
   const fixedRef = useRef(null);
 
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [stageIndex, setStageIndex] = useState(0);
   const [geoData, setGeoData] = useState(null);
   const [ds1Map, setDs1Map] = useState(null);   // country → {avgSalary}
   const [ds2Map, setDs2Map] = useState(null);   // location → {avgSalary}
   const [ds3Map, setDs3Map] = useState(null);   // country → {metrics}
   const [ds3Metric, setDs3Metric] = useState("Total score");
+
+  const DS_STAGE_SCROLL_FACTOR = 1.2; // 120vh per stage
+  const DS_STAGE_COUNT = 3; // ds1, ds2, ds3
+  const task1ContainerHeight = `calc(100vh + ${DS_STAGE_COUNT * 120}vh)`;
 
   // ── Load data ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -227,17 +231,24 @@ function Task1({ scrollParentRef, onStageChange }) {
   useEffect(() => {
     const container = scrollParentRef?.current;
     if (!container) return;
+
     const handle = () => {
       const section = container.querySelector('[data-task="section1"]');
       if (!section) return;
-      const relScroll = Math.max(0, container.scrollTop - section.offsetTop);
-      const total = Math.max(1, section.offsetHeight - container.clientHeight);
-      const p = Math.min(1, relScroll / total);
-      setScrollProgress(p);
+
+      const viewportH = container.clientHeight || window.innerHeight;
+      const stageSpan = viewportH * DS_STAGE_SCROLL_FACTOR;
+      const maxScroll = stageSpan * DS_STAGE_COUNT;
+      const rawScroll = container.scrollTop - section.offsetTop;
+      const relScroll = Math.max(0, Math.min(maxScroll, rawScroll));
+      const nextStage = Math.min(DS_STAGE_COUNT, Math.floor(relScroll / stageSpan));
+
+      setStageIndex(nextStage);
       if (onStageChange) {
-        onStageChange(p < 0.15 ? 0 : p < 0.45 ? 1 : p < 0.72 ? 2 : 3);
+        onStageChange(nextStage);
       }
     };
+
     container.addEventListener("scroll", handle, { passive: true });
     handle();
     return () => container.removeEventListener("scroll", handle);
@@ -256,11 +267,11 @@ function Task1({ scrollParentRef, onStageChange }) {
     const g = svg.append("g");
     const tip = d3.select(tooltipRef.current);
 
-    const frame = scrollProgress < 0.15
+    const frame = stageIndex === 0
       ? "base"
-      : scrollProgress < 0.45
+      : stageIndex === 1
         ? "ds1"
-        : scrollProgress < 0.72
+        : stageIndex === 2
           ? "ds2"
           : "ds3";
 
@@ -430,13 +441,13 @@ function Task1({ scrollParentRef, onStageChange }) {
               : "Colored by Country \u00B7 Select metric to explore";
     }
 
-  }, [geoData, ds1Map, ds2Map, ds3Map, ds3Metric, scrollProgress]);
+  }, [geoData, ds1Map, ds2Map, ds3Map, ds3Metric, stageIndex]);
 
-  const frame = scrollProgress < 0.15
+  const frame = stageIndex === 0
     ? "base"
-    : scrollProgress < 0.45
+    : stageIndex === 1
       ? "ds1"
-      : scrollProgress < 0.72
+      : stageIndex === 2
         ? "ds2"
         : "ds3";
 
@@ -498,7 +509,7 @@ function Task1({ scrollParentRef, onStageChange }) {
   const showMetricToggle = frame === "ds3";
 
   return (
-    <div className="task1-scroll-container">
+    <div className="task1-scroll-container" style={{ height: task1ContainerHeight }}>
       <div className="task1-fixed-viewport" ref={fixedRef}>
 
         <div className="dataset-badge">

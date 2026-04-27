@@ -1,6 +1,6 @@
 .intro-container {
   width: 100%;
-  height: 200vh;
+  height: var(--fixed-scroll-total);
   position: relative;
   background: #ffffff;
 }
@@ -9,7 +9,7 @@
   position: sticky; top: 0; left: 0;
   width: 100%; height: 100vh;
   display: flex; align-items: center; justify-content: center;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .layer {
@@ -39,18 +39,24 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
+  padding: 0 12px;
 }
 
 /* ── Unified card wrapper ── */
 .charts-wrapper {
   background: #f8fafc;
-  padding: 36px 32px;
+  width: min(100%, 980px);
+  max-width: 100%;
+  padding: clamp(14px, 2.6vw, 36px) clamp(12px, 2.4vw, 32px);
   border-radius: 30px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.04);
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: clamp(10px, 1.8vw, 24px);
   transition: padding 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* ── Right chart container — fades in ── */
@@ -62,13 +68,14 @@
   width: 0;
   overflow: hidden;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .chart-right.visible {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
-  width: 542px;
+  width: clamp(220px, 36%, 510px);
 }
 
 /* ── Shared tooltip ── */
