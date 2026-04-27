@@ -70,6 +70,7 @@ const [activeMetrics, setActiveMetrics] = useState(
     skill_complexity: 1
   }).reduce((acc, key) => ({ ...acc, [key]: true }), {})
 );
+  const baseUrl = import.meta.env.BASE_URL || "/";
   // Visualization badges available in public/VisualizationBadges
   const visualizationBadges = [
     "Aggregated_Data.png",
@@ -267,7 +268,7 @@ const [activeMetrics, setActiveMetrics] = useState(
               {badgesToShow.map((f) => (
                 <img
                   key={f}
-                  src={`/VisualizationBadges/${encodeURIComponent(f)}`}
+                  src={`${baseUrl}VisualizationBadges/${encodeURIComponent(f)}`}
                   alt={f.replace(/[_-]/g, ' ')}
                   className="vis-badge"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -296,7 +297,7 @@ const [activeMetrics, setActiveMetrics] = useState(
         {/* Transition: Intro → Task1 */}
         <TransitionSection
           scrollParentRef={rightContainerRef}
-          imageSrc="/Earth.png"
+          imageSrc={`${baseUrl}${encodeURIComponent("Earth.png")}`}
           title="Where to work? Regional salary and AI impact. "
           description="Explore how geography influenced salary from 2010 to 2025, and what projections say about the next decade. Also, see how the current AI index varies across countries and what it may mean for your career choices."
         />
@@ -312,7 +313,7 @@ const [activeMetrics, setActiveMetrics] = useState(
         {/* Transition: Task1 → Task2 */}
         <TransitionSection
           scrollParentRef={rightContainerRef}
-          imageSrc="/industries.png"
+          imageSrc={`${baseUrl}${encodeURIComponent("industries.png")}`}
           title="Which industry to work in? Industry-level trends and risks. And how AI intensity correlates with salary."
           description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities — and risks — lie."
         />
@@ -329,7 +330,7 @@ const [activeMetrics, setActiveMetrics] = useState(
 
         <TransitionSection
           scrollParentRef={rightContainerRef}
-          imageSrc="/Job count.png"
+          imageSrc={`${baseUrl}${encodeURIComponent("Job count.png")}`}
           title="How many jobs are out there?"
           description="Beyond knowing where the high-paying roles are, it matters how many opportunities each category actually offers. The segmented bar chart below breaks down job listings by category and subcategory, revealing where the volume — and the competition — really is."
         />
@@ -340,7 +341,7 @@ const [activeMetrics, setActiveMetrics] = useState(
 
         <TransitionSection
           scrollParentRef={rightContainerRef}
-          imageSrc="/Evaluation.png"
+          imageSrc={`${baseUrl}${encodeURIComponent("Evaluation.png")}`}
           title="How does AI risk compare across industries?"
           description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions — and adjust the weights to see what matters most to you."
         />
