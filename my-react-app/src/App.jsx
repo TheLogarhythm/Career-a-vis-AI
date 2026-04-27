@@ -6,7 +6,7 @@ import Task2 from "./page/task2";
 import TransitionSection from "./components/TransitionSection";
 import AiWordGraph from "./page/task3_charts/ai-keyword";
 import Radar, { DraggablePie } from "./page/task3_charts/radar";
-import AiIntensity from "./page/task3_charts/ai-intensity";
+import { AiHeatmap, AiJobCount } from "./page/task3_charts/ai-intensity";
 import WeightedBarChart from "./page/task3_charts/WeightedBarChart";
 import LinechartComponent from "./page/task3_charts/linechart";
 // import Task4 from "./page/task4"; // temporarily disabled per user request
@@ -34,8 +34,8 @@ const TASK_DETAILS = {
     description: "Compare how different industries intersect with regional AI profiles and automation risks.",
   },
   section3b: {
-    title: (<><BarChart2 size={18} className="inline-icon" /> Trend: Historical Analysis</>),
-    description: "Detailed drill-down into historical performance trends.",
+    title: (<><BarChart2 size={18} className="inline-icon" /> How AI influences salaries across industries?</>),
+    description: "Try filtering jobs by AI intensity and see how salary levels differ across industries. ",
   },
   section4: {
     title: (<><Zap size={18} className="inline-icon" /> An Evaluation</>),
@@ -293,8 +293,8 @@ const [activeMetrics, setActiveMetrics] = useState(
         <TransitionSection
           scrollParentRef={rightContainerRef}
           imageSrc="/Earth.png"
-          title="First stop: the world map."
-          description="Explore how geography influenced salary and AI intensity from 2010 to 2025, and what projections say about the next decade."
+          title="Where to work? Regional salary and AI impact. "
+          description="Explore how geography influenced salary from 2010 to 2025, and what projections say about the next decade. Also, see how the current AI index varies across countries and what it may mean for your career choices."
         />
 
         {/* Task1 - Location */}
@@ -309,7 +309,7 @@ const [activeMetrics, setActiveMetrics] = useState(
         <TransitionSection
           scrollParentRef={rightContainerRef}
           imageSrc="/industries.png"
-          title="Next: across industries."
+          title="Which industry to work in? Industry-level trends and risks. And how AI intensity correlates with salary."
           description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities — and risks — lie."
         />
 
@@ -320,7 +320,18 @@ const [activeMetrics, setActiveMetrics] = useState(
 
         {/* AiIntensity - Trend Analysis (section3b) */}
         <section className="task-section" data-task="section3b">
-          <AiIntensity />
+          <AiHeatmap />
+        </section>
+
+        <TransitionSection
+          scrollParentRef={rightContainerRef}
+          imageSrc="/Job count.png"
+          title="How many jobs are out there?"
+          description="Beyond knowing where the high-paying roles are, it matters how many opportunities each category actually offers. The segmented bar chart below breaks down job listings by category and subcategory, revealing where the volume — and the competition — really is."
+        />
+
+        <section className="task-section" data-task="section3b-2">
+          <AiJobCount />
         </section>
 
         {/* Radar - AI Risk Comparison (section3a) */}
