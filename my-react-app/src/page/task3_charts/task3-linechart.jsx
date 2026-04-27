@@ -84,7 +84,20 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
     groupsEnter.append("path").attr("class", "line-secondary").attr("fill", "none").attr("stroke-width", 3).style("stroke-dasharray", "4,4");
     groupsEnter.append("g").attr("class", "x-axis");
     groupsEnter.append("g").attr("class", "y-axis");
+    groupsEnter.append("text").attr("class", "y-axis-label")
+      .style("font-size", "11px")
+      .style("fill", "#64748b")
+      .style("text-anchor", "middle");
     groupsEnter.append("text").attr("class", "chart-label").style("font-weight", "bold");
+
+    // Y-axis label per chart
+    const yLabels = {
+      "ai_mentioned": "AI Adoption Rate (%)",
+      "ai_intensity_score": "AI Intensity Score",
+      "salary_usd": "Avg Salary (USD)",
+      "automation_risk_score": "Automation Risk Score",
+      "comparison": "Salary (USD)",
+    };
 
     const allGroups = groupsEnter.merge(groups);
     const t = d3.transition().duration(isFirstRender.current ? 0 : 800).ease(d3.easeCubicInOut);
@@ -169,6 +182,13 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
       
       const yAxisOpacity = (overlay && (chart.type === "ai" || chart.type === "ai_salary")) ? 0 : 1;
       g.select(".y-axis").transition(t).style("opacity", yAxisOpacity).call(d3.axisLeft(y).ticks(5).tickFormat(d => isSalary ? d3.format("$.2s")(d) : d3.format(".1f")(d)));
+
+      // Update y-axis label
+      g.select(".y-axis-label")
+        .text(yLabels[chart.key] || "")
+        .attr("x", -height / 2)
+        .attr("y", -margin.left + 12)
+        .style("opacity", yAxisOpacity);
 
       // Dots
       const dotsMain = g.selectAll(".dot-main").data(data);

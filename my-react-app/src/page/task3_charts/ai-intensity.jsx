@@ -1,24 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
 
-function AiIntensityHeatmap() {
+// ─── Part 1: Heatmap ────────────────────────────────────────
+function AiHeatmap() {
   const [data, setData] = useState([]);
-  const [jobDensityData, setJobDensityData] = useState([]);
-  const [segmentedContainerWidth, setSegmentedContainerWidth] = useState(980);
-  const [intensityThreshold, setIntensityThreshold] = useState(0.5); 
+  const [intensityThreshold, setIntensityThreshold] = useState(0.5);
   const svgRef = useRef(null);
-  const segmentedSvgRef = useRef(null);
-  const segmentedContainerRef = useRef(null);
   const tooltipRef = useRef(null);
-  const segmentedTooltipRef = useRef(null);
 
   const width = 800;
-  const height = 480; 
+  const height = 480;
   const margin = { top: 60, right: 40, bottom: 100, left: 80 };
 
   useEffect(() => {
     const baseUrl = import.meta.env.BASE_URL || "/";
-    
+
     d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
       const parsedData = raw.map(d => ({
         industry: d.industry,
@@ -27,40 +23,6 @@ function AiIntensityHeatmap() {
       }));
       setData(parsedData);
     }).catch((error) => console.error(error));
-
-    d3.csv(`${baseUrl}jobstreet_all_job_dataset.csv`).then((raw) => {
-      const parsed = raw
-        .map((d) => ({
-          category: (d.category || "").trim(),
-          subcategory: (d.subcategory || "").trim(),
-        }))
-        .filter((d) => d.category && d.subcategory);
-
-      const categorySegments = d3
-        .rollups(parsed, (v) => v.length, (d) => d.category, (d) => d.subcategory)
-        .map(([category, subcategories]) => ({
-          category,
-          total: d3.sum(subcategories, ([, count]) => count),
-          segments: subcategories
-            .map(([subcategory, count]) => ({ subcategory, count }))
-            .sort((a, b) => d3.descending(a.count, b.count)),
-        }))
-        .sort((a, b) => d3.descending(a.total, b.total));
-
-      setJobDensityData(categorySegments);
-    }).catch((error) => console.error(error));
-  }, []);
-
-  useEffect(() => {
-    if (!segmentedContainerRef.current || typeof ResizeObserver === "undefined") return;
-
-    const observer = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect?.width;
-      if (width) setSegmentedContainerWidth(width);
-    });
-
-    observer.observe(segmentedContainerRef.current);
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -68,7 +30,7 @@ function AiIntensityHeatmap() {
 
     const svg = d3.select(svgRef.current);
     const tooltip = d3.select(tooltipRef.current);
-    svg.selectAll("*").remove(); 
+    svg.selectAll("*").remove();
 
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -80,12 +42,12 @@ function AiIntensityHeatmap() {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     const industries = [...new Set(data.map(d => d.industry))];
-    const gridRows = 15; 
+    const gridRows = 15;
 
     const xScale = d3.scaleBand()
       .domain(industries)
       .range([0, innerWidth])
-      .padding(0.05); 
+      .padding(0.05);
 
     const yScale = d3.scaleLinear()
       .domain([0, d3.max(data, d => d.salary) * 1.05])
@@ -100,7 +62,7 @@ function AiIntensityHeatmap() {
         const yMin = j * yStep;
         const yMaxVal = (j + 1) * yStep;
 
-        const pointsInBin = data.filter(d => 
+        const pointsInBin = data.filter(d =>
           d.industry === ind &&
           d.salary >= yMin && d.salary < yMaxVal
         );
@@ -112,7 +74,7 @@ function AiIntensityHeatmap() {
             industry: ind,
             yIndex: j,
             count: pointsInBin.length,
-            avgIntensity: avgIntensity, 
+            avgIntensity: avgIntensity,
           });
         }
       }
@@ -121,14 +83,14 @@ function AiIntensityHeatmap() {
     const maxCount = d3.max(gridData, d => d.count) || 1;
 
     const colorScale = d3.scaleSequential()
-      .domain([0, maxCount]) 
+      .domain([0, maxCount])
       .interpolator(d3.interpolateBlues);
 
     mainGroup.append("g")
       .attr("transform", `translate(0,${innerHeight})`)
       .call(d3.axisBottom(xScale))
       .selectAll("text")
-      .attr("transform", "rotate(-35)") 
+      .attr("transform", "rotate(-35)")
       .style("text-anchor", "end")
       .style("font-size", "11px");
 
@@ -152,11 +114,11 @@ function AiIntensityHeatmap() {
       .append("rect")
       .attr("class", "bin")
       .attr("x", d => xScale(d.industry))
-      .attr("y", d => innerHeight - (d.yIndex + 1) * blockHeight) 
+      .attr("y", d => innerHeight - (d.yIndex + 1) * blockHeight)
       .attr("width", blockWidth)
-      .attr("height", blockHeight - 1) 
+      .attr("height", blockHeight - 1)
       .attr("fill", d => colorScale(d.count))
-      .style("opacity", d => d.avgIntensity >= intensityThreshold ? 1 : 0.05) 
+      .style("opacity", d => d.avgIntensity >= intensityThreshold ? 1 : 0.05)
       .style("stroke", "#fff")
       .style("stroke-width", "0.5px")
       .on("mouseover", function(event, d) {
@@ -220,6 +182,93 @@ function AiIntensityHeatmap() {
       .style("opacity", d => d.avgIntensity >= intensityThreshold ? 1 : 0.05);
 
   }, [intensityThreshold, data]);
+
+  return (
+    <div style={{ position: "relative", width: "100%", maxWidth: "980px", margin: "0 auto", textAlign: "center", fontFamily: "sans-serif" }}>
+      <h2>Job Density: Industry vs. Salary Brackets</h2>
+
+      <svg ref={svgRef}></svg>
+
+      <div
+        ref={tooltipRef}
+        style={{
+          position: "absolute",
+          opacity: 0,
+          backgroundColor: "white",
+          border: "1px solid #ddd",
+          padding: "8px",
+          borderRadius: "4px",
+          pointerEvents: "none",
+          fontSize: "12px",
+          textAlign: "left",
+          boxShadow: "0px 2px 5px rgba(0,0,0,0.15)",
+          zIndex: 10
+        }}
+      ></div>
+
+      <div style={{ marginTop: "15px", padding: "15px", backgroundColor: "#f4f4f4", borderRadius: "8px" }}>
+        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
+          Highlight Blocks with Avg AI Intensity Above: <span style={{ color: "#007bff" }}>{intensityThreshold.toFixed(2)}</span>
+        </label>
+
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          value={intensityThreshold}
+          onChange={(e) => setIntensityThreshold(+e.target.value)}
+          style={{ width: "80%", cursor: "pointer" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Part 2: Job Count by Category ──────────────────────────
+function AiJobCount() {
+  const [jobDensityData, setJobDensityData] = useState([]);
+  const [segmentedContainerWidth, setSegmentedContainerWidth] = useState(980);
+  const segmentedSvgRef = useRef(null);
+  const segmentedContainerRef = useRef(null);
+  const segmentedTooltipRef = useRef(null);
+
+  useEffect(() => {
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    d3.csv(`${baseUrl}jobstreet_all_job_dataset.csv`).then((raw) => {
+      const parsed = raw
+        .map((d) => ({
+          category: (d.category || "").trim(),
+          subcategory: (d.subcategory || "").trim(),
+        }))
+        .filter((d) => d.category && d.subcategory);
+
+      const categorySegments = d3
+        .rollups(parsed, (v) => v.length, (d) => d.category, (d) => d.subcategory)
+        .map(([category, subcategories]) => ({
+          category,
+          total: d3.sum(subcategories, ([, count]) => count),
+          segments: subcategories
+            .map(([subcategory, count]) => ({ subcategory, count }))
+            .sort((a, b) => d3.descending(a.count, b.count)),
+        }))
+        .sort((a, b) => d3.descending(a.total, b.total));
+
+      setJobDensityData(categorySegments);
+    }).catch((error) => console.error(error));
+  }, []);
+
+  useEffect(() => {
+    if (!segmentedContainerRef.current || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect?.width;
+      if (width) setSegmentedContainerWidth(width);
+    });
+
+    observer.observe(segmentedContainerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (jobDensityData.length === 0) return;
@@ -349,13 +398,19 @@ function AiIntensityHeatmap() {
   }, [jobDensityData, segmentedContainerWidth]);
 
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: "980px", margin: "0 auto", textAlign: "center", fontFamily: "sans-serif" }}>
-      <h2>Job Density: Industry vs. Salary Brackets</h2>
-      
-      <svg ref={svgRef}></svg>
+    <div
+      ref={segmentedContainerRef}
+      style={{ position: "relative", width: "100%", maxWidth: "980px", margin: "0 auto", textAlign: "left", background: "#ffffff", borderRadius: "10px", overflowX: "hidden" }}
+    >
+      <h3 style={{ textAlign: "center", marginBottom: "6px" }}>Job Count by Category (Segmented by Subcategory)</h3>
+      <p style={{ textAlign: "center", marginTop: 0, color: "#4b5563", fontSize: "12px" }}>
+        Each horizontal bar is a category, and each segment represents its subcategory job count.
+      </p>
 
-      <div 
-        ref={tooltipRef} 
+      <svg ref={segmentedSvgRef} style={{ width: "100%", height: "auto", display: "block" }}></svg>
+
+      <div
+        ref={segmentedTooltipRef}
         style={{
           position: "absolute",
           opacity: 0,
@@ -370,53 +425,8 @@ function AiIntensityHeatmap() {
           zIndex: 10
         }}
       ></div>
-
-      <div style={{ marginTop: "15px", padding: "15px", backgroundColor: "#f4f4f4", borderRadius: "8px" }}>
-        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          Highlight Blocks with Avg AI Intensity Above: <span style={{ color: "#007bff" }}>{intensityThreshold.toFixed(2)}</span>
-        </label>
-        
-        <input 
-          type="range" 
-          min="0" 
-          max="1" 
-          step="0.05"
-          value={intensityThreshold} 
-          onChange={(e) => setIntensityThreshold(+e.target.value)}
-          style={{ width: "80%", cursor: "pointer" }}
-        />
-      </div>
-
-      <div
-        ref={segmentedContainerRef}
-        style={{ marginTop: "36px", textAlign: "left", position: "relative", background: "#ffffff", borderRadius: "10px", width: "100%", overflowX: "hidden" }}
-      >
-        <h3 style={{ textAlign: "center", marginBottom: "6px" }}>Job Count by Category (Segmented by Subcategory)</h3>
-        <p style={{ textAlign: "center", marginTop: 0, color: "#4b5563", fontSize: "12px" }}>
-          Each horizontal bar is a category, and each segment represents its subcategory job count.
-        </p>
-
-        <svg ref={segmentedSvgRef} style={{ width: "100%", height: "auto", display: "block" }}></svg>
-
-        <div
-          ref={segmentedTooltipRef}
-          style={{
-            position: "absolute",
-            opacity: 0,
-            backgroundColor: "white",
-            border: "1px solid #ddd",
-            padding: "8px",
-            borderRadius: "4px",
-            pointerEvents: "none",
-            fontSize: "12px",
-            textAlign: "left",
-            boxShadow: "0px 2px 5px rgba(0,0,0,0.15)",
-            zIndex: 10
-          }}
-        ></div>
-      </div>
     </div>
   );
 }
 
-export default AiIntensityHeatmap;
+export { AiHeatmap, AiJobCount };
