@@ -129,7 +129,12 @@ function AIIntensityHeatmap({ showBarChart, tooltipRef }) {
     }
   }, [showBarChart]);
 
-  return <div ref={containerRef} style={{ width: "900px", height: "450px" }} />;
+  return (
+    <div
+      ref={containerRef}
+      style={{ width: "100%", maxWidth: "900px", height: "450px", minWidth: 0, flex: "1 1 0" }}
+    />
+  );
 }
 
 // ─── Salary by Industry Bar Chart (colored by AI intensity) ──
@@ -248,7 +253,12 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
     });
   }, [visible, tooltipRef]);
 
-  return <div ref={svgRef} style={{ width: "510px", height: "380px" }} />;
+  return (
+    <div
+      ref={svgRef}
+      style={{ width: "100%", maxWidth: "510px", height: "380px", minWidth: 0 }}
+    />
+  );
 }
 
 // ─── Roadmap Steps ──────────────────────────────────────────
@@ -332,6 +342,35 @@ function RoadmapView({ scrollPos }) {
 function Introduction({ scrollParentRef, onStageChange }) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const tooltipRef = useRef(null);
+  const [viewportHeight, setViewportHeight] = useState(() => {
+    const h = scrollParentRef?.current?.clientHeight;
+    if (h && h > 0) return h;
+    return typeof window !== "undefined" ? window.innerHeight : 900;
+  });
+
+  const GRAPH_HOLD_FACTOR = 1.2; // 120vh
+  const INTRO_HERO_OFFSET_FACTOR = 0.25;
+  const HOLD_SEGMENTS = 4;
+
+  const graphHoldPx = viewportHeight * GRAPH_HOLD_FACTOR;
+  const contentStartPx = viewportHeight * INTRO_HERO_OFFSET_FACTOR;
+  const barChartStartPx = contentStartPx + graphHoldPx;
+  const salaryChartStartPx = barChartStartPx + graphHoldPx;
+  const roadmapStartPx = salaryChartStartPx + graphHoldPx;
+  const stage2FadeSpanPx = viewportHeight * 0.35;
+  const stage3LocalStartPx = roadmapStartPx + viewportHeight * 0.12;
+  const introContainerHeight = `calc(100vh + ${HOLD_SEGMENTS * 120}vh)`;
+
+  useEffect(() => {
+    const updateViewportHeight = () => {
+      const h = scrollParentRef?.current?.clientHeight;
+      setViewportHeight(h && h > 0 ? h : window.innerHeight);
+    };
+
+    updateViewportHeight();
+    window.addEventListener("resize", updateViewportHeight);
+    return () => window.removeEventListener("resize", updateViewportHeight);
+  }, [scrollParentRef]);
 
   useEffect(() => {
     const container = scrollParentRef?.current;
@@ -343,30 +382,35 @@ function Introduction({ scrollParentRef, onStageChange }) {
       const pos = Math.min(Math.max(container.scrollTop - intro.offsetTop, 0), maxScroll);
       setScrollProgress(pos);
       if (onStageChange) {
-        if (pos < 80) onStageChange(0);
-        else if (pos < 300) onStageChange(1);
-        else if (pos < 550) onStageChange(2);
+        if (pos < contentStartPx) onStageChange(0);
+        else if (pos < salaryChartStartPx) onStageChange(1);
+        else if (pos < roadmapStartPx) onStageChange(2);
         else onStageChange(3);
       }
     };
     container.addEventListener("scroll", handle);
+    handle();
     return () => container.removeEventListener("scroll", handle);
-  }, [scrollParentRef, onStageChange]);
+  }, [scrollParentRef, onStageChange, contentStartPx, salaryChartStartPx, roadmapStartPx]);
 
   // Stage 0
-  const s0Opacity = Math.max(0, 1 - scrollProgress / 60);
+  const s0Opacity = Math.max(0, 1 - scrollProgress / (viewportHeight * 0.2));
 
   // Stage 1 + 2
-  const contentOpacity = scrollProgress < 100 ? 0 : Math.min(1, (scrollProgress - 100) / 60);
-  const showBarChart = scrollProgress > 250;
-  const salaryChartVisible = scrollProgress > 400;
+  const contentOpacity = scrollProgress < contentStartPx
+    ? 0
+    : Math.min(1, (scrollProgress - contentStartPx) / (viewportHeight * 0.2));
+  const showBarChart = scrollProgress >= barChartStartPx;
+  const salaryChartVisible = scrollProgress >= salaryChartStartPx;
 
   // Stage 3: stage 2 fades out, roadmap fades in
-  const stage2Fade = scrollProgress < 550 ? 1 : Math.max(0, 1 - (scrollProgress - 550) / 80);
-  const stage3Local = Math.max(0, scrollProgress - 580); // 0-based progress within stage 3
+  const stage2Fade = scrollProgress < roadmapStartPx
+    ? 1
+    : Math.max(0, 1 - (scrollProgress - roadmapStartPx) / stage2FadeSpanPx);
+  const stage3Local = Math.max(0, scrollProgress - stage3LocalStartPx); // 0-based progress within stage 3
 
   return (
-    <div className="intro-container" data-section="intro">
+    <div className="intro-container" data-section="intro" style={{ height: introContainerHeight }}>
       <div className="intro-sticky-viewport">
         {/* Stage 0 */}
         <div className="layer" style={{ opacity: s0Opacity }}>

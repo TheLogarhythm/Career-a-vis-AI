@@ -1,8 +1,8 @@
-/* ── Scroll container (550vh gives 4 scroll phases) */
+/* ── Scroll container: 100vh sticky viewport + 120vh hold */
 .task1-scroll-container {
   position: relative;
   width: 100%;
-  height: 550vh;
+  height: var(--fixed-scroll-total);
   background: #ffffff;
 }
 

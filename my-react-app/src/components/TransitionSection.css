@@ -2,7 +2,7 @@
 .ts-band {
   position: relative;
   width: 100%;
-  min-height: 480px;
+  min-height: var(--fixed-scroll-hold);
   padding: 100px 60px;
   background: transparent;
   display: flex;
