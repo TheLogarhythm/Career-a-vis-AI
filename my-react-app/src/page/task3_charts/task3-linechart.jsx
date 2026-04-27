@@ -43,8 +43,8 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
     const handleScroll = () => {
       if (!overlay || !chartRef.current) return;
       const rect = chartRef.current.getBoundingClientRect();
-      const triggerStart = 150; 
-      const scrollWindow = 120; 
+      const triggerStart = 200; 
+      const scrollWindow = 200; 
       const currentScroll = triggerStart - rect.top;
       setScrollProgress(Math.min(1, Math.max(0, currentScroll / scrollWindow)));
     };
@@ -113,15 +113,14 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
       const x = d3.scaleLinear().domain(d3.extent(data, d => d.posting_year)).range([0, width]);
       const isSalary = chart.key.includes("salary") || isDual || isMove;
       
-      let y;
-      if (isSalary) {
-        y = d3.scaleLinear().domain([0, 100000]).range([height, 0]);
-      } else {
-        const actualMax = d3.max(data, d => d[chart.key]);
-        const isPercentage = actualMax > 1.1; 
-        const domainMax = isPercentage ? 100 : 1;
-        y = d3.scaleLinear().domain([0, domainMax]).range([height, 0]);
-      }
+let y;
+if (isSalary) {
+  y = d3.scaleLinear().domain([0, 100000]).range([height, 0]);
+} else {
+  const domainMax = overlay ? 100 : (d3.max(data, d => d[chart.key]) > 1.1 ? 100 : 1);
+  y = d3.scaleLinear().domain([0, domainMax]).range([height, 0]);
+}
+
 
       // --- ADD GRID LINES ---
       const grid = g.select(".grid-lines");
@@ -158,8 +157,16 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
         itemMerge.select("line").attr("stroke", d => d.color).style("stroke-dasharray", d => d.dash);
         itemMerge.select("text").text(d => d.label);
       } else { g.select(".legend-container").remove(); }
+const lineGenMain = d3.line()
+  .x(d => x(d.posting_year))
+  .y(d => {
+    let val = isDual ? d.ai_salary_only : d[chart.key];
+    if (overlay && chart.type === "ai" && val <= 1.1) val *= 100;
+    return y(val);
+  })
+  .curve(d3.curveMonotoneX);
 
-      const lineGenMain = d3.line().x(d => x(d.posting_year)).y(d => y(isDual ? d.ai_salary_only : d[chart.key])).curve(d3.curveMonotoneX);
+     
       const lineGenSec = d3.line().x(d => x(d.posting_year)).y(d => y(d.non_ai_salary)).curve(d3.curveMonotoneX);
 
       g.select(".line-main").transition(t).attr("stroke", isDual ? "#bb1dd3" : chart.color).attr("d", lineGenMain(data));
@@ -167,20 +174,43 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
 
       g.select(".x-axis").attr("transform", `translate(0, ${height})`).transition(t).call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")));
       
-      const yAxisOpacity = (overlay && (chart.type === "ai" || chart.type === "ai_salary")) ? 0 : 1;
-      g.select(".y-axis").transition(t).style("opacity", yAxisOpacity).call(d3.axisLeft(y).ticks(5).tickFormat(d => isSalary ? d3.format("$.2s")(d) : d3.format(".1f")(d)));
+const isPrimaryAiChart = overlay && chart.key === "ai_mentioned";
+
+const yAxisOpacity = (overlay && !isPrimaryAiChart && chart.type !== "dual") ? 0 : 1;
+
+g.select(".y-axis")
+  .transition(t)
+  .style("opacity", yAxisOpacity)
+  .call(d3.axisLeft(y)
+    .ticks(5)
+    .tickFormat(d => {
+      if (isSalary) return d3.format("$.2s")(d);
+      return overlay ? `${d}%` : d3.format(".1f")(d); 
+    })
+  );
 
       // Dots
       const dotsMain = g.selectAll(".dot-main").data(data);
       dotsMain.exit().remove();
       dotsMain.enter().append("circle").attr("class", "dot-main").attr("r", 4).merge(dotsMain)
-        .on("mouseover", (e, d) => {
-          const val = isDual ? d.ai_salary_only : d[chart.key];
-          tooltip.style("opacity", 1).html(`<strong>${d.posting_year}</strong><br/>${isDual ? "AI Jobs" : chart.title}: ${isSalary ? d3.format("$,.0f")(val) : d3.format(".2f")(val)}`);
-        })
+      .attr("fill", isDual ? "#bb1dd3" : chart.color)   
+      .on("mouseover", (e, d) => {
+        const rawVal = isDual ? d.ai_salary_only : d[chart.key];
+        tooltip.style("opacity", 1)
+          .html(`<strong>${d.posting_year}</strong><br/>${chart.title}: ${
+            isSalary ? d3.format("$,.0f")(rawVal) : d3.format(".2f")(rawVal)
+          }`);
+      })
+
         .on("mousemove", (e) => tooltip.style("left", e.clientX + 15 + "px").style("top", e.clientY - 40 + "px"))
         .on("mouseout", () => tooltip.style("opacity", 0))
-        .transition(t).attr("fill", isDual ? "#bb1dd3" : chart.color).attr("cx", d => x(d.posting_year)).attr("cy", d => y(isDual ? d.ai_salary_only : d[chart.key]));
+        .transition(t)
+        .attr("cx", d => x(d.posting_year))
+        .attr("cy", d => {
+          let val = isDual ? d.ai_salary_only : d[chart.key];
+          if (overlay && chart.type === "ai" && val <= 1.1) val *= 100;
+          return y(val);
+        });
 
       const dotsSec = g.selectAll(".dot-sec").data(isDual ? data : []);
       dotsSec.exit().remove();
