@@ -17,12 +17,12 @@
   flex-wrap: wrap; /* Allows buttons to move to next line */
   justify-content: center;
   gap: 10px;
-  
+
   /* Height for exactly ~2 rows of buttons */
-  max-height: 110px; 
-  overflow-y: auto;  /* Scroll vertically if more than 2 rows */
-  flex-shrink: 0;    /* Stops this bar from squishing */
-  
+  max-height: 110px;
+  overflow-y: auto; /* Scroll vertically if more than 2 rows */
+  flex-shrink: 0; /* Stops this bar from squishing */
+
   /* Hide scrollbar for a cleaner look */
   scrollbar-width: none; /* Firefox */
 }

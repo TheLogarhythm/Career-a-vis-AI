@@ -65,14 +65,27 @@ function GroupedBarChart({ data }) {
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
-  const x0 = d3.scaleBand().domain(data.map((d) => d.industry)).range([0, innerWidth]).padding(0.18);
+  const x0 = d3
+    .scaleBand()
+    .domain(data.map((d) => d.industry))
+    .range([0, innerWidth])
+    .padding(0.18);
   const x1 = d3.scaleBand().domain(["2024", "2030"]).range([0, x0.bandwidth()]).padding(0.12);
   const yMax = d3.max(data, (d) => Math.max(d.openings2024, d.openings2030)) || 0;
-  const y = d3.scaleLinear().domain([0, yMax * 1.08 || 1]).range([innerHeight, 0]).nice();
+  const y = d3
+    .scaleLinear()
+    .domain([0, yMax * 1.08 || 1])
+    .range([innerHeight, 0])
+    .nice();
   const yTicks = tickValues(y.domain(), 5);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="task4-svg" role="img" aria-label="Industry openings comparison chart">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="task4-svg"
+      role="img"
+      aria-label="Industry openings comparison chart"
+    >
       <g transform={`translate(${margin.left},${margin.top})`}>
         {yTicks.map((tick) => {
           const yPos = y(tick);
@@ -106,13 +119,7 @@ function GroupedBarChart({ data }) {
                 </title>
               </rect>
             ))}
-            <text
-              x={x0.bandwidth() / 2}
-              y={innerHeight + 28}
-              textAnchor="middle"
-              fill="#475569"
-              fontSize="11"
-            >
+            <text x={x0.bandwidth() / 2} y={innerHeight + 28} textAnchor="middle" fill="#475569" fontSize="11">
               {trimText(d.industry, 12)}
             </text>
           </g>
@@ -154,7 +161,12 @@ function ScatterChart({ rows, trendline, impactColors, sizeScale }) {
   const yTicks = tickValues(y.domain(), 5);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="task4-svg" role="img" aria-label="Growth versus automation risk scatter chart">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="task4-svg"
+      role="img"
+      aria-label="Growth versus automation risk scatter chart"
+    >
       <g transform={`translate(${margin.left},${margin.top})`}>
         {xTicks.map((tick) => {
           const xPos = x(tick);
@@ -193,7 +205,10 @@ function ScatterChart({ rows, trendline, impactColors, sizeScale }) {
         )}
 
         {rows.map((d) => (
-          <g key={`${d.jobTitle}-${d.industry}-${d.location}`} transform={`translate(${x(d.automationRisk)},${y(d.growthPct)})`}>
+          <g
+            key={`${d.jobTitle}-${d.industry}-${d.location}`}
+            transform={`translate(${x(d.automationRisk)},${y(d.growthPct)})`}
+          >
             <circle
               r={sizeScale(d.openings2030)}
               fill={impactColors[d.impactLevel] || impactColors.default}
@@ -206,10 +221,8 @@ function ScatterChart({ rows, trendline, impactColors, sizeScale }) {
                 {"\n"}
                 {d.industry}
                 {"\n"}
-                Automation Risk: {d.automationRisk.toFixed(1)}%
-                {"\n"}
-                Growth: {d.growthPct.toFixed(1)}%
-                {"\n"}
+                Automation Risk: {d.automationRisk.toFixed(1)}%{"\n"}
+                Growth: {d.growthPct.toFixed(1)}%{"\n"}
                 Projected 2030 Openings: {formatCount(d.openings2030)}
               </title>
             </circle>
@@ -243,13 +256,26 @@ function HorizontalBarChart({ data, statusColors }) {
   const margin = { top: 20, right: 18, bottom: 48, left: 220 };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
-  const y = d3.scaleBand().domain(data.map((d) => d.jobTitle)).range([0, innerHeight]).padding(0.24);
+  const y = d3
+    .scaleBand()
+    .domain(data.map((d) => d.jobTitle))
+    .range([0, innerHeight])
+    .padding(0.24);
   const xMax = d3.max(data, (d) => d.growthAbsolute) || 1;
-  const x = d3.scaleLinear().domain([0, xMax * 1.08]).range([0, innerWidth]).nice();
+  const x = d3
+    .scaleLinear()
+    .domain([0, xMax * 1.08])
+    .range([0, innerWidth])
+    .nice();
   const xTicks = tickValues(x.domain(), 5);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="task4-svg" role="img" aria-label="Top roles by net new openings chart">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="task4-svg"
+      role="img"
+      aria-label="Top roles by net new openings chart"
+    >
       <g transform={`translate(${margin.left},${margin.top})`}>
         {xTicks.map((tick) => {
           const xPos = x(tick);
@@ -270,14 +296,20 @@ function HorizontalBarChart({ data, statusColors }) {
               <text x="-12" y={y.bandwidth() / 2 + 4} textAnchor="end" fill="#334155" fontSize="11">
                 {trimText(d.jobTitle, 30)}
               </text>
-              <rect x="0" y="0" width={x(d.growthAbsolute)} height={y.bandwidth()} rx="6" fill={statusColors[d.status] || statusColors.default}>
+              <rect
+                x="0"
+                y="0"
+                width={x(d.growthAbsolute)}
+                height={y.bandwidth()}
+                rx="6"
+                fill={statusColors[d.status] || statusColors.default}
+              >
                 <title>
                   {d.jobTitle}
                   {"\n"}
                   Net new openings: {formatCount(d.growthAbsolute)}
                   {"\n"}
-                  Growth rate: {d.growthPct.toFixed(1)}%
-                  {"\n"}
+                  Growth rate: {d.growthPct.toFixed(1)}%{"\n"}
                   Avg automation risk: {d.avgRisk.toFixed(1)}%
                 </title>
               </rect>
@@ -452,9 +484,7 @@ function Task4() {
     <div className="task4-page" id="task-4">
       <div className="task4-header">
         <h2>Task 4: 2030 Prediction Dashboard</h2>
-        <p>
-          Forecast lens based on openings growth from 2024 to 2030, tied with automation risk and AI impact level.
-        </p>
+        <p>Forecast lens based on openings growth from 2024 to 2030, tied with automation risk and AI impact level.</p>
       </div>
 
       <div className="task4-filters">
@@ -514,7 +544,12 @@ function Task4() {
             <h3>Growth vs Automation Risk</h3>
             <span>Each point is a role. Bubble size reflects projected openings in 2030.</span>
           </header>
-          <ScatterChart rows={scatterRows} trendline={scatterTrendline} impactColors={IMPACT_COLORS} sizeScale={riskSizeScale} />
+          <ScatterChart
+            rows={scatterRows}
+            trendline={scatterTrendline}
+            impactColors={IMPACT_COLORS}
+            sizeScale={riskSizeScale}
+          />
 
           <div className="task4-legend-inline">
             {Object.entries(IMPACT_COLORS)

@@ -15,14 +15,16 @@ function AiHeatmap() {
   useEffect(() => {
     const baseUrl = import.meta.env.BASE_URL || "/";
 
-    d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
-      const parsedData = raw.map(d => ({
-        industry: d.industry,
-        salary: +d.salary_usd || 0,
-        ai_intensity: +d.ai_intensity_score || 0,
-      }));
-      setData(parsedData);
-    }).catch((error) => console.error(error));
+    d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`)
+      .then((raw) => {
+        const parsedData = raw.map((d) => ({
+          industry: d.industry,
+          salary: +d.salary_usd || 0,
+          ai_intensity: +d.ai_intensity_score || 0,
+        }));
+        setData(parsedData);
+      })
+      .catch((error) => console.error(error));
   }, []);
 
   useEffect(() => {
@@ -41,19 +43,17 @@ function AiHeatmap() {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const industries = [...new Set(data.map(d => d.industry))];
+    const industries = [...new Set(data.map((d) => d.industry))];
     const gridRows = 15;
 
-    const xScale = d3.scaleBand()
-      .domain(industries)
-      .range([0, innerWidth])
-      .padding(0.05);
+    const xScale = d3.scaleBand().domain(industries).range([0, innerWidth]).padding(0.05);
 
-    const yScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.salary) * 1.05])
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, d3.max(data, (d) => d.salary) * 1.05])
       .range([innerHeight, 0]);
 
-    const yMax = d3.max(data, d => d.salary) * 1.05;
+    const yMax = d3.max(data, (d) => d.salary) * 1.05;
     const yStep = yMax / gridRows;
 
     const gridData = [];
@@ -62,13 +62,10 @@ function AiHeatmap() {
         const yMin = j * yStep;
         const yMaxVal = (j + 1) * yStep;
 
-        const pointsInBin = data.filter(d =>
-          d.industry === ind &&
-          d.salary >= yMin && d.salary < yMaxVal
-        );
+        const pointsInBin = data.filter((d) => d.industry === ind && d.salary >= yMin && d.salary < yMaxVal);
 
         if (pointsInBin.length > 0) {
-          const avgIntensity = d3.mean(pointsInBin, d => d.ai_intensity);
+          const avgIntensity = d3.mean(pointsInBin, (d) => d.ai_intensity);
 
           gridData.push({
             industry: ind,
@@ -80,13 +77,12 @@ function AiHeatmap() {
       }
     });
 
-    const maxCount = d3.max(gridData, d => d.count) || 1;
+    const maxCount = d3.max(gridData, (d) => d.count) || 1;
 
-    const colorScale = d3.scaleSequential()
-      .domain([0, maxCount])
-      .interpolator(d3.interpolateBlues);
+    const colorScale = d3.scaleSequential().domain([0, maxCount]).interpolator(d3.interpolateBlues);
 
-    mainGroup.append("g")
+    mainGroup
+      .append("g")
       .attr("transform", `translate(0,${innerHeight})`)
       .call(d3.axisBottom(xScale))
       .selectAll("text")
@@ -94,7 +90,8 @@ function AiHeatmap() {
       .style("text-anchor", "end")
       .style("font-size", "11px");
 
-    mainGroup.append("g")
+    mainGroup
+      .append("g")
       .call(d3.axisLeft(yScale).tickFormat(d3.format("$,.0f")))
       .append("text")
       .attr("x", -innerHeight / 2)
@@ -108,31 +105,32 @@ function AiHeatmap() {
     const blockWidth = xScale.bandwidth();
     const blockHeight = innerHeight / gridRows;
 
-    mainGroup.selectAll(".bin")
+    mainGroup
+      .selectAll(".bin")
       .data(gridData)
       .enter()
       .append("rect")
       .attr("class", "bin")
-      .attr("x", d => xScale(d.industry))
-      .attr("y", d => innerHeight - (d.yIndex + 1) * blockHeight)
+      .attr("x", (d) => xScale(d.industry))
+      .attr("y", (d) => innerHeight - (d.yIndex + 1) * blockHeight)
       .attr("width", blockWidth)
       .attr("height", blockHeight - 1)
-      .attr("fill", d => colorScale(d.count))
-      .style("opacity", d => d.avgIntensity >= intensityThreshold ? 1 : 0.05)
+      .attr("fill", (d) => colorScale(d.count))
+      .style("opacity", (d) => (d.avgIntensity >= intensityThreshold ? 1 : 0.05))
       .style("stroke", "#fff")
       .style("stroke-width", "0.5px")
-      .on("mouseover", function(event, d) {
+      .on("mouseover", function (event, d) {
         tooltip.style("opacity", 1);
-        tooltip.html(`<strong>${d.industry}</strong><br/>Jobs: ${d.count}<br/>Avg Intensity: ${d.avgIntensity.toFixed(2)}`);
+        tooltip.html(
+          `<strong>${d.industry}</strong><br/>Jobs: ${d.count}<br/>Avg Intensity: ${d.avgIntensity.toFixed(2)}`,
+        );
         d3.select(this).style("stroke", "#000").style("stroke-width", "1.5px");
       })
-      .on("mousemove", function(event) {
+      .on("mousemove", function (event) {
         const [x, y] = d3.pointer(event, svgRef.current);
-        tooltip
-          .style("left", `${x + 15}px`)
-          .style("top", `${y + 15}px`);
+        tooltip.style("left", `${x + 15}px`).style("top", `${y + 15}px`);
       })
-      .on("mouseout", function() {
+      .on("mouseout", function () {
         tooltip.style("opacity", 0);
         d3.select(this).style("stroke", "#fff").style("stroke-width", "0.5px");
       });
@@ -140,36 +138,40 @@ function AiHeatmap() {
     const legendWidth = 200;
     const legendHeight = 10;
 
-    const legendGroup = mainGroup.append("g")
-      .attr("transform", `translate(${innerWidth - legendWidth - 100}, -30)`);
+    const legendGroup = mainGroup.append("g").attr("transform", `translate(${innerWidth - legendWidth - 100}, -30)`);
 
     const defs = svg.append("defs");
-    const linearGradient = defs.append("linearGradient")
+    const linearGradient = defs
+      .append("linearGradient")
       .attr("id", "blue-gradient")
-      .attr("x1", "0%").attr("y1", "0%")
-      .attr("x2", "100%").attr("y2", "0%");
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "0%");
 
     linearGradient.append("stop").attr("offset", "0%").attr("stop-color", colorScale(0));
     linearGradient.append("stop").attr("offset", "100%").attr("stop-color", colorScale(maxCount));
 
-    legendGroup.append("rect")
+    legendGroup
+      .append("rect")
       .attr("width", legendWidth)
       .attr("height", legendHeight)
       .style("fill", "url(#blue-gradient)");
 
-    legendGroup.append("text")
+    legendGroup
+      .append("text")
       .attr("x", -5)
       .attr("y", 9)
       .attr("text-anchor", "end")
       .style("font-size", "11px")
       .text("Low density (0 jobs)");
 
-    legendGroup.append("text")
+    legendGroup
+      .append("text")
       .attr("x", legendWidth + 5)
       .attr("y", 9)
       .style("font-size", "11px")
       .text(`High density (${maxCount} jobs)`);
-
   }, [data]);
 
   useEffect(() => {
@@ -179,12 +181,20 @@ function AiHeatmap() {
       .selectAll(".bin")
       .transition()
       .duration(200)
-      .style("opacity", d => d.avgIntensity >= intensityThreshold ? 1 : 0.05);
-
+      .style("opacity", (d) => (d.avgIntensity >= intensityThreshold ? 1 : 0.05));
   }, [intensityThreshold, data]);
 
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: "980px", margin: "0 auto", textAlign: "center", fontFamily: "sans-serif" }}>
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: "980px",
+        margin: "0 auto",
+        textAlign: "center",
+        fontFamily: "sans-serif",
+      }}
+    >
       <h2>Job Density: Industry vs. Salary Brackets</h2>
 
       <svg ref={svgRef}></svg>
@@ -202,13 +212,14 @@ function AiHeatmap() {
           fontSize: "12px",
           textAlign: "left",
           boxShadow: "0px 2px 5px rgba(0,0,0,0.15)",
-          zIndex: 10
+          zIndex: 10,
         }}
       ></div>
 
       <div style={{ marginTop: "15px", padding: "15px", backgroundColor: "#f4f4f4", borderRadius: "8px" }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
-          Highlight Blocks with Avg AI Intensity Above: <span style={{ color: "#007bff" }}>{intensityThreshold.toFixed(2)}</span>
+          Highlight Blocks with Avg AI Intensity Above:{" "}
+          <span style={{ color: "#007bff" }}>{intensityThreshold.toFixed(2)}</span>
         </label>
 
         <input
@@ -242,20 +253,35 @@ function AiJobCount() {
       const str = s.toString().toLowerCase();
       if (str.includes("manufactur") || str.includes("transport") || str.includes("logistic")) return "Manufacturing";
       if (str.includes("retail") || str.includes("consumer")) return "Retail";
-      if (str.includes("information") || str.includes("communication") || str.includes("ict") || str.includes("it") || str.includes("tech") || str.includes("software") || str.includes("computer")) return "Tech";
-      if (str.includes("bank") || str.includes("finance") || str.includes("account") || str.includes("financial")) return "Finance";
+      if (
+        str.includes("information") ||
+        str.includes("communication") ||
+        str.includes("ict") ||
+        str.includes("it") ||
+        str.includes("tech") ||
+        str.includes("software") ||
+        str.includes("computer")
+      )
+        return "Tech";
+      if (str.includes("bank") || str.includes("finance") || str.includes("account") || str.includes("financial"))
+        return "Finance";
       if (str.includes("health") || str.includes("medical") || str.includes("care")) return "Healthcare";
       if (str.includes("education") || str.includes("training") || str.includes("school")) return "Education";
       if (str.includes("government") || str.includes("defence") || str.includes("public")) return "Government";
-      if (str.includes("mining") || str.includes("energy") || str.includes("resource") || str.includes("oil") || str.includes("gas")) return "Energy";
-      if (str.includes("farm") || str.includes("agri") || str.includes("animal") || str.includes("conservation")) return "Agriculture";
+      if (
+        str.includes("mining") ||
+        str.includes("energy") ||
+        str.includes("resource") ||
+        str.includes("oil") ||
+        str.includes("gas")
+      )
+        return "Energy";
+      if (str.includes("farm") || str.includes("agri") || str.includes("animal") || str.includes("conservation"))
+        return "Agriculture";
       return "Market Average";
     };
 
-    Promise.all([
-      d3.csv(`${baseUrl}jobstreet_all_job_dataset.csv`),
-      d3.csv(`${baseUrl}ai_job_trends_dataset.csv`),
-    ])
+    Promise.all([d3.csv(`${baseUrl}jobstreet_all_job_dataset.csv`), d3.csv(`${baseUrl}ai_job_trends_dataset.csv`)])
       .then(([jobsRaw, riskRaw]) => {
         // Compute average automation risk per mapped group from job trends dataset
         // Prefer year-specific 'Automation Risk (YYYY)' columns when available.
@@ -284,13 +310,13 @@ function AiJobCount() {
             return +row[chosenRiskKey] || 0;
           }
           const fallbackKey = Object.keys(row).find((k) => /automation\s*risk/i.test(k));
-          return fallbackKey ? (+row[fallbackKey] || 0) : 0;
+          return fallbackKey ? +row[fallbackKey] || 0 : 0;
         };
 
         const riskByGroup = d3.rollups(
           riskRaw,
           (v) => d3.mean(v, (d) => safeRisk(d)),
-          (d) => mapToGroup(d.Industry)
+          (d) => mapToGroup(d.Industry),
         );
 
         const riskMap = Object.fromEntries(riskByGroup);
@@ -305,29 +331,50 @@ function AiJobCount() {
           .filter((d) => d.category && d.subcategory);
 
         // Aggregate counts by mapped category -> subcategory
-        const grouped = d3.rollups(
-          parsed,
-          (v) => v.length,
-          (d) => d.category,
-          (d) => d.subcategory
-        ).map(([category, subcats]) => ({
-          category,
-          total: d3.sum(subcats, ([, count]) => count),
-          segments: subcats.map(([subcategory, count]) => ({ subcategory, count })).sort((a,b) => d3.descending(a.count, b.count)),
-        }));
+        const grouped = d3
+          .rollups(
+            parsed,
+            (v) => v.length,
+            (d) => d.category,
+            (d) => d.subcategory,
+          )
+          .map(([category, subcats]) => ({
+            category,
+            total: d3.sum(subcats, ([, count]) => count),
+            segments: subcats
+              .map(([subcategory, count]) => ({ subcategory, count }))
+              .sort((a, b) => d3.descending(a.count, b.count)),
+          }));
 
         // Ensure consistent order and include categories even if zero
-        const targetOrder = ["Market Average","Agriculture","Education","Energy","Finance","Government","Healthcare","Manufacturing","Retail","Tech"];
+        const targetOrder = [
+          "Market Average",
+          "Agriculture",
+          "Education",
+          "Energy",
+          "Finance",
+          "Government",
+          "Healthcare",
+          "Manufacturing",
+          "Retail",
+          "Tech",
+        ];
 
         const overallAvgRisk = d3.mean(riskRaw, (d) => safeRisk(d)) || 0;
 
         const categorySegments = targetOrder.map((cat) => {
-          const found = grouped.find(g => g.category === cat);
+          const found = grouped.find((g) => g.category === cat);
           if (!found) {
-            return { category: cat, total: 0, risk: riskMap[cat] ?? overallAvgRisk, weight: (riskMap[cat] ?? overallAvgRisk) / 100, segments: [] };
+            return {
+              category: cat,
+              total: 0,
+              risk: riskMap[cat] ?? overallAvgRisk,
+              weight: (riskMap[cat] ?? overallAvgRisk) / 100,
+              segments: [],
+            };
           }
           const riskVal = riskMap[found.category] ?? overallAvgRisk;
-          const weight = (isFinite(riskVal) ? riskVal / 100 : 1);
+          const weight = isFinite(riskVal) ? riskVal / 100 : 1;
           const weightedTotal = found.total * weight;
           return {
             category: found.category,
@@ -341,10 +388,7 @@ function AiJobCount() {
 
         // Sort categories by risk-weighted total descending so largest bars appear on top
         categorySegments.sort((a, b) =>
-          d3.descending(
-            a.weightedTotal ?? (a.total * (a.weight || 0)),
-            b.weightedTotal ?? (b.total * (b.weight || 0))
-          )
+          d3.descending(a.weightedTotal ?? a.total * (a.weight || 0), b.weightedTotal ?? b.total * (b.weight || 0)),
         );
 
         setJobDensityData(categorySegments);
@@ -381,15 +425,11 @@ function AiJobCount() {
     const categoryColorScale = d3
       .scaleOrdinal()
       .domain(jobDensityData.map((d) => d.category))
-      .range(
-        jobDensityData.map((_, i) =>
-          d3.interpolateTurbo(i / Math.max(jobDensityData.length - 1, 1))
-        )
-      );
+      .range(jobDensityData.map((_, i) => d3.interpolateTurbo(i / Math.max(jobDensityData.length - 1, 1))));
 
     const xScale = d3
       .scaleLinear()
-      .domain([0, d3.max(jobDensityData, (d) => d.weightedTotal || (d.total * (d.weight || 1))) || 0])
+      .domain([0, d3.max(jobDensityData, (d) => d.weightedTotal || d.total * (d.weight || 1)) || 0])
       .nice()
       .range([0, innerWidth]);
 
@@ -463,35 +503,39 @@ function AiJobCount() {
       .attr("fill", (d) => d.color)
       .attr("stroke", "#ffffff")
       .attr("stroke-width", 0.8)
-      .on("mouseover", function(event, d) {
+      .on("mouseover", function (event, d) {
         const percentage = d.total > 0 ? (d.segmentCount / d.total) * 100 : 0;
         tooltip.style("opacity", 1);
         tooltip.html(
-          `<strong>${d.category}</strong><br/>Subcategory: ${d.subcategory}<br/>Jobs: ${d.segmentCount}<br/>Risk-weighted: ${Math.round(d.weightedCount)}<br/>Share: ${percentage.toFixed(1)}%`
+          `<strong>${d.category}</strong><br/>Subcategory: ${d.subcategory}<br/>Jobs: ${d.segmentCount}<br/>Risk-weighted: ${Math.round(d.weightedCount)}<br/>Share: ${percentage.toFixed(1)}%`,
         );
         d3.select(this).attr("stroke", "#111827").attr("stroke-width", 1.2);
       })
-      .on("mousemove", function(event) {
+      .on("mousemove", function (event) {
         const [x, y] = d3.pointer(event, segmentedSvgRef.current);
-        tooltip
-          .style("left", `${x + 15}px`)
-          .style("top", `${y + 15}px`);
+        tooltip.style("left", `${x + 15}px`).style("top", `${y + 15}px`);
       })
-      .on("mouseout", function() {
+      .on("mouseout", function () {
         tooltip.style("opacity", 0);
         d3.select(this).attr("stroke", "#ffffff").attr("stroke-width", 0.8);
       });
 
-    svg
-      .attr("viewBox", `0 0 ${segmentedWidth} ${segmentedHeight}`)
-      .attr("preserveAspectRatio", "xMinYMin meet");
-
+    svg.attr("viewBox", `0 0 ${segmentedWidth} ${segmentedHeight}`).attr("preserveAspectRatio", "xMinYMin meet");
   }, [jobDensityData, segmentedContainerWidth]);
 
   return (
     <div
       ref={segmentedContainerRef}
-      style={{ position: "relative", width: "100%", maxWidth: "980px", margin: "0 auto", textAlign: "left", background: "#ffffff", borderRadius: "10px", overflowX: "hidden" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: "980px",
+        margin: "0 auto",
+        textAlign: "left",
+        background: "#ffffff",
+        borderRadius: "10px",
+        overflowX: "hidden",
+      }}
     >
       <h3 style={{ textAlign: "center", marginBottom: "6px" }}>Job Count by Category (Risk-weighted)</h3>
       <p style={{ textAlign: "center", marginTop: 0, color: "#4b5563", fontSize: "12px" }}>
@@ -513,7 +557,7 @@ function AiJobCount() {
           fontSize: "12px",
           textAlign: "left",
           boxShadow: "0px 2px 5px rgba(0,0,0,0.15)",
-          zIndex: 10
+          zIndex: 10,
         }}
       ></div>
     </div>

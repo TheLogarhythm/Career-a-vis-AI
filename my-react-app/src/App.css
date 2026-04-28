@@ -1,9 +1,10 @@
 /* Prevent global body scroll */
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 :root {
@@ -12,14 +13,19 @@ body, html {
 }
 
 /* 统一所有 Task 的文字样式 */
-.task-section h2, .detail-card h2 {
-  font-family: "Inter", -apple-system, sans-serif;
+.task-section h2,
+.detail-card h2 {
+  font-family:
+    "Inter",
+    -apple-system,
+    sans-serif;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #0f172a;
 }
 
-.description, .def-item p {
+.description,
+.def-item p {
   font-family: "Inter", system-ui, sans-serif;
   line-height: 1.6;
   color: #475569;
@@ -54,8 +60,12 @@ body, html {
 }
 
 @keyframes slideIn {
-  from { transform: translateX(-20px); }
-  to { transform: translateX(0); }
+  from {
+    transform: translateX(-20px);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .badge {
@@ -73,7 +83,9 @@ body, html {
   margin-top: 15px;
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 260ms ease, transform 260ms ease;
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
   will-change: opacity, transform;
 }
 
@@ -165,24 +177,14 @@ body, html {
   top: calc(100vh - 430px); /* 让地球精确贴靠在屏幕底端 */
   width: 60%;
   height: 450px;
-  background-image: url('/Earth.jpg');
+  background-image: url("/Earth.jpg");
   background-size: auto 100%;
   background-repeat: no-repeat;
   background-position-y: center;
   opacity: 0;
   will-change: transform, opacity, background-position-x;
-  mask-image: linear-gradient(
-    to left,
-    rgba(0,0,0,0.75) 0%,
-    rgba(0,0,0,0.45) 45%,
-    rgba(0,0,0,0) 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to left,
-    rgba(0,0,0,0.75) 0%,
-    rgba(0,0,0,0.45) 45%,
-    rgba(0,0,0,0) 100%
-  );
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0) 100%);
   pointer-events: none;
 }
 
@@ -219,7 +221,9 @@ body, html {
   padding: 0;
   box-shadow: none;
   opacity: 1;
-  transition: opacity 160ms ease, transform 160ms ease;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
   transform-origin: left center;
   border-radius: 4px;
 }

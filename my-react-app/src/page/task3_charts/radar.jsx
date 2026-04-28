@@ -2,30 +2,27 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import * as d3 from "d3";
 import SeniorityDashboard from "./task3-SeniorityDashboard";
 
-
-
 const calculateArea = (d, weights) => {
   const metrics = Object.keys(weights);
   const n = metrics.length;
   const angleSlice = (Math.PI * 2) / n;
   let area = 0;
-  
+
   for (let i = 0; i < n; i++) {
     // Current vertex and next vertex radial values
     const r1 = (d[`${metrics[i]}_norm`] || 0) * (weights[metrics[i]] || 1);
     const r2 = (d[`${metrics[(i + 1) % n]}_norm`] || 0) * (weights[metrics[(i + 1) % n]] || 1);
-    
+
     // Sum of triangles formula: 0.5 * r1 * r2 * sin(theta)
     area += 0.5 * r1 * r2 * Math.sin(angleSlice);
   }
   return area;
 };
 
-
 export function DraggablePie({ weights, setWeights }) {
   const svgRef = useRef(null);
   // We store the current "angles" in a ref to keep interaction smooth
-  const anglesRef = useRef([]); 
+  const anglesRef = useRef([]);
   const metrics = useMemo(() => Object.keys(weights || {}), [weights]);
   const colors = ["#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#1abc9c"];
   const radius = 85;
@@ -35,7 +32,7 @@ export function DraggablePie({ weights, setWeights }) {
   useEffect(() => {
     const total = d3.sum(Object.values(weights));
     let cumulative = 0;
-    anglesRef.current = metrics.map(m => {
+    anglesRef.current = metrics.map((m) => {
       const share = (weights[m] / total) * (Math.PI * 2);
       cumulative += share;
       return cumulative;
@@ -74,8 +71,8 @@ export function DraggablePie({ weights, setWeights }) {
         .join("circle")
         .attr("class", "handle")
         .attr("r", 9)
-        .attr("cx", d => radius * Math.sin(d))
-        .attr("cy", d => -radius * Math.cos(d))
+        .attr("cx", (d) => radius * Math.sin(d))
+        .attr("cy", (d) => -radius * Math.cos(d))
         .attr("fill", "#fff")
         .attr("stroke", "#cbd5e1")
         .attr("stroke-width", 2)
@@ -85,7 +82,8 @@ export function DraggablePie({ weights, setWeights }) {
 
     render(anglesRef.current);
 
-    const drag = d3.drag()
+    const drag = d3
+      .drag()
       .on("drag", (event) => {
         const [x, y] = [event.x - (radius + padding), event.y - (radius + padding)];
         let angle = Math.atan2(x, -y);
@@ -96,16 +94,19 @@ export function DraggablePie({ weights, setWeights }) {
         let minDist = Infinity;
         anglesRef.current.forEach((a, i) => {
           // We don't drag the very last handle to keep the circle closed
-          if (i === anglesRef.current.length - 1) return; 
+          if (i === anglesRef.current.length - 1) return;
           const d = Math.abs(a - angle);
-          if (d < minDist) { minDist = d; closestIdx = i; }
+          if (d < minDist) {
+            minDist = d;
+            closestIdx = i;
+          }
         });
 
         // Constraint: Don't let a divider cross its neighbors (min 5 degree slice)
-        const minGap = 0.1; 
+        const minGap = 0.1;
         const prev = closestIdx === 0 ? 0 : anglesRef.current[closestIdx - 1];
         const next = anglesRef.current[closestIdx + 1];
-        
+
         if (angle > prev + minGap && angle < next - minGap) {
           anglesRef.current[closestIdx] = angle;
           render(anglesRef.current);
@@ -127,8 +128,13 @@ export function DraggablePie({ weights, setWeights }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <svg ref={svgRef} width={(radius + padding) * 2} height={(radius + padding) * 2} style={{ touchAction: "none", overflow: "visible" }} />
-      
+      <svg
+        ref={svgRef}
+        width={(radius + padding) * 2}
+        height={(radius + padding) * 2}
+        style={{ touchAction: "none", overflow: "visible" }}
+      />
+
       <div style={{ marginTop: "20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 20px" }}>
         {metrics.map((m, i) => (
           <div key={m} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -143,7 +149,6 @@ export function DraggablePie({ weights, setWeights }) {
   );
 }
 
-
 /**
  * 2. MAIN RADAR COMPONENT
  */
@@ -156,12 +161,17 @@ function Radar({ scrollParentRef }) {
   const stickyRef = useRef(null);
 
   // Define metrics locally since weights are removed
-  const metricsList = ["salary_usd", "ai_intensity_score", "automation_risk_score", "reskilling_rate", "displacement_risk", "skill_complexity"];
+  const metricsList = [
+    "salary_usd",
+    "ai_intensity_score",
+    "automation_risk_score",
+    "reskilling_rate",
+    "displacement_risk",
+    "skill_complexity",
+  ];
 
   // Initialize active metrics state for legend toggling
-  const [activeMetrics, setActiveMetrics] = useState(
-    metricsList.reduce((acc, key) => ({ ...acc, [key]: true }), {})
-  );
+  const [activeMetrics, setActiveMetrics] = useState(metricsList.reduce((acc, key) => ({ ...acc, [key]: true }), {}));
 
   // Helper: Geometric Area Calculation (No weighting)
   const calculateArea = (d, currentActive) => {
@@ -170,8 +180,8 @@ function Radar({ scrollParentRef }) {
     for (let i = 0; i < metricsList.length; i++) {
       const m1 = metricsList[i];
       const m2 = metricsList[(i + 1) % metricsList.length];
-      const r1 = currentActive[m1] ? (d[`${m1}_norm`] || 0) : 0;
-      const r2 = currentActive[m2] ? (d[`${m2}_norm`] || 0) : 0;
+      const r1 = currentActive[m1] ? d[`${m1}_norm`] || 0 : 0;
+      const r2 = currentActive[m2] ? d[`${m2}_norm`] || 0 : 0;
       area += 0.5 * r1 * r2 * Math.sin(angleSlice);
     }
     return area;
@@ -182,23 +192,27 @@ function Radar({ scrollParentRef }) {
     d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
       const riskMap = { Low: 0.33, Medium: 0.66, High: 1.0 };
       const processGroup = (dimension) => {
-        const rolled = d3.rollups(raw, (v) => ({
-          salary_usd: d3.mean(v, d => +d.salary_usd),
-          ai_intensity_score: d3.mean(v, d => +d.ai_intensity_score),
-          automation_risk_score: d3.mean(v, d => +d.automation_risk_score),
-          reskilling_rate: d3.mean(v, d => (d.reskilling_required === "True" ? 1 : 0)) * 100,
-          displacement_risk: d3.mean(v, d => riskMap[d.ai_job_displacement_risk] || 0),
-          skill_complexity: d3.mean(v, d => d.ai_skills ? d.ai_skills.split(",").length : 0)
-        }), (d) => d[dimension]);
+        const rolled = d3.rollups(
+          raw,
+          (v) => ({
+            salary_usd: d3.mean(v, (d) => +d.salary_usd),
+            ai_intensity_score: d3.mean(v, (d) => +d.ai_intensity_score),
+            automation_risk_score: d3.mean(v, (d) => +d.automation_risk_score),
+            reskilling_rate: d3.mean(v, (d) => (d.reskilling_required === "True" ? 1 : 0)) * 100,
+            displacement_risk: d3.mean(v, (d) => riskMap[d.ai_job_displacement_risk] || 0),
+            skill_complexity: d3.mean(v, (d) => (d.ai_skills ? d.ai_skills.split(",").length : 0)),
+          }),
+          (d) => d[dimension],
+        );
 
         let stats = rolled.map(([k, v]) => ({ industry: k, ...v }));
         const marketAvg = { industry: "Market Average" };
-        metricsList.forEach(key => marketAvg[key] = d3.mean(stats, s => s[key]));
+        metricsList.forEach((key) => (marketAvg[key] = d3.mean(stats, (s) => s[key])));
 
-        return [marketAvg, ...stats].map(d => {
+        return [marketAvg, ...stats].map((d) => {
           const norm = { ...d };
-          metricsList.forEach(key => {
-            const maxVal = d3.max([marketAvg, ...stats], s => s[key]) || 1;
+          metricsList.forEach((key) => {
+            const maxVal = d3.max([marketAvg, ...stats], (s) => s[key]) || 1;
             norm[`${key}_norm`] = d[key] / maxVal;
           });
           return norm;
@@ -210,10 +224,10 @@ function Radar({ scrollParentRef }) {
   }, []);
 
   const getProcessedData = (dataset) => {
-    return dataset.map(d => {
+    return dataset.map((d) => {
       const entry = { ...d };
-      metricsList.forEach(m => {
-        entry[`${m}_norm`] = activeMetrics[m] ? (d[`${m}_norm`] || 0) : 0;
+      metricsList.forEach((m) => {
+        entry[`${m}_norm`] = activeMetrics[m] ? d[`${m}_norm`] || 0 : 0;
       });
       return entry;
     });
@@ -221,11 +235,11 @@ function Radar({ scrollParentRef }) {
 
   const handleAutoSelect = () => {
     if (industryData.length === 0 || regionData.length === 0) return;
-    const findTop = (data) => data
-      .filter(d => d.industry !== "Market Average")
-      .reduce((prev, curr) => 
-        calculateArea(prev, activeMetrics) > calculateArea(curr, activeMetrics) ? prev : curr
-      ).industry;
+    const findTop = (data) =>
+      data
+        .filter((d) => d.industry !== "Market Average")
+        .reduce((prev, curr) => (calculateArea(prev, activeMetrics) > calculateArea(curr, activeMetrics) ? prev : curr))
+        .industry;
 
     setSelectedIndustries(["Market Average", findTop(industryData)]);
     setSelectedRegions(["Market Average", findTop(regionData)]);
@@ -249,51 +263,125 @@ function Radar({ scrollParentRef }) {
   const regionColorScale = useMemo(() => d3.scaleOrdinal(d3.schemeSet3), []);
 
   const btnStyle = (active, color) => ({
-    padding: "4px 10px", borderRadius: "12px", cursor: "pointer", fontSize: "11px",
+    padding: "4px 10px",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontSize: "11px",
     border: `2px solid ${active ? color : "#e2e8f0"}`,
-    background: active ? "white" : "#f8fafc", color: active ? color : "#64748b", margin: "2px"
+    background: active ? "white" : "#f8fafc",
+    color: active ? color : "#64748b",
+    margin: "2px",
   });
 
   return (
     <div style={{ background: "#f8fafc", fontFamily: "sans-serif" }}>
       <div style={{ height: "250vh", position: "relative" }} ref={stickyRef}>
-        <div style={{ position: "sticky", top: "0", height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", background: "white", overflow: "hidden", paddingTop: "40px" }}>
+        <div
+          style={{
+            position: "sticky",
+            top: "0",
+            height: "100vh",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            background: "white",
+            overflow: "hidden",
+            paddingTop: "40px",
+          }}
+        >
           <div style={{ textAlign: "center", marginBottom: "20px" }}>
             <h2 style={{ color: "#1e293b", margin: 0 }}>Comparative AI Profile</h2>
-            <button 
+            <button
               onClick={handleAutoSelect}
               style={{
-                marginTop: "12px", padding: "8px 16px", backgroundColor: "#3b82f6", color: "white",
-                border: "none", borderRadius: "20px", fontSize: "12px", fontWeight: "bold", cursor: "pointer"
+                marginTop: "12px",
+                padding: "8px 16px",
+                backgroundColor: "#3b82f6",
+                color: "white",
+                border: "none",
+                borderRadius: "20px",
+                fontSize: "12px",
+                fontWeight: "bold",
+                cursor: "pointer",
               }}
             >
               Show largest Area
             </button>
           </div>
 
-          <div style={{ display: "flex", gap: "20px", width: "90%", maxWidth: "1000px", background: "white", padding: "15px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", zIndex: 10 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "20px",
+              width: "90%",
+              maxWidth: "1000px",
+              background: "white",
+              padding: "15px",
+              borderRadius: "16px",
+              boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+              zIndex: 10,
+            }}
+          >
             <div style={{ flex: 1, textAlign: "center" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-                {industryData.map(d => (
-                  <button key={d.industry} onClick={() => setSelectedIndustries(["Market Average", d.industry])} style={btnStyle(selectedIndustries.includes(d.industry), industryColorScale(d.industry))}>{d.industry}</button>
+                {industryData.map((d) => (
+                  <button
+                    key={d.industry}
+                    onClick={() => setSelectedIndustries(["Market Average", d.industry])}
+                    style={btnStyle(selectedIndustries.includes(d.industry), industryColorScale(d.industry))}
+                  >
+                    {d.industry}
+                  </button>
                 ))}
               </div>
             </div>
             <div style={{ flex: 1, textAlign: "center" }}>
               <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-                {regionData.map(d => (
-                  <button key={d.industry} onClick={() => setSelectedRegions(["Market Average", d.industry])} style={btnStyle(selectedRegions.includes(d.industry), regionColorScale(d.industry))}>{d.industry}</button>
+                {regionData.map((d) => (
+                  <button
+                    key={d.industry}
+                    onClick={() => setSelectedRegions(["Market Average", d.industry])}
+                    style={btnStyle(selectedRegions.includes(d.industry), regionColorScale(d.industry))}
+                  >
+                    {d.industry}
+                  </button>
                 ))}
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", position: "relative", marginTop: "20px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              position: "relative",
+              marginTop: "20px",
+            }}
+          >
             <div style={{ transform: `translateX(${mergeFactor * 250}px)`, zIndex: 2 }}>
-              <SeniorityDashboard data={processedInd} selectedIndustries={selectedIndustries} colorScale={industryColorScale} transparent={true} />
+              <SeniorityDashboard
+                data={processedInd}
+                selectedIndustries={selectedIndustries}
+                colorScale={industryColorScale}
+                transparent={true}
+              />
             </div>
-            <div style={{ transform: `translateX(-${mergeFactor * 250}px)`, mixBlendMode: "multiply", zIndex: 3, pointerEvents: "none" }}>
-              <SeniorityDashboard data={processedReg} selectedIndustries={selectedRegions} colorScale={regionColorScale} transparent={true} />
+            <div
+              style={{
+                transform: `translateX(-${mergeFactor * 250}px)`,
+                mixBlendMode: "multiply",
+                zIndex: 3,
+                pointerEvents: "none",
+              }}
+            >
+              <SeniorityDashboard
+                data={processedReg}
+                selectedIndustries={selectedRegions}
+                colorScale={regionColorScale}
+                transparent={true}
+              />
             </div>
           </div>
         </div>
@@ -301,6 +389,5 @@ function Radar({ scrollParentRef }) {
     </div>
   );
 }
-
 
 export default Radar;

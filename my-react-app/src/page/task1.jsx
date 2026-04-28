@@ -9,132 +9,132 @@ const baseUrl = import.meta.env.BASE_URL || "/";
 // ── Mapping: TopoJSON .name → DS1 country name ──────────────────────────
 const GEO_TO_DS1 = {
   "United States of America": "United States",
-  "China": "China",
+  China: "China",
   "United Kingdom": "United Kingdom",
-  "Canada": "Canada",
-  "France": "France",
-  "Germany": "Germany",
-  "Japan": "Japan",
-  "India": "India",
-  "Brazil": "Brazil",
-  "Russia": "Russia",
-  "Italy": "Italy",
-  "Spain": "Spain",
-  "Australia": "Australia",
-  "Mexico": "Mexico",
+  Canada: "Canada",
+  France: "France",
+  Germany: "Germany",
+  Japan: "Japan",
+  India: "India",
+  Brazil: "Brazil",
+  Russia: "Russia",
+  Italy: "Italy",
+  Spain: "Spain",
+  Australia: "Australia",
+  Mexico: "Mexico",
   "South Korea": "South Korea",
-  "Indonesia": "Indonesia",
-  "Turkey": "Turkey",
-  "Argentina": "Argentina",
+  Indonesia: "Indonesia",
+  Turkey: "Turkey",
+  Argentina: "Argentina",
   "South Africa": "South Africa",
-  "Thailand": "Thailand",
-  "Egypt": "Egypt",
-  "Nigeria": "Nigeria",
-  "Colombia": "Colombia",
-  "Poland": "Poland",
-  "Chile": "Chile",
-  "Netherlands": "Netherlands",
-  "Sweden": "Sweden",
-  "Singapore": "Singapore",
-  "Malaysia": "Malaysia",
-  "Philippines": "Philippines",
-  "Vietnam": "Vietnam",
-  "Pakistan": "Pakistan",
-  "Bangladesh": "Bangladesh",
+  Thailand: "Thailand",
+  Egypt: "Egypt",
+  Nigeria: "Nigeria",
+  Colombia: "Colombia",
+  Poland: "Poland",
+  Chile: "Chile",
+  Netherlands: "Netherlands",
+  Sweden: "Sweden",
+  Singapore: "Singapore",
+  Malaysia: "Malaysia",
+  Philippines: "Philippines",
+  Vietnam: "Vietnam",
+  Pakistan: "Pakistan",
+  Bangladesh: "Bangladesh",
   "New Zealand": "New Zealand",
-  "Portugal": "Portugal",
-  "Peru": "Peru",
-  "Kenya": "Kenya",
-  "Ghana": "Ghana",
-  "Morocco": "Morocco",
-  "Israel": "Israel",
-  "Jordan": "Jordan",
-  "Qatar": "Qatar",
+  Portugal: "Portugal",
+  Peru: "Peru",
+  Kenya: "Kenya",
+  Ghana: "Ghana",
+  Morocco: "Morocco",
+  Israel: "Israel",
+  Jordan: "Jordan",
+  Qatar: "Qatar",
   "Saudi Arabia": "Saudi Arabia",
   "Sri Lanka": "Sri Lanka",
-  "Nepal": "Nepal",
-  "Taiwan": "Taiwan",
-  "UAE": "United Arab Emirates",
+  Nepal: "Nepal",
+  Taiwan: "Taiwan",
+  UAE: "United Arab Emirates",
 };
 
 // ── Mapping: TopoJSON .name → DS2 Location name ──────────────────────────
 const GEO_TO_DS2 = {
   "United States of America": "USA",
   "United Kingdom": "UK",
-  "Canada": "Canada",
-  "Australia": "Australia",
-  "Germany": "Germany",
-  "China": "China",
-  "India": "India",
-  "Brazil": "Brazil",
+  Canada: "Canada",
+  Australia: "Australia",
+  Germany: "Germany",
+  China: "China",
+  India: "India",
+  Brazil: "Brazil",
 };
 
 // ── Mapping: TopoJSON .name → AI Index country name ─────────────────────
 const GEO_TO_AI = {
   "United States of America": "United States of America",
   "United Kingdom": "United Kingdom",
-  "Canada": "Canada",
-  "France": "France",
-  "Germany": "Germany",
-  "Japan": "Japan",
-  "India": "India",
-  "Brazil": "Brazil",
-  "China": "China",
-  "Italy": "Italy",
-  "Spain": "Spain",
-  "Australia": "Australia",
-  "Mexico": "Mexico",
+  Canada: "Canada",
+  France: "France",
+  Germany: "Germany",
+  Japan: "Japan",
+  India: "India",
+  Brazil: "Brazil",
+  China: "China",
+  Italy: "Italy",
+  Spain: "Spain",
+  Australia: "Australia",
+  Mexico: "Mexico",
   "South Korea": "South Korea",
-  "Indonesia": "Indonesia",
-  "Turkey": "Turkey",
-  "Argentina": "Argentina",
+  Indonesia: "Indonesia",
+  Turkey: "Turkey",
+  Argentina: "Argentina",
   "South Africa": "South Africa",
-  "Thailand": "Thailand",
-  "Egypt": "Egypt",
-  "Nigeria": "Nigeria",
-  "Colombia": "Colombia",
-  "Poland": "Poland",
-  "Chile": "Chile",
-  "Netherlands": "The Netherlands",
-  "Sweden": "Sweden",
-  "Singapore": "Singapore",
-  "Malaysia": "Malaysia",
-  "Philippines": "Philippines",
-  "Vietnam": "Vietnam",
-  "Pakistan": "Pakistan",
+  Thailand: "Thailand",
+  Egypt: "Egypt",
+  Nigeria: "Nigeria",
+  Colombia: "Colombia",
+  Poland: "Poland",
+  Chile: "Chile",
+  Netherlands: "The Netherlands",
+  Sweden: "Sweden",
+  Singapore: "Singapore",
+  Malaysia: "Malaysia",
+  Philippines: "Philippines",
+  Vietnam: "Vietnam",
+  Pakistan: "Pakistan",
   "New Zealand": "New Zealand",
-  "Portugal": "Portugal",
-  "Kenya": "Kenya",
-  "Morocco": "Morocco",
-  "Israel": "Israel",
-  "Qatar": "Qatar",
+  Portugal: "Portugal",
+  Kenya: "Kenya",
+  Morocco: "Morocco",
+  Israel: "Israel",
+  Qatar: "Qatar",
   "Saudi Arabia": "Saudi Arabia",
   "Sri Lanka": "Sri Lanka",
-  "Taiwan": "Taiwan",
+  Taiwan: "Taiwan",
   "United Arab Emirates": "United Arab Emirates",
-  "Denmark": "Denmark",
-  "Finland": "Finland",
-  "Norway": "Norway",
-  "Switzerland": "Switzerland",
-  "Belgium": "Belgium",
-  "Austria": "Austria",
-  "Ireland": "Ireland",
-  "Estonia": "Estonia",
-  "Iceland": "Iceland",
-  "Luxembourg": "Luxembourg",
-  "Czechia": "Czech Republic",
-  "Hungary": "Hungary",
-  "Greece": "Greece",
-  "Russia": "Russia",
+  Denmark: "Denmark",
+  Finland: "Finland",
+  Norway: "Norway",
+  Switzerland: "Switzerland",
+  Belgium: "Belgium",
+  Austria: "Austria",
+  Ireland: "Ireland",
+  Estonia: "Estonia",
+  Iceland: "Iceland",
+  Luxembourg: "Luxembourg",
+  Czechia: "Czech Republic",
+  Hungary: "Hungary",
+  Greece: "Greece",
+  Russia: "Russia",
   "Hong Kong": "Hong Kong",
-  "Slovakia": "Slovakia",
-  "Slovenia": "Slovenia",
-  "Uruguay": "Uruguay",
-  "Tunisia": "Tunisia",
-  "Lithuania": "Lithuania",
-  "Malta": "Malta",
-  "Armenia": "Armenia",
-  "Bahrain": "Bahrain",
+  Slovakia: "Slovakia",
+  Slovenia: "Slovenia",
+  Uruguay: "Uruguay",
+  Tunisia: "Tunisia",
+  Lithuania: "Lithuania",
+  Malta: "Malta",
+  Armenia: "Armenia",
+  Bahrain: "Bahrain",
 };
 
 // ── Color palettes ───────────────────────────────────────────────────────
@@ -160,9 +160,9 @@ function Task1({ scrollParentRef, onStageChange }) {
 
   const [stageIndex, setStageIndex] = useState(0);
   const [geoData, setGeoData] = useState(null);
-  const [ds1Map, setDs1Map] = useState(null);   // country → {avgSalary}
-  const [ds2Map, setDs2Map] = useState(null);   // location → {avgSalary}
-  const [ds3Map, setDs3Map] = useState(null);   // country → {metrics}
+  const [ds1Map, setDs1Map] = useState(null); // country → {avgSalary}
+  const [ds2Map, setDs2Map] = useState(null); // location → {avgSalary}
+  const [ds3Map, setDs3Map] = useState(null); // country → {metrics}
   const [ds3Metric, setDs3Metric] = useState("Total score");
 
   const DS_STAGE_SCROLL_FACTOR = 1.2; // 120vh per stage
@@ -182,7 +182,7 @@ function Task1({ scrollParentRef, onStageChange }) {
 
       // DS1: country-level average salary
       const m1 = new Map();
-      csv1.forEach(r => {
+      csv1.forEach((r) => {
         const c = r.country;
         if (!c) return;
         if (!m1.has(c)) m1.set(c, { sum: 0, count: 0 });
@@ -198,7 +198,7 @@ function Task1({ scrollParentRef, onStageChange }) {
 
       // DS2: Location-level median salary (from csv2)
       const m2 = new Map();
-      csv2.forEach(r => {
+      csv2.forEach((r) => {
         const loc = r.Location;
         if (!loc) return;
         if (!m2.has(loc)) m2.set(loc, { sum: 0, count: 0 });
@@ -212,15 +212,15 @@ function Task1({ scrollParentRef, onStageChange }) {
 
       // DS3: AI Index, one row per country
       const ds3 = new Map();
-      csv3.forEach(r => {
+      csv3.forEach((r) => {
         ds3.set(r.Country, {
           "Total score": +r["Total score"] || 0,
-          "Talent": +r.Talent || 0,
-          "Research": +r.Research || 0,
-          "Development": +r.Development || 0,
-          "Infrastructure": +r.Infrastructure || 0,
+          Talent: +r.Talent || 0,
+          Research: +r.Research || 0,
+          Development: +r.Development || 0,
+          Infrastructure: +r.Infrastructure || 0,
           "Government Strategy": +r["Government Strategy"] || 0,
-          "Commercial": +r.Commercial || 0,
+          Commercial: +r.Commercial || 0,
         });
       });
       setDs3Map(ds3);
@@ -258,26 +258,24 @@ function Task1({ scrollParentRef, onStageChange }) {
   useEffect(() => {
     if (!geoData || !ds1Map || !ds2Map || !ds3Map || !svgRef.current) return;
 
-    const W = 1000, H = 500;
+    const W = 1000,
+      H = 500;
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const projection = d3.geoNaturalEarth1().scale(175).translate([W / 2, H / 2]);
+    const projection = d3
+      .geoNaturalEarth1()
+      .scale(175)
+      .translate([W / 2, H / 2]);
     const pathGen = d3.geoPath().projection(projection);
     const g = svg.append("g");
     const tip = d3.select(tooltipRef.current);
 
-    const frame = stageIndex === 0
-      ? "base"
-      : stageIndex === 1
-        ? "ds1"
-        : stageIndex === 2
-          ? "ds2"
-          : "ds3";
+    const frame = stageIndex === 0 ? "base" : stageIndex === 1 ? "ds1" : stageIndex === 2 ? "ds2" : "ds3";
 
-    const ds1Vals = [...ds1Map.values()].map(d => d.avgSalary).filter(v => v > 0);
-    const ds2Vals = [...ds2Map.values()].map(d => d.avgSalary).filter(v => v > 0);
-    const ds3Vals = [...ds3Map.values()].map(d => d[ds3Metric]).filter(v => v > 0);
+    const ds1Vals = [...ds1Map.values()].map((d) => d.avgSalary).filter((v) => v > 0);
+    const ds2Vals = [...ds2Map.values()].map((d) => d.avgSalary).filter((v) => v > 0);
+    const ds3Vals = [...ds3Map.values()].map((d) => d[ds3Metric]).filter((v) => v > 0);
 
     const ds1Scale = d3.scaleSequential().domain(d3.extent(ds1Vals)).interpolator(d3.interpolateRgbBasis(DS1_PALETTE));
     const ds2Scale = d3.scaleSequential().domain(d3.extent(ds2Vals)).interpolator(d3.interpolateRgbBasis(DS2_PALETTE));
@@ -329,7 +327,8 @@ function Task1({ scrollParentRef, onStageChange }) {
 
       if (frame === "ds2") {
         const loc = GEO_TO_DS2[geoName];
-        if (!loc) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data (only major economies covered)</div>`;
+        if (!loc)
+          return `<div class="tp-title">${geoName}</div><div class="tp-note">No data (only major economies covered)</div>`;
         const d = ds2Map.get(loc);
         if (!d) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
         return `
@@ -344,7 +343,7 @@ function Task1({ scrollParentRef, onStageChange }) {
       if (!aiName) return `<div class="tp-title">${geoName}</div><div class="tp-note">No AI Index data</div>`;
       const d = ds3Map.get(aiName);
       if (!d) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
-      const mDef = DS3_METRICS.find(m => m.key === ds3Metric);
+      const mDef = DS3_METRICS.find((m) => m.key === ds3Metric);
       return `
         <div class="tp-title">${geoName}</div>
         <div class="tp-subtitle">AI Index &middot; ${mDef?.label || ds3Metric}</div>
@@ -360,17 +359,15 @@ function Task1({ scrollParentRef, onStageChange }) {
       .append("path")
       .attr("class", "country-path")
       .attr("d", pathGen)
-      .attr("fill", d => getColor(d.properties.name))
-      .on("mouseover", function(event, d) {
-        d3.select(this).raise()
-          .style("stroke", "#1e293b")
-          .style("stroke-width", "1.5");
+      .attr("fill", (d) => getColor(d.properties.name))
+      .on("mouseover", function (event, d) {
+        d3.select(this).raise().style("stroke", "#1e293b").style("stroke-width", "1.5");
         tip.style("opacity", 1).html(buildTip(d.properties.name));
       })
       .on("mousemove", (event) => {
         tip.style("left", `${event.clientX + 20}px`).style("top", `${event.clientY - 18}px`);
       })
-      .on("mouseleave", function() {
+      .on("mouseleave", function () {
         d3.select(this).style("stroke", "#ffffff").style("stroke-width", "0.4");
         tip.style("opacity", 0);
       });
@@ -388,8 +385,8 @@ function Task1({ scrollParentRef, onStageChange }) {
         const [lo, hi] = d3.extent(ds1Vals);
         const N = DS1_PALETTE.length;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
-          const loV = lo + (hi - lo) * i / N;
-          const hiV = lo + (hi - lo) * (i + 1) / N;
+          const loV = lo + ((hi - lo) * i) / N;
+          const hiV = lo + ((hi - lo) * (i + 1)) / N;
           const color = ds1Scale((loV + hiV) / 2);
           return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${Math.round(loV / 1000)}k &ndash; $${Math.round(hiV / 1000)}k</span></div>`;
         }).join("");
@@ -398,19 +395,19 @@ function Task1({ scrollParentRef, onStageChange }) {
         const [lo, hi] = d3.extent(ds2Vals);
         const N = DS2_PALETTE.length;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
-          const loV = lo + (hi - lo) * i / N;
-          const hiV = lo + (hi - lo) * (i + 1) / N;
+          const loV = lo + ((hi - lo) * i) / N;
+          const hiV = lo + ((hi - lo) * (i + 1)) / N;
           const color = ds2Scale((loV + hiV) / 2);
           return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${Math.round(loV / 1000)}k &ndash; $${Math.round(hiV / 1000)}k</span></div>`;
         }).join("");
       } else {
-        const mDef = DS3_METRICS.find(m => m.key === ds3Metric);
+        const mDef = DS3_METRICS.find((m) => m.key === ds3Metric);
         legendTitle.textContent = `${mDef?.label || ds3Metric} \u2014 AI Index`;
         const [lo, hi] = d3.extent(ds3Vals);
         const N = AI_PALETTE.length;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
-          const loV = lo + (hi - lo) * i / N;
-          const hiV = lo + (hi - lo) * (i + 1) / N;
+          const loV = lo + ((hi - lo) * i) / N;
+          const hiV = lo + ((hi - lo) * (i + 1)) / N;
           const color = ds3Scale((loV + hiV) / 2);
           return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>${loV.toFixed(1)} &ndash; ${hiV.toFixed(1)}</span></div>`;
         }).join("");
@@ -440,68 +437,68 @@ function Task1({ scrollParentRef, onStageChange }) {
               ? "Colored by Country \u00B7 Only major economies covered"
               : "Colored by Country \u00B7 Select metric to explore";
     }
-
   }, [geoData, ds1Map, ds2Map, ds3Map, ds3Metric, stageIndex]);
 
-  const frame = stageIndex === 0
-    ? "base"
-    : stageIndex === 1
-      ? "ds1"
-      : stageIndex === 2
-        ? "ds2"
-        : "ds3";
+  const frame = stageIndex === 0 ? "base" : stageIndex === 1 ? "ds1" : stageIndex === 2 ? "ds2" : "ds3";
 
   // ── Info panel descriptions ────────────────────────────────────────────
   const DS1_DESC = (
     <>
-      Average AI-related salaries across <strong className="hl">44 countries</strong>, 2010&ndash;2025.
-      Helps identify which markets offer <strong className="hl">competitive pay</strong> for career targeting.
+      Average AI-related salaries across <strong className="hl">44 countries</strong>, 2010&ndash;2025. Helps identify
+      which markets offer <strong className="hl">competitive pay</strong> for career targeting.
     </>
   );
 
   const DS2_DESC = (
     <>
-      Salary forecasts for <strong className="hl">8 major economies</strong>, 2024&ndash;2030.
-      Helps <strong className="hl">anticipate future earnings</strong> for strategic career planning.
+      Salary forecasts for <strong className="hl">8 major economies</strong>, 2024&ndash;2030. Helps{" "}
+      <strong className="hl">anticipate future earnings</strong> for strategic career planning.
     </>
   );
 
   const DS3_DESCS = {
     "Total score": (
       <>
-        Benchmarks nations on <strong className="hl">investment</strong>, <strong className="hl">innovation</strong> and <strong className="hl">implementation</strong> of AI.
-        Higher scores = more AI roles and career growth.
+        Benchmarks nations on <strong className="hl">investment</strong>, <strong className="hl">innovation</strong> and{" "}
+        <strong className="hl">implementation</strong> of AI. Higher scores = more AI roles and career growth.
       </>
     ),
-    "Talent": (
+    Talent: (
       <>
-        <strong className="hl">Implementation</strong> indicator. Measures availability of <strong className="hl">skilled AI practitioners</strong>.
-        High scores mean more opportunities but stiffer competition.
+        <strong className="hl">Implementation</strong> indicator. Measures availability of{" "}
+        <strong className="hl">skilled AI practitioners</strong>. High scores mean more opportunities but stiffer
+        competition.
       </>
     ),
-    "Infrastructure": (
+    Infrastructure: (
       <>
-        <strong className="hl">Implementation</strong> indicator. Measures <strong className="hl">reliability of access infrastructure</strong> &mdash; internet, electricity, supercomputing.
+        <strong className="hl">Implementation</strong> indicator. Measures{" "}
+        <strong className="hl">reliability of access infrastructure</strong> &mdash; internet, electricity,
+        supercomputing.
       </>
     ),
-    "Research": (
+    Research: (
       <>
-        <strong className="hl">Innovation</strong> indicator. Measures <strong className="hl">publications and citations</strong> in academic journals.
+        <strong className="hl">Innovation</strong> indicator. Measures{" "}
+        <strong className="hl">publications and citations</strong> in academic journals.
       </>
     ),
-    "Development": (
+    Development: (
       <>
-        <strong className="hl">Innovation</strong> indicator. Measures development of <strong className="hl">fundamental platforms and algorithms</strong>.
+        <strong className="hl">Innovation</strong> indicator. Measures development of{" "}
+        <strong className="hl">fundamental platforms and algorithms</strong>.
       </>
     ),
     "Government Strategy": (
       <>
-        <strong className="hl">Investment</strong> indicator. Measures <strong className="hl">government spending</strong> and <strong className="hl">national AI strategies</strong>.
+        <strong className="hl">Investment</strong> indicator. Measures{" "}
+        <strong className="hl">government spending</strong> and <strong className="hl">national AI strategies</strong>.
       </>
     ),
-    "Commercial": (
+    Commercial: (
       <>
-        <strong className="hl">Investment</strong> indicator. Measures <strong className="hl">startup activity</strong> and <strong className="hl">business investment</strong> in AI.
+        <strong className="hl">Investment</strong> indicator. Measures <strong className="hl">startup activity</strong>{" "}
+        and <strong className="hl">business investment</strong> in AI.
       </>
     ),
   };
@@ -511,7 +508,6 @@ function Task1({ scrollParentRef, onStageChange }) {
   return (
     <div className="task1-scroll-container" style={{ height: task1ContainerHeight }}>
       <div className="task1-fixed-viewport" ref={fixedRef}>
-
         <div className="dataset-badge">
           <div className="badge-main">Scroll to reveal AI impact data</div>
           <div className="badge-sub">Four stages: historical salary &rarr; predicted salary &rarr; AI Index</div>
@@ -543,13 +539,12 @@ function Task1({ scrollParentRef, onStageChange }) {
         </div>
 
         {/* Metric toggle — only for DS3 */}
-        <div className="metric-toggle" style={{ opacity: showMetricToggle ? 1 : 0, pointerEvents: showMetricToggle ? "auto" : "none" }}>
-          {DS3_METRICS.map(m => (
-            <button
-              key={m.key}
-              className={ds3Metric === m.key ? "active" : ""}
-              onClick={() => setDs3Metric(m.key)}
-            >
+        <div
+          className="metric-toggle"
+          style={{ opacity: showMetricToggle ? 1 : 0, pointerEvents: showMetricToggle ? "auto" : "none" }}
+        >
+          {DS3_METRICS.map((m) => (
+            <button key={m.key} className={ds3Metric === m.key ? "active" : ""} onClick={() => setDs3Metric(m.key)}>
               {m.label}
             </button>
           ))}
@@ -559,7 +554,6 @@ function Task1({ scrollParentRef, onStageChange }) {
           <div className="legend-title"></div>
           <div className="legend-bins-wrap" />
         </div>
-
       </div>
     </div>
   );

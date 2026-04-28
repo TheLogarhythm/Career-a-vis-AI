@@ -28,9 +28,9 @@ export default function TransitionSection({ scrollParentRef, imageSrc, title, de
       // Visibility: fade in → stay visible → fade out
       let visibility;
       if (progress < 0.2) {
-        visibility = progress / 0.2;                          // 0 → 1
+        visibility = progress / 0.2; // 0 → 1
       } else if (progress < 0.6) {
-        visibility = 1;                                        // fully visible
+        visibility = 1; // fully visible
       } else {
         visibility = Math.max(0, 1 - (progress - 0.6) / 0.4); // 1 → 0
       }
@@ -67,12 +67,8 @@ export default function TransitionSection({ scrollParentRef, imageSrc, title, de
       </div>
       {/* Portal renders the image outside the scroll container → position:fixed works reliably */}
       {createPortal(
-        <div
-          className="ts-image"
-          ref={imgRef}
-          style={{ backgroundImage: `url('${imageSrc}')` }}
-        />,
-        document.body
+        <div className="ts-image" ref={imgRef} style={{ backgroundImage: `url('${imageSrc}')` }} />,
+        document.body,
       )}
     </>
   );

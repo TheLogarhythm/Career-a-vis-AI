@@ -5,23 +5,23 @@ import cloud from "d3-cloud";
 function AiWordGraph() {
   const [words, setWords] = useState([]);
   const svgRef = useRef(null);
-  
+
   const width = 600;
   const height = 400;
 
   useEffect(() => {
     const baseUrl = import.meta.env.BASE_URL || "/";
-    
+
     // 1. Fetch the dataset
     d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`).then((raw) => {
       const keywordCounts = {};
 
       // 2. Parse the CSV rows
-      raw.forEach(d => {
+      raw.forEach((d) => {
         if (d.ai_keywords) {
           // Split keywords by comma and clean up whitespace
-          const tags = d.ai_keywords.split(",").map(s => s.trim().toLowerCase());
-          tags.forEach(tag => {
+          const tags = d.ai_keywords.split(",").map((s) => s.trim().toLowerCase());
+          tags.forEach((tag) => {
             if (tag) {
               keywordCounts[tag] = (keywordCounts[tag] || 0) + 1;
             }
@@ -32,16 +32,14 @@ function AiWordGraph() {
       // 3. Convert dictionary to D3 readable array
       const wordsArray = Object.entries(keywordCounts).map(([text, value]) => ({
         text,
-        value
+        value,
       }));
 
       // Grab the max occurrences to scale sizes correctly
-      const maxValue = d3.max(wordsArray, d => d.value) || 1;
+      const maxValue = d3.max(wordsArray, (d) => d.value) || 1;
 
       // 4. Create a scale to map frequency -> font size
-      const sizeScale = d3.scaleLinear()
-        .domain([1, maxValue])
-        .range([12, 60]); // Smallest words will be 12px, biggest 60px
+      const sizeScale = d3.scaleLinear().domain([1, maxValue]).range([12, 60]); // Smallest words will be 12px, biggest 60px
 
       // 5. Initialize the d3-cloud layout
       cloud()
@@ -50,10 +48,10 @@ function AiWordGraph() {
         .padding(5) // Spacing between words
         .rotate(() => (Math.random() > 0.5 ? 0 : 90)) // Mix of horizontal/vertical text
         .font("Impact")
-        .fontSize(d => sizeScale(d.value)) // Call our scale
+        .fontSize((d) => sizeScale(d.value)) // Call our scale
         .on("end", (computedWords) => {
           // Once collision checks are complete, store plotted coordinates
-          setWords(computedWords); 
+          setWords(computedWords);
         })
         .start(); // Run the algorithm
     });
@@ -75,21 +73,21 @@ function AiWordGraph() {
       .append("g")
       .attr("transform", `translate(${width / 2},${height / 2})`); // Center the cloud
 
-    group.selectAll("text")
+    group
+      .selectAll("text")
       .data(words)
       .enter()
       .append("text")
       .style("font-family", "Impact")
-      .style("font-size", d => `${d.size}px`)
+      .style("font-size", (d) => `${d.size}px`)
       .style("fill", (d, i) => colorScale(i))
       .attr("text-anchor", "middle")
-      .attr("transform", d => `translate(${d.x}, ${d.y})rotate(${d.rotate})`) // Placed safely by D3 Cloud
-      .text(d => d.text);
-
+      .attr("transform", (d) => `translate(${d.x}, ${d.y})rotate(${d.rotate})`) // Placed safely by D3 Cloud
+      .text((d) => d.text);
   }, [words]);
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
       <svg ref={svgRef}></svg>
     </div>
   );

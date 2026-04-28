@@ -3,8 +3,7 @@
   padding: 28px 26px 36px;
   background:
     radial-gradient(circle at 12% 8%, rgba(42, 157, 143, 0.14), transparent 35%),
-    radial-gradient(circle at 88% 0%, rgba(233, 196, 106, 0.2), transparent 32%),
-    #fefcf8;
+    radial-gradient(circle at 88% 0%, rgba(233, 196, 106, 0.2), transparent 32%), #fefcf8;
   color: #1f2937;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
 }

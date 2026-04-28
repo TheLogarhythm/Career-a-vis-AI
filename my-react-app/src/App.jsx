@@ -14,7 +14,11 @@ import "./App.css";
 
 const TASK_DETAILS = {
   intro: {
-    title: (<><BookOpen size={18} className="inline-icon" /> Introduction</>),
+    title: (
+      <>
+        <BookOpen size={18} className="inline-icon" /> Introduction
+      </>
+    ),
     description:
       "Nowadays, AI's impact on the job market is a hot topic.\n\n" +
       "AI automation risk, job openings, AI exposure, and wage are key factors in this discussion.\n\n" +
@@ -22,29 +26,54 @@ const TASK_DETAILS = {
       "Details of the datasets are provided with links below.",
   },
   section1: {
-    title: (<><Globe size={18} className="inline-icon" /> Location Consideration</>),
+    title: (
+      <>
+        <Globe size={18} className="inline-icon" /> Location Consideration
+      </>
+    ),
     description: "In this section, we analyze the geographic distribution of data.",
   },
   section2: {
-    title: (<><Briefcase size={18} className="inline-icon" /> Across Industries</>),
+    title: (
+      <>
+        <Briefcase size={18} className="inline-icon" /> Across Industries
+      </>
+    ),
     description: "Analyzing how metrics have shifted over the last decade across different sectors.",
   },
   section3a: {
-    title: (<><MessageCircle size={18} className="inline-icon" /> How AI automation risk affected</>),
+    title: (
+      <>
+        <MessageCircle size={18} className="inline-icon" /> How AI automation risk affected
+      </>
+    ),
     description: "Compare how different industries intersect with regional AI profiles and automation risks.",
   },
   section3b: {
-    title: (<><BarChart2 size={18} className="inline-icon" /> How AI influences salaries across industries?</>),
+    title: (
+      <>
+        <BarChart2 size={18} className="inline-icon" /> How AI influences salaries across industries?
+      </>
+    ),
     description: "Try filtering jobs by AI intensity and see how salary levels differ across industries. ",
   },
   "section3b-2": {
-    title: (<><BarChart2 size={18} className="inline-icon" /> Job Volume by Category</>),
-    description: "Understanding job volume across categories and subcategories reveals where the demand — and competition — truly lies. This helps career seekers prioritize sectors with the most opportunities.",
+    title: (
+      <>
+        <BarChart2 size={18} className="inline-icon" /> Job Volume by Category
+      </>
+    ),
+    description:
+      "Understanding job volume across categories and subcategories reveals where the demand — and competition — truly lies. This helps career seekers prioritize sectors with the most opportunities.",
   },
   section4: {
-    title: (<><Zap size={18} className="inline-icon" /> An Evaluation</>),
+    title: (
+      <>
+        <Zap size={18} className="inline-icon" /> An Evaluation
+      </>
+    ),
     description: "Forecasting the next 5 years based on current data models.",
-  }, 
+  },
 };
 
 function App() {
@@ -52,24 +81,24 @@ function App() {
   const rightContainerRef = useRef(null);
   const [introStage, setIntroStage] = useState(0);
   const [task1Stage, setTask1Stage] = useState(0);
-   const [weights, setWeights] = useState({
+  const [weights, setWeights] = useState({
     salary_usd: 1,
     ai_intensity_score: 1,
     automation_risk_score: 1,
     reskilling_rate: 1,
     displacement_risk: 1,
-    skill_complexity: 1
+    skill_complexity: 1,
   });
-const [activeMetrics, setActiveMetrics] = useState(
-  Object.keys({
-    salary_usd: 1,
-    ai_intensity_score: 1,
-    automation_risk_score: 1,
-    reskilling_rate: 1,
-    displacement_risk: 1,
-    skill_complexity: 1
-  }).reduce((acc, key) => ({ ...acc, [key]: true }), {})
-);
+  const [activeMetrics, setActiveMetrics] = useState(
+    Object.keys({
+      salary_usd: 1,
+      ai_intensity_score: 1,
+      automation_risk_score: 1,
+      reskilling_rate: 1,
+      displacement_risk: 1,
+      skill_complexity: 1,
+    }).reduce((acc, key) => ({ ...acc, [key]: true }), {}),
+  );
   const baseUrl = import.meta.env.BASE_URL || "/";
   // Visualization badges available in public/VisualizationBadges
   const visualizationBadges = [
@@ -84,7 +113,7 @@ const [activeMetrics, setActiveMetrics] = useState(
     "Data_Quality_Constraints.png",
     "Details-on-Demand.png",
     "Human-Verified_AI.png",
-    "Open_Data.png"
+    "Open_Data.png",
   ];
   // Map specific badges to app sections / stage keys (descKey)
   const BADGE_MAP = {
@@ -94,9 +123,9 @@ const [activeMetrics, setActiveMetrics] = useState(
     "section1-1": ["Can_Mouse_Over.png"],
     "section1-2": ["Can_Mouse_Over.png"],
     // Across Industries
-    "section2": ["Aggregated_Data.png", "Data_Normalized.png"],
+    section2: ["Aggregated_Data.png", "Data_Normalized.png"],
     // Trend: Historical Analysis
-    "section3b": ["Can_Sort_&_Filter.png"],
+    section3b: ["Can_Sort_&_Filter.png"],
   };
   // Intersection observer for active section
   useEffect(() => {
@@ -134,7 +163,10 @@ const [activeMetrics, setActiveMetrics] = useState(
     if (introStage === 1) {
       displayDescription = (
         <div>
-          <p>Jobs are increasingly exposed to AI. The heatmap shows how AI intensity has grown across industries and time periods.</p>
+          <p>
+            Jobs are increasingly exposed to AI. The heatmap shows how AI intensity has grown across industries and time
+            periods.
+          </p>
           <div
             style={{
               marginTop: "8px",
@@ -166,7 +198,10 @@ const [activeMetrics, setActiveMetrics] = useState(
     } else if (introStage === 2) {
       displayDescription = (
         <div>
-          <p>AI adoption across industries has accelerated - and there are signs that AI intensity correlates with higher salaries.</p>
+          <p>
+            AI adoption across industries has accelerated - and there are signs that AI intensity correlates with higher
+            salaries.
+          </p>
         </div>
       );
     } else if (introStage >= 3) {
@@ -176,37 +211,63 @@ const [activeMetrics, setActiveMetrics] = useState(
         </div>
       );
     }
-  }
-  else if (activeTask === "section1") {
+  } else if (activeTask === "section1") {
     if (task1Stage === 0) {
-      displayDescription = "Global 2D map displayed here ro show how AI intensity and salary levels varied across countries in past years and future. Scroll down to see how.";
+      displayDescription =
+        "Global 2D map displayed here ro show how AI intensity and salary levels varied across countries in past years and future. Scroll down to see how.";
     } else if (task1Stage === 1) {
       displayDescription = (
         <div>
-          <p><b>2010-2025 Historical Phase</b></p>
-          <p style={{marginTop:"6px"}}>Easy to see that salary distribution varies significantly across countries in past years. North America and Oceania seemsa good choice.</p>
-          <p style={{marginTop:"6px"}}>In the aspect of AI intensity, seems the average </p>
-          <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see salary breakdown and year-by-year trend.</p>
+          <p>
+            <b>2010-2025 Historical Phase</b>
+          </p>
+          <p style={{ marginTop: "6px" }}>
+            Easy to see that salary distribution varies significantly across countries in past years. North America and
+            Oceania seemsa good choice.
+          </p>
+          <p style={{ marginTop: "6px" }}>In the aspect of AI intensity, seems the average </p>
+          <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
+            Hover a country to see salary breakdown and year-by-year trend.
+          </p>
         </div>
       );
-    } else if (task1Stage === 2){
+    } else if (task1Stage === 2) {
       displayDescription = (
         <div>
-          <p><b>2030 Projected Phase</b></p>
-          <p style={{marginTop:"6px"}}>Model projections show how salary levels are expected to diverge across economies as AI matures. </p>
-          <p style={{marginTop:"6px"}}>Interested thing is that we can actually see that it seems salary may be not so related with the location in the future! </p>
-          <p style={{marginTop:"6px"}}>Only 8 countries' data is being studied in the dataset as they are somewhat representative.</p>
-          <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see projected metrics.</p>
+          <p>
+            <b>2030 Projected Phase</b>
+          </p>
+          <p style={{ marginTop: "6px" }}>
+            Model projections show how salary levels are expected to diverge across economies as AI matures.{" "}
+          </p>
+          <p style={{ marginTop: "6px" }}>
+            Interested thing is that we can actually see that it seems salary may be not so related with the location in
+            the future!{" "}
+          </p>
+          <p style={{ marginTop: "6px" }}>
+            Only 8 countries' data is being studied in the dataset as they are somewhat representative.
+          </p>
+          <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
+            Hover a country to see projected metrics.
+          </p>
         </div>
       );
-    }
-    else {
+    } else {
       displayDescription = (
         <div>
-          <p><b>Current AI index level</b></p>
-          <p style={{marginTop:"6px"}}>See how the AI index varies across different countries. This is also important as AI index may potentially influence your work in the future.</p>
-          <p style={{marginTop:"6px"}}>This only shows the current state of AI index, but it is enough to give you an idea.</p>
-          <p style={{marginTop:"6px",fontStyle:"italic",color:"#64748b",fontSize:"12px"}}>Hover a country to see projected metrics.</p>
+          <p>
+            <b>Current AI index level</b>
+          </p>
+          <p style={{ marginTop: "6px" }}>
+            See how the AI index varies across different countries. This is also important as AI index may potentially
+            influence your work in the future.
+          </p>
+          <p style={{ marginTop: "6px" }}>
+            This only shows the current state of AI index, but it is enough to give you an idea.
+          </p>
+          <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
+            Hover a country to see projected metrics.
+          </p>
         </div>
       );
     }
@@ -218,11 +279,8 @@ const [activeMetrics, setActiveMetrics] = useState(
   const [leftDesc, setLeftDesc] = useState(displayDescription);
   const [leftDescVisible, setLeftDescVisible] = useState(true);
 
-  const descKey = activeTask === "intro"
-    ? `intro-${introStage}`
-    : activeTask === "section1"
-      ? `section1-${task1Stage}`
-      : activeTask;
+  const descKey =
+    activeTask === "intro" ? `intro-${introStage}` : activeTask === "section1" ? `section1-${task1Stage}` : activeTask;
 
   // pick badges for current view: exact descKey, or fallback to activeTask
   const badgesToShow = BADGE_MAP[descKey] || BADGE_MAP[activeTask] || [];
@@ -256,10 +314,7 @@ const [activeMetrics, setActiveMetrics] = useState(
             {leftDesc}
             {activeTask === "section3a" && (
               <div style={{ marginTop: "24px", borderTop: "1px solid #eee", paddingTop: "20px" }}>
-                <DraggablePie  weights={weights}
-                  setWeights={setWeights}
-                  activeMetrics={activeMetrics}
-                   />
+                <DraggablePie weights={weights} setWeights={setWeights} activeMetrics={activeMetrics} />
               </div>
             )}
           </div>
@@ -269,9 +324,11 @@ const [activeMetrics, setActiveMetrics] = useState(
                 <img
                   key={f}
                   src={`${baseUrl}VisualizationBadges/${encodeURIComponent(f)}`}
-                  alt={f.replace(/[_-]/g, ' ')}
+                  alt={f.replace(/[_-]/g, " ")}
                   className="vis-badge"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
                 />
               ))}
             </div>
@@ -281,17 +338,9 @@ const [activeMetrics, setActiveMetrics] = useState(
 
       {/* SCROLLABLE RIGHT SIDE */}
       <div className="right-container" ref={rightContainerRef}>
-
         {/* Intro Section */}
-        <section
-          className="task-section"
-          data-task="intro"
-          style={{ paddingBottom: 0, borderBottom: "none" }}
-        >
-          <Introduction
-            scrollParentRef={rightContainerRef}
-            onStageChange={setIntroStage}
-          />
+        <section className="task-section" data-task="intro" style={{ paddingBottom: 0, borderBottom: "none" }}>
+          <Introduction scrollParentRef={rightContainerRef} onStageChange={setIntroStage} />
         </section>
 
         {/* Transition: Intro → Task1 */}
@@ -304,10 +353,7 @@ const [activeMetrics, setActiveMetrics] = useState(
 
         {/* Task1 - Location */}
         <section className="task-section" data-task="section1" style={{ padding: 0 }}>
-          <Task1
-            scrollParentRef={rightContainerRef}
-            onStageChange={setTask1Stage}
-          />
+          <Task1 scrollParentRef={rightContainerRef} onStageChange={setTask1Stage} />
         </section>
 
         {/* Transition: Task1 → Task2 */}
@@ -348,17 +394,12 @@ const [activeMetrics, setActiveMetrics] = useState(
 
         {/* Radar - AI Risk Comparison (section3a) */}
         <section className="task-section" data-task="section4">
-          <Radar scrollParentRef={rightContainerRef}  />
+          <Radar scrollParentRef={rightContainerRef} />
         </section>
         {/* Inside your render block */}
-        <section className="task-section" data-task="section3a" >
-          <WeightedBarChart 
-          weights={weights} 
-          activeMetrics={activeMetrics} 
-        />
-
+        <section className="task-section" data-task="section3a">
+          <WeightedBarChart weights={weights} activeMetrics={activeMetrics} />
         </section>
-
 
         {/*
         <section className="task-section" data-task="section4">
@@ -374,4 +415,3 @@ const [activeMetrics, setActiveMetrics] = useState(
 }
 
 export default App;
-

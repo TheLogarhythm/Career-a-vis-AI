@@ -3,9 +3,15 @@ import * as d3 from "d3";
 import "./task2.css";
 
 const INDUSTRY_COLORS = {
-  Tech: "#dc2626", Finance: "#d97706", Healthcare: "#db2777",
-  Education: "#0891b2", Manufacturing: "#7c3aed", Retail: "#ea580c",
-  Agriculture: "#16a34a", Energy: "#0d9488", Government: "#f59e0b",
+  Tech: "#dc2626",
+  Finance: "#d97706",
+  Healthcare: "#db2777",
+  Education: "#0891b2",
+  Manufacturing: "#7c3aed",
+  Retail: "#ea580c",
+  Agriculture: "#16a34a",
+  Energy: "#0d9488",
+  Government: "#f59e0b",
   default: "#64748b",
 };
 
@@ -30,18 +36,63 @@ const HEIGHT = 550 - MARGIN.top - MARGIN.bottom;
 // 引导步骤配置
 const GUIDE_STEPS = {
   compare: [
-    { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between Compare and Parallel Coordinate views', position: 'bottom' },
-    { target: '.leaderboard-sidebar', title: 'Industry Rankings', content: 'Sort industries by different metrics. Click to highlight on chart', position: 'right' },
-    { target: '.compare-handle.left', title: 'Start Year', content: 'Drag the blue dot to select comparison start year', position: 'top' },
-    { target: '.compare-handle.right', title: 'End Year', content: 'Drag the orange dot to select comparison end year', position: 'top' },
-    { target: '.legend-container', title: 'Industry Filter', content: 'Click colored boxes to filter industries shown on chart', position: 'left' }
+    {
+      target: ".mode-switcher",
+      title: "Mode Switcher",
+      content: "Switch between Compare and Parallel Coordinate views",
+      position: "bottom",
+    },
+    {
+      target: ".leaderboard-sidebar",
+      title: "Industry Rankings",
+      content: "Sort industries by different metrics. Click to highlight on chart",
+      position: "right",
+    },
+    {
+      target: ".compare-handle.left",
+      title: "Start Year",
+      content: "Drag the blue dot to select comparison start year",
+      position: "top",
+    },
+    {
+      target: ".compare-handle.right",
+      title: "End Year",
+      content: "Drag the orange dot to select comparison end year",
+      position: "top",
+    },
+    {
+      target: ".legend-container",
+      title: "Industry Filter",
+      content: "Click colored boxes to filter industries shown on chart",
+      position: "left",
+    },
   ],
   parallel: [
-    { target: '.mode-switcher', title: 'Mode Switcher', content: 'Switch between different visualization modes', position: 'bottom' },
-    { target: '.pc-scroll-container', title: 'Charts Area', content: 'Scroll to view all 4 metric charts: AI Intensity, Salary, Risk, and Job Count', position: 'right' },
-    { target: '.pc-global-legend', title: 'Industry Legend', content: 'Click to filter industries. Hover over lines to see year-by-year values', position: 'top' },
-    { target: '.pc-chart-box', title: 'Data Interaction', content: 'Each line represents one industry trend over time. Hover for exact values.', position: 'right' }
-  ]
+    {
+      target: ".mode-switcher",
+      title: "Mode Switcher",
+      content: "Switch between different visualization modes",
+      position: "bottom",
+    },
+    {
+      target: ".pc-scroll-container",
+      title: "Charts Area",
+      content: "Scroll to view all 4 metric charts: AI Intensity, Salary, Risk, and Job Count",
+      position: "right",
+    },
+    {
+      target: ".pc-global-legend",
+      title: "Industry Legend",
+      content: "Click to filter industries. Hover over lines to see year-by-year values",
+      position: "top",
+    },
+    {
+      target: ".pc-chart-box",
+      title: "Data Interaction",
+      content: "Each line represents one industry trend over time. Hover for exact values.",
+      position: "right",
+    },
+  ],
 };
 
 const Task2 = () => {
@@ -65,7 +116,7 @@ const Task2 = () => {
 
   // 引导状态
   const [guideState, setGuideState] = useState(() => {
-    const saved = localStorage.getItem('task2_guide_completed_v2');
+    const saved = localStorage.getItem("task2_guide_completed_v2");
     return saved ? JSON.parse(saved) : { compare: false, parallel: false };
   });
   const [activeGuide, setActiveGuide] = useState(null);
@@ -79,30 +130,35 @@ const Task2 = () => {
       try {
         const baseUrl = import.meta.env.BASE_URL || "/";
         const rawData = await d3.csv(`${baseUrl}ai_impact_jobs_2010_2025.csv`);
-        
+
         // 检查数据结构
         if (rawData.length > 0) {
           console.log("CSV columns:", Object.keys(rawData[0]));
           console.log("Sample row:", rawData[0]);
         }
-        
-        const processed = d3.rollups(
-          rawData,
-          (v) => ({
-            avgSalary: d3.mean(v, (d) => +d.salary_usd),
-            avgAIIntensity: d3.mean(v, (d) => +d.ai_intensity_score),
-            avgAutomationRisk: d3.mean(v, (d) => +d.automation_risk_score),
-            jobCount: v.length,
-            year: +v[0].posting_year,
-            industry: v[0].industry,
-          }),
-          (d) => +d.posting_year,
-          (d) => d.industry,
-        ).flatMap(([year, industries]) =>
-          industries.map(([industry, stats]) => ({
-            ...stats, id: `${industry}-${year}`, year, industry,
-          }))
-        );
+
+        const processed = d3
+          .rollups(
+            rawData,
+            (v) => ({
+              avgSalary: d3.mean(v, (d) => +d.salary_usd),
+              avgAIIntensity: d3.mean(v, (d) => +d.ai_intensity_score),
+              avgAutomationRisk: d3.mean(v, (d) => +d.automation_risk_score),
+              jobCount: v.length,
+              year: +v[0].posting_year,
+              industry: v[0].industry,
+            }),
+            (d) => +d.posting_year,
+            (d) => d.industry,
+          )
+          .flatMap(([year, industries]) =>
+            industries.map(([industry, stats]) => ({
+              ...stats,
+              id: `${industry}-${year}`,
+              year,
+              industry,
+            })),
+          );
         setData(processed);
         const minY = d3.min(processed, (d) => d.year);
         const maxY = d3.max(processed, (d) => d.year);
@@ -125,79 +181,77 @@ const Task2 = () => {
   useEffect(() => {
     if (!timelineRef.current || data.length === 0) return;
 
-    const yearRange = [d3.min(data, d => d.year), d3.max(data, d => d.year)];
+    const yearRange = [d3.min(data, (d) => d.year), d3.max(data, (d) => d.year)];
     const trackWidth = timelineRef.current.clientWidth;
 
-    const leftHandle = d3.select(timelineRef.current).select('.compare-handle.left');
+    const leftHandle = d3.select(timelineRef.current).select(".compare-handle.left");
     if (!leftHandle.empty()) {
       // 清除旧的事件监听器
-      leftHandle.on('.drag', null);
-      
-      const dragLeft = d3.drag()
-        .on('start', function(event) {
+      leftHandle.on(".drag", null);
+
+      const dragLeft = d3
+        .drag()
+        .on("start", function (event) {
           event.sourceEvent.stopPropagation();
           setIsDragging(true);
           d3.select(this)
-            .classed('dragging', true) // 添加dragging class
-            .style('cursor', 'grabbing')
+            .classed("dragging", true) // 添加dragging class
+            .style("cursor", "grabbing")
             .raise(); // 将元素移到同级元素的最后（视觉上在最前）
         })
-        .on('drag', function(event) {
+        .on("drag", function (event) {
           event.sourceEvent.stopPropagation();
           const x = Math.max(0, Math.min(trackWidth, event.x));
           const percentage = x / trackWidth;
           const newYear = Math.round(yearRange[0] + percentage * (yearRange[1] - yearRange[0]));
-          
+
           // 直接更新年份，React会处理UI更新
-          setCompareYears(prev => {
+          setCompareYears((prev) => {
             const updatedLeft = Math.min(newYear, prev.right - 1);
             return { ...prev, left: updatedLeft };
           });
         })
-        .on('end', function(event) {
+        .on("end", function (event) {
           event.sourceEvent.stopPropagation();
           d3.select(this)
-            .classed('dragging', false) // 移除dragging class
-            .style('cursor', 'grab');
+            .classed("dragging", false) // 移除dragging class
+            .style("cursor", "grab");
           setIsDragging(false);
         });
-      
+
       leftHandle.call(dragLeft);
     }
 
-    const rightHandle = d3.select(timelineRef.current).select('.compare-handle.right');
+    const rightHandle = d3.select(timelineRef.current).select(".compare-handle.right");
     if (!rightHandle.empty()) {
       // 清除旧的事件监听器
-      rightHandle.on('.drag', null);
-      
-      const dragRight = d3.drag()
-        .on('start', function(event) {
+      rightHandle.on(".drag", null);
+
+      const dragRight = d3
+        .drag()
+        .on("start", function (event) {
           event.sourceEvent.stopPropagation();
           setIsDragging(true);
-          d3.select(this)
-            .style('cursor', 'grabbing')
-            .style('pointer-events', 'all'); // 确保拖拽过程中元素保持可见和可交互
+          d3.select(this).style("cursor", "grabbing").style("pointer-events", "all"); // 确保拖拽过程中元素保持可见和可交互
         })
-        .on('drag', function(event) {
+        .on("drag", function (event) {
           event.sourceEvent.stopPropagation();
           const x = Math.max(0, Math.min(trackWidth, event.x));
           const percentage = x / trackWidth;
           const newYear = Math.round(yearRange[0] + percentage * (yearRange[1] - yearRange[0]));
-          
+
           // 直接更新年份，React会处理UI更新
-          setCompareYears(prev => {
+          setCompareYears((prev) => {
             const updatedRight = Math.max(newYear, prev.left + 1);
             return { ...prev, right: updatedRight };
           });
         })
-        .on('end', function(event) {
+        .on("end", function (event) {
           event.sourceEvent.stopPropagation();
-          d3.select(this)
-            .style('cursor', 'grab')
-            .style('pointer-events', 'all');
+          d3.select(this).style("cursor", "grab").style("pointer-events", "all");
           setIsDragging(false);
         });
-      
+
       rightHandle.call(dragRight);
     }
   }, [mode, data]);
@@ -206,26 +260,26 @@ const Task2 = () => {
   const scales = useMemo(() => {
     if (data.length === 0) return null;
 
-    const xExtent = d3.extent(data, d => d.avgAIIntensity);
+    const xExtent = d3.extent(data, (d) => d.avgAIIntensity);
     const xPadding = (xExtent[1] - xExtent[0]) * 0.05;
 
-    const yExtent = d3.extent(data, d => d.avgSalary);
+    const yExtent = d3.extent(data, (d) => d.avgSalary);
     const yPadding = (yExtent[1] - yExtent[0]) * 0.1;
 
-    const sizeExtent = d3.extent(data, d => d.jobCount);
+    const sizeExtent = d3.extent(data, (d) => d.jobCount);
 
     return {
-      x: d3.scaleLinear()
+      x: d3
+        .scaleLinear()
         .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
         .range([0, WIDTH])
         .nice(),
-      y: d3.scaleLinear()
+      y: d3
+        .scaleLinear()
         .domain([yExtent[0] - yPadding, yExtent[1] + yPadding * 2])
         .range([HEIGHT, 0])
         .nice(),
-      size: d3.scaleSqrt()
-        .domain(sizeExtent)
-        .range([6, 35]),
+      size: d3.scaleSqrt().domain(sizeExtent).range([6, 35]),
       opacity: d3.scaleLinear().domain([0.4, 0.8]).range([0.35, 1.0]).clamp(true),
     };
   }, [data]);
@@ -235,19 +289,26 @@ const Task2 = () => {
     if (data.length === 0) return [];
     // 根据leaderboardYearType选择使用左年份（实心）还是右年份（空心）的数据
     const targetYear = leaderboardYearType === "left" ? compareYears.left : compareYears.right;
-    const yearData = data.filter(d => d.year === targetYear);
-    const filtered = selectedIndustries.size === 0
-      ? yearData
-      : yearData.filter(d => selectedIndustries.has(d.industry));
+    const yearData = data.filter((d) => d.year === targetYear);
+    const filtered =
+      selectedIndustries.size === 0 ? yearData : yearData.filter((d) => selectedIndustries.has(d.industry));
 
     return filtered
-      .map(d => ({
+      .map((d) => ({
         industry: d.industry,
         value: d[leaderboardMetric],
         color: INDUSTRY_COLORS[d.industry] || INDUSTRY_COLORS.default,
       }))
-      .sort((a, b) => leaderboardSortOrder === "desc" ? b.value - a.value : a.value - b.value);
-  }, [data, compareYears.left, compareYears.right, selectedIndustries, leaderboardMetric, leaderboardSortOrder, leaderboardYearType]);
+      .sort((a, b) => (leaderboardSortOrder === "desc" ? b.value - a.value : a.value - b.value));
+  }, [
+    data,
+    compareYears.left,
+    compareYears.right,
+    selectedIndustries,
+    leaderboardMetric,
+    leaderboardSortOrder,
+    leaderboardYearType,
+  ]);
 
   // 持久层绘制（坐标轴/网格/箭头等静态元素，只在 data/scales/mode 变化时重绘）
   const drawPersistentLayers = () => {
@@ -259,9 +320,10 @@ const Task2 = () => {
 
     // 箭头标记 - 增强可见性
     const defs = svg.append("defs");
-    
+
     // 主箭头（深色）
-    defs.append("marker")
+    defs
+      .append("marker")
       .attr("id", "arrowhead")
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", 10)
@@ -272,9 +334,10 @@ const Task2 = () => {
       .append("path")
       .attr("d", "M0,-4L10,0L0,4L2,0Z")
       .attr("fill", "#475569");
-    
+
     // 高亮箭头（用于hover状态）
-    defs.append("marker")
+    defs
+      .append("marker")
       .attr("id", "arrowhead-highlight")
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", 10)
@@ -289,33 +352,64 @@ const Task2 = () => {
     const g = svg.append("g").attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
     // 网格线
-    g.append("g").attr("class", "grid-x")
+    g.append("g")
+      .attr("class", "grid-x")
       .attr("transform", `translate(0,${HEIGHT})`)
       .call(d3.axisBottom(scales.x).tickSize(-HEIGHT).tickFormat(""))
-      .selectAll("line").style("stroke", "#e2e8f0").style("stroke-dasharray", "2,2");
-    g.append("g").attr("class", "grid-y")
+      .selectAll("line")
+      .style("stroke", "#e2e8f0")
+      .style("stroke-dasharray", "2,2");
+    g.append("g")
+      .attr("class", "grid-y")
       .call(d3.axisLeft(scales.y).tickSize(-WIDTH).tickFormat(""))
-      .selectAll("line").style("stroke", "#e2e8f0").style("stroke-dasharray", "2,2");
+      .selectAll("line")
+      .style("stroke", "#e2e8f0")
+      .style("stroke-dasharray", "2,2");
 
     // X轴
-    const xAxis = g.append("g").attr("class", "axis-x")
+    const xAxis = g
+      .append("g")
+      .attr("class", "axis-x")
       .attr("transform", `translate(0,${HEIGHT})`)
-      .call(d3.axisBottom(scales.x).ticks(8).tickFormat((d) => d.toFixed(2)));
+      .call(
+        d3
+          .axisBottom(scales.x)
+          .ticks(8)
+          .tickFormat((d) => d.toFixed(2)),
+      );
     xAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
     xAxis.selectAll("text").attr("fill", "#475569").style("font-size", "11px");
-    xAxis.append("text").attr("x", WIDTH / 2).attr("y", 40)
-      .attr("fill", "#1e293b").style("text-anchor", "middle")
-      .style("font-size", "13px").style("font-weight", "600")
+    xAxis
+      .append("text")
+      .attr("x", WIDTH / 2)
+      .attr("y", 40)
+      .attr("fill", "#1e293b")
+      .style("text-anchor", "middle")
+      .style("font-size", "13px")
+      .style("font-weight", "600")
       .text("AI Intensity Score");
 
     // Y轴
-    const yAxis = g.append("g").attr("class", "axis-y")
-      .call(d3.axisLeft(scales.y).ticks(8).tickFormat((d) => `$${(d / 1000).toFixed(0)}k`));
+    const yAxis = g
+      .append("g")
+      .attr("class", "axis-y")
+      .call(
+        d3
+          .axisLeft(scales.y)
+          .ticks(8)
+          .tickFormat((d) => `$${(d / 1000).toFixed(0)}k`),
+      );
     yAxis.select(".domain").attr("stroke", "#475569").attr("stroke-width", 2);
     yAxis.selectAll("text").attr("fill", "#475569").style("font-size", "11px");
-    yAxis.append("text").attr("transform", "rotate(-90)").attr("y", -50).attr("x", -HEIGHT / 2)
-      .attr("fill", "#1e293b").style("text-anchor", "middle")
-      .style("font-size", "13px").style("font-weight", "600")
+    yAxis
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -50)
+      .attr("x", -HEIGHT / 2)
+      .attr("fill", "#1e293b")
+      .style("text-anchor", "middle")
+      .style("font-size", "13px")
+      .style("font-weight", "600")
       .text("Average Salary (USD)");
 
     // 数据层容器（专门存放数据点，hover/拖拽时只更新这一层）
@@ -337,57 +431,69 @@ const Task2 = () => {
     const linesData = filteredLeft.filter((l) => filteredRight.find((r) => r.industry === l.industry));
 
     g.selectAll(".compare-line")
-      .data(linesData, d => d.industry)
+      .data(linesData, (d) => d.industry)
       .join(
-        enter => enter.append("line")
-          .attr("class", "compare-line")
-          .attr("stroke", d => INDUSTRY_COLORS[d.industry])
-          .attr("stroke-width", 2.5)
-          .attr("opacity", 0)
-          .attr("marker-end", "url(#arrowhead)")
-          .style("cursor", "pointer")
-          .call(sel => sel.transition().duration(400).ease(d3.easeCubicInOut)
-            .attr("opacity", 0.7)
-            .attr("x1", d => scales.x(d.avgAIIntensity))
-            .attr("y1", d => scales.y(d.avgSalary))
-            .attr("x2", d => {
-              const right = filteredRight.find(r => r.industry === d.industry);
+        (enter) =>
+          enter
+            .append("line")
+            .attr("class", "compare-line")
+            .attr("stroke", (d) => INDUSTRY_COLORS[d.industry])
+            .attr("stroke-width", 2.5)
+            .attr("opacity", 0)
+            .attr("marker-end", "url(#arrowhead)")
+            .style("cursor", "pointer")
+            .call((sel) =>
+              sel
+                .transition()
+                .duration(400)
+                .ease(d3.easeCubicInOut)
+                .attr("opacity", 0.7)
+                .attr("x1", (d) => scales.x(d.avgAIIntensity))
+                .attr("y1", (d) => scales.y(d.avgSalary))
+                .attr("x2", (d) => {
+                  const right = filteredRight.find((r) => r.industry === d.industry);
+                  return right ? scales.x(right.avgAIIntensity) : 0;
+                })
+                .attr("y2", (d) => {
+                  const right = filteredRight.find((r) => r.industry === d.industry);
+                  return right ? scales.y(right.avgSalary) : 0;
+                }),
+            ),
+        (update) =>
+          update
+            .interrupt() // 中断当前正在进行的过渡
+            .transition()
+            .duration(400)
+            .ease(d3.easeCubicInOut)
+            .attr("x1", (d) => scales.x(d.avgAIIntensity))
+            .attr("y1", (d) => scales.y(d.avgSalary))
+            .attr("x2", (d) => {
+              const right = filteredRight.find((r) => r.industry === d.industry);
               return right ? scales.x(right.avgAIIntensity) : 0;
             })
-            .attr("y2", d => {
-              const right = filteredRight.find(r => r.industry === d.industry);
+            .attr("y2", (d) => {
+              const right = filteredRight.find((r) => r.industry === d.industry);
               return right ? scales.y(right.avgSalary) : 0;
-            })),
-        update => update
-          .interrupt() // 中断当前正在进行的过渡
-          .transition().duration(400).ease(d3.easeCubicInOut)
-          .attr("x1", d => scales.x(d.avgAIIntensity))
-          .attr("y1", d => scales.y(d.avgSalary))
-          .attr("x2", d => {
-            const right = filteredRight.find(r => r.industry === d.industry);
-            return right ? scales.x(right.avgAIIntensity) : 0;
-          })
-          .attr("y2", d => {
-            const right = filteredRight.find(r => r.industry === d.industry);
-            return right ? scales.y(right.avgSalary) : 0;
-          })
-          .attr("marker-end", "url(#arrowhead)"), // 确保过渡期间箭头不丢失
-        exit => exit.transition().duration(300).attr("opacity", 0).remove()
+            })
+            .attr("marker-end", "url(#arrowhead)"), // 确保过渡期间箭头不丢失
+        (exit) => exit.transition().duration(300).attr("opacity", 0).remove(),
       )
       // 确保所有连接线（包括刚创建的）都有正确的箭头标记
       .attr("marker-end", "url(#arrowhead)")
-      .on("mouseenter", function(e, d) {
+      .on("mouseenter", function (e, d) {
         d3.select(this)
           .interrupt()
-          .transition().duration(150)
+          .transition()
+          .duration(150)
           .attr("stroke-width", 3.5)
           .attr("opacity", 1)
           .attr("marker-end", "url(#arrowhead-highlight)");
       })
-      .on("mouseleave", function(e, d) {
+      .on("mouseleave", function (e, d) {
         d3.select(this)
           .interrupt()
-          .transition().duration(200)
+          .transition()
+          .duration(200)
           .attr("stroke-width", 2.5)
           .attr("opacity", 0.7)
           .attr("marker-end", "url(#arrowhead)");
@@ -395,56 +501,67 @@ const Task2 = () => {
 
     // --- 右端年份数据点（空心） ---
     g.selectAll(".compare-right")
-      .data(filteredRight, d => d.industry) // 使用 industry 作为 key 确保平滑过渡
+      .data(filteredRight, (d) => d.industry) // 使用 industry 作为 key 确保平滑过渡
       .join(
-        enter => enter.append("circle")
-          .attr("class", "compare-right")
-          .attr("cx", d => scales.x(d.avgAIIntensity))
-          .attr("cy", d => scales.y(d.avgSalary))
-          .attr("r", 0)
-          .attr("fill", "none")
-          .attr("stroke", d => INDUSTRY_COLORS[d.industry])
-          .attr("stroke-width", 2.5)
-          .attr("opacity", 0)
-          .style("cursor", "pointer")
-          .call(sel => sel.transition().duration(400).ease(d3.easeCubicInOut)
-            .attr("r", d => scales.size(d.jobCount))
-            .attr("opacity", d => scales.opacity(d.avgAutomationRisk) * 0.6)),
-        update => update
-          .interrupt() // 中断当前正在进行的过渡，实现平滑更新
-          .transition().duration(400).ease(d3.easeCubicInOut)
-          .attr("cx", d => scales.x(d.avgAIIntensity))
-          .attr("cy", d => scales.y(d.avgSalary))
-          .attr("r", d => scales.size(d.jobCount))
-          .attr("opacity", d => scales.opacity(d.avgAutomationRisk) * 0.6)
-          .attr("stroke", d => INDUSTRY_COLORS[d.industry])
-          .attr("stroke-width", 2.5),
-        exit => exit.transition().duration(300).ease(d3.easeCubicInOut)
-          .attr("r", 0)
-          .attr("opacity", 0)
-          .remove()
+        (enter) =>
+          enter
+            .append("circle")
+            .attr("class", "compare-right")
+            .attr("cx", (d) => scales.x(d.avgAIIntensity))
+            .attr("cy", (d) => scales.y(d.avgSalary))
+            .attr("r", 0)
+            .attr("fill", "none")
+            .attr("stroke", (d) => INDUSTRY_COLORS[d.industry])
+            .attr("stroke-width", 2.5)
+            .attr("opacity", 0)
+            .style("cursor", "pointer")
+            .call((sel) =>
+              sel
+                .transition()
+                .duration(400)
+                .ease(d3.easeCubicInOut)
+                .attr("r", (d) => scales.size(d.jobCount))
+                .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk) * 0.6),
+            ),
+        (update) =>
+          update
+            .interrupt() // 中断当前正在进行的过渡，实现平滑更新
+            .transition()
+            .duration(400)
+            .ease(d3.easeCubicInOut)
+            .attr("cx", (d) => scales.x(d.avgAIIntensity))
+            .attr("cy", (d) => scales.y(d.avgSalary))
+            .attr("r", (d) => scales.size(d.jobCount))
+            .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk) * 0.6)
+            .attr("stroke", (d) => INDUSTRY_COLORS[d.industry])
+            .attr("stroke-width", 2.5),
+        (exit) => exit.transition().duration(300).ease(d3.easeCubicInOut).attr("r", 0).attr("opacity", 0).remove(),
       )
       .on("click", (e, d) => {
         e.stopPropagation();
         setSelectedPoint({ ...d, type: "right" });
         pulseCircle(e.target, INDUSTRY_COLORS[d.industry]);
       })
-      .on("mouseenter", function(e, d) {
+      .on("mouseenter", function (e, d) {
         setHoveredPoint(d);
         // 仅对当前悬停的点做局部高亮，不影响其他点
         d3.select(this)
           .interrupt()
-          .transition().duration(150).ease(d3.easeCubicInOut)
+          .transition()
+          .duration(150)
+          .ease(d3.easeCubicInOut)
           .attr("stroke", "#000000")
           .attr("stroke-width", 3)
           .attr("opacity", 1);
       })
-      .on("mouseleave", function(e, d) {
+      .on("mouseleave", function (e, d) {
         setHoveredPoint(null);
         // 悬停离开后恢复原样
         d3.select(this)
           .interrupt()
-          .transition().duration(200).ease(d3.easeCubicInOut)
+          .transition()
+          .duration(200)
+          .ease(d3.easeCubicInOut)
           .attr("stroke", INDUSTRY_COLORS[d.industry])
           .attr("stroke-width", 2.5)
           .attr("opacity", scales.opacity(d.avgAutomationRisk) * 0.6);
@@ -452,55 +569,66 @@ const Task2 = () => {
 
     // --- 左端年份数据点（实心） - 添加白色描边提高可读性 ---
     g.selectAll(".compare-left")
-      .data(filteredLeft, d => d.industry) // 使用 industry 作为 key 确保平滑过渡
+      .data(filteredLeft, (d) => d.industry) // 使用 industry 作为 key 确保平滑过渡
       .join(
-        enter => enter.append("circle")
-          .attr("class", "compare-left")
-          .attr("cx", d => scales.x(d.avgAIIntensity))
-          .attr("cy", d => scales.y(d.avgSalary))
-          .attr("r", 0)
-          .attr("opacity", 0)
-          .style("cursor", "pointer")
-          .call(sel => sel.transition().duration(400).ease(d3.easeCubicInOut)
-            .attr("r", d => scales.size(d.jobCount))
-            .attr("opacity", d => scales.opacity(d.avgAutomationRisk))
-            .attr("fill", d => INDUSTRY_COLORS[d.industry])
+        (enter) =>
+          enter
+            .append("circle")
+            .attr("class", "compare-left")
+            .attr("cx", (d) => scales.x(d.avgAIIntensity))
+            .attr("cy", (d) => scales.y(d.avgSalary))
+            .attr("r", 0)
+            .attr("opacity", 0)
+            .style("cursor", "pointer")
+            .call((sel) =>
+              sel
+                .transition()
+                .duration(400)
+                .ease(d3.easeCubicInOut)
+                .attr("r", (d) => scales.size(d.jobCount))
+                .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk))
+                .attr("fill", (d) => INDUSTRY_COLORS[d.industry])
+                .attr("stroke", "#ffffff")
+                .attr("stroke-width", 2),
+            ),
+        (update) =>
+          update
+            .interrupt() // 中断当前正在进行的过渡，实现平滑更新
+            .transition()
+            .duration(400)
+            .ease(d3.easeCubicInOut)
+            .attr("cx", (d) => scales.x(d.avgAIIntensity))
+            .attr("cy", (d) => scales.y(d.avgSalary))
+            .attr("r", (d) => scales.size(d.jobCount))
+            .attr("opacity", (d) => scales.opacity(d.avgAutomationRisk))
+            .attr("fill", (d) => INDUSTRY_COLORS[d.industry])
             .attr("stroke", "#ffffff")
-            .attr("stroke-width", 2)),
-        update => update
-          .interrupt() // 中断当前正在进行的过渡，实现平滑更新
-          .transition().duration(400).ease(d3.easeCubicInOut)
-          .attr("cx", d => scales.x(d.avgAIIntensity))
-          .attr("cy", d => scales.y(d.avgSalary))
-          .attr("r", d => scales.size(d.jobCount))
-          .attr("opacity", d => scales.opacity(d.avgAutomationRisk))
-          .attr("fill", d => INDUSTRY_COLORS[d.industry])
-          .attr("stroke", "#ffffff")
-          .attr("stroke-width", 2),
-        exit => exit.transition().duration(300).ease(d3.easeCubicInOut)
-          .attr("r", 0)
-          .attr("opacity", 0)
-          .remove()
+            .attr("stroke-width", 2),
+        (exit) => exit.transition().duration(300).ease(d3.easeCubicInOut).attr("r", 0).attr("opacity", 0).remove(),
       )
       .on("click", (e, d) => {
         e.stopPropagation();
         setSelectedPoint({ ...d, type: "left" });
         pulseCircle(e.target, INDUSTRY_COLORS[d.industry]);
       })
-      .on("mouseenter", function(e, d) {
+      .on("mouseenter", function (e, d) {
         setHoveredPoint(d);
         d3.select(this)
           .interrupt()
-          .transition().duration(150).ease(d3.easeCubicInOut)
+          .transition()
+          .duration(150)
+          .ease(d3.easeCubicInOut)
           .attr("stroke", "#ffffff")
           .attr("stroke-width", 3)
           .attr("opacity", 1);
       })
-      .on("mouseleave", function(e, d) {
+      .on("mouseleave", function (e, d) {
         setHoveredPoint(null);
         d3.select(this)
           .interrupt()
-          .transition().duration(200).ease(d3.easeCubicInOut)
+          .transition()
+          .duration(200)
+          .ease(d3.easeCubicInOut)
           .attr("stroke", "#ffffff")
           .attr("stroke-width", 2);
       });
@@ -510,7 +638,7 @@ const Task2 = () => {
   useEffect(() => {
     if (!scales || data.length === 0) return;
 
-    if (mode === 'parallel') {
+    if (mode === "parallel") {
       drawParallelCoordinates();
     } else {
       // 每次 data / scales / mode 变化时，重绘持久层（清空并重建 SVG）
@@ -524,7 +652,7 @@ const Task2 = () => {
 
   // 当 compareYears 或 hoveredPoint 变化时，仅更新数据点层（带过渡动画）
   useEffect(() => {
-    if (!scales || data.length === 0 || mode === 'parallel') return;
+    if (!scales || data.length === 0 || mode === "parallel") return;
     updateDataPoints();
     updateTraceLines(); // NEW: Update traces when years change
   }, [compareYears.left, compareYears.right, hoveredPoint, selectedIndustries, showTrace, ghostYear]);
@@ -558,48 +686,51 @@ const Task2 = () => {
   const pulseCircle = (element, color) => {
     const sel = d3.select(element);
     const currentR = parseFloat(sel.attr("r"));
-    sel.transition().duration(150).ease(d3.easeCubicInOut)
+    sel
+      .transition()
+      .duration(150)
+      .ease(d3.easeCubicInOut)
       .attr("r", currentR + 4)
-      .transition().duration(150).ease(d3.easeCubicInOut)
+      .transition()
+      .duration(150)
+      .ease(d3.easeCubicInOut)
       .attr("r", currentR);
   };
 
   // Compute trace data for all visible industries between ghostYear and current year
   const computeTraceData = () => {
     if (!showTrace || ghostYear === null || ghostYear === compareYears.right) return [];
-    
+
     const startYear = Math.min(ghostYear, compareYears.right);
     const endYear = Math.max(ghostYear, compareYears.right);
-    
+
     // Get all industries that have data in both start and end years
-    const industries = [...new Set(data.map(d => d.industry))];
-    const filteredIndustries = selectedIndustries.size === 0 
-      ? industries 
-      : [...selectedIndustries];
-    
+    const industries = [...new Set(data.map((d) => d.industry))];
+    const filteredIndustries = selectedIndustries.size === 0 ? industries : [...selectedIndustries];
+
     const traces = [];
-    
-    filteredIndustries.forEach(industry => {
+
+    filteredIndustries.forEach((industry) => {
       // Get all data points for this industry within the year range
       const industryData = data
-        .filter(d => d.industry === industry && d.year >= startYear && d.year <= endYear)
+        .filter((d) => d.industry === industry && d.year >= startYear && d.year <= endYear)
         .sort((a, b) => a.year - b.year);
-      
+
       if (industryData.length < 2) return; // Need at least 2 points to draw a line
-      
+
       traces.push({
         industry,
         color: INDUSTRY_COLORS[industry] || INDUSTRY_COLORS.default,
-        points: industryData.map(d => ({
+        points: industryData.map((d) => ({
           year: d.year,
           x: scales.x(d.avgAIIntensity),
           y: scales.y(d.avgSalary),
           r: scales.size(d.jobCount),
-          risk: d.avgAutomationRisk
-        }))
+          risk: d.avgAutomationRisk,
+        })),
       });
     });
-    
+
     return traces;
   };
 
@@ -608,75 +739,86 @@ const Task2 = () => {
     const svg = d3.select(svgRef.current);
     const g = svg.select(".data-layer");
     if (g.empty()) return;
-    
+
     const traces = computeTraceData();
 
     // --- Position Trace (Solid Line) ---
     // Connects center positions (x, y) across years
-    const positionLineGenerator = d3.line()
-      .x(d => d.x)
-      .y(d => d.y)
+    const positionLineGenerator = d3
+      .line()
+      .x((d) => d.x)
+      .y((d) => d.y)
       .curve(d3.curveMonotoneX);
-    
+
     g.selectAll(".trace-position-line")
-      .data(traces, d => d.industry)
+      .data(traces, (d) => d.industry)
       .join(
-        enter => enter.append("path")
-          .attr("class", "trace-position-line")
-          .attr("fill", "none")
-          .attr("stroke", d => d.color)
-          .attr("stroke-width", 1.5)
-          .attr("stroke-opacity", 0.55)
-          .attr("d", d => positionLineGenerator(d.points))
-          .attr("opacity", 0)
-          .call(sel => sel.transition().duration(400).ease(d3.easeCubicInOut)
-            .attr("opacity", 1)),
-        update => update
-          .interrupt()
-          .transition().duration(400).ease(d3.easeCubicInOut)
-          .attr("d", d => positionLineGenerator(d.points))
-          .attr("stroke", d => d.color),
-        exit => exit.transition().duration(300)
-          .attr("opacity", 0)
-          .remove()
+        (enter) =>
+          enter
+            .append("path")
+            .attr("class", "trace-position-line")
+            .attr("fill", "none")
+            .attr("stroke", (d) => d.color)
+            .attr("stroke-width", 1.5)
+            .attr("stroke-opacity", 0.55)
+            .attr("d", (d) => positionLineGenerator(d.points))
+            .attr("opacity", 0)
+            .call((sel) => sel.transition().duration(400).ease(d3.easeCubicInOut).attr("opacity", 1)),
+        (update) =>
+          update
+            .interrupt()
+            .transition()
+            .duration(400)
+            .ease(d3.easeCubicInOut)
+            .attr("d", (d) => positionLineGenerator(d.points))
+            .attr("stroke", (d) => d.color),
+        (exit) => exit.transition().duration(300).attr("opacity", 0).remove(),
       );
 
     // --- Size Trace: dashed ghost circles at each historical position ---
     // Flatten all (industry × year) points into one array keyed by industry+year
-    const allPoints = traces.flatMap(trace =>
-      trace.points.map(pt => ({
+    const allPoints = traces.flatMap((trace) =>
+      trace.points.map((pt) => ({
         key: `${trace.industry}-${pt.year}`,
         industry: trace.industry,
         color: trace.color,
-        ...pt
-      }))
+        ...pt,
+      })),
     );
 
     g.selectAll(".trace-size-line")
-      .data(allPoints, d => d.key)
+      .data(allPoints, (d) => d.key)
       .join(
-        enter => enter.append("circle")
-          .attr("class", "trace-size-line")
-          .attr("fill", "none")
-          .attr("stroke", d => d.color)
-          .attr("stroke-width", 1.5)
-          .attr("stroke-dasharray", "4,3")
-          .attr("stroke-opacity", 0.6)
-          .attr("cx", d => d.x)
-          .attr("cy", d => d.y)
-          .attr("r", 0)
-          .call(sel => sel.transition().duration(400).ease(d3.easeCubicInOut)
-            .attr("r", d => d.r)),
-        update => update
-          .interrupt()
-          .transition().duration(400).ease(d3.easeCubicInOut)
-          .attr("cx", d => d.x)
-          .attr("cy", d => d.y)
-          .attr("r", d => d.r)
-          .attr("stroke", d => d.color),
-        exit => exit.transition().duration(300)
-          .attr("r", 0)
-          .remove()
+        (enter) =>
+          enter
+            .append("circle")
+            .attr("class", "trace-size-line")
+            .attr("fill", "none")
+            .attr("stroke", (d) => d.color)
+            .attr("stroke-width", 1.5)
+            .attr("stroke-dasharray", "4,3")
+            .attr("stroke-opacity", 0.6)
+            .attr("cx", (d) => d.x)
+            .attr("cy", (d) => d.y)
+            .attr("r", 0)
+            .call((sel) =>
+              sel
+                .transition()
+                .duration(400)
+                .ease(d3.easeCubicInOut)
+                .attr("r", (d) => d.r),
+            ),
+        (update) =>
+          update
+            .interrupt()
+            .transition()
+            .duration(400)
+            .ease(d3.easeCubicInOut)
+            .attr("cx", (d) => d.x)
+            .attr("cy", (d) => d.y)
+            .attr("r", (d) => d.r)
+            .attr("stroke", (d) => d.color),
+        (exit) => exit.transition().duration(300).attr("r", 0).remove(),
       );
   };
 
@@ -691,12 +833,14 @@ const Task2 = () => {
     container.append("div").attr("class", "legend-title").text("Industry Filter");
 
     industries.forEach((industry) => {
-      const item = container.append("div")
+      const item = container
+        .append("div")
         .attr("class", "legend-item")
         .style("opacity", selectedIndustries.size === 0 || selectedIndustries.has(industry) ? 1 : 0.3)
         .on("click", () => toggleIndustry(industry));
 
-      item.append("div")
+      item
+        .append("div")
         .attr("class", "legend-color-box")
         .style("background-color", INDUSTRY_COLORS[industry])
         .style("border", selectedIndustries.has(industry) ? "2px solid #1e293b" : "none");
@@ -713,7 +857,7 @@ const Task2 = () => {
     const sizeSection = container.append("div").attr("class", "legend-section");
     sizeSection.append("div").attr("class", "legend-section-title").text("Size = Job Count");
 
-    const jobCountExtent = d3.extent(data, d => d.jobCount);
+    const jobCountExtent = d3.extent(data, (d) => d.jobCount);
     const sizeScale = d3.scaleSqrt().domain(jobCountExtent).range([6, 20]);
 
     const minCount = jobCountExtent[0];
@@ -723,14 +867,15 @@ const Task2 = () => {
     const sizeExamples = [
       { count: minCount, label: minCount.toString() },
       { count: midCount, label: midCount.toString() },
-      { count: maxCount, label: maxCount.toString() }
+      { count: maxCount, label: maxCount.toString() },
     ];
 
     const sizeRow = sizeSection.append("div").attr("class", "legend-size-row");
     sizeExamples.forEach((example) => {
       const r = sizeScale(example.count);
       const item = sizeRow.append("div").attr("class", "legend-size-example");
-      item.append("div")
+      item
+        .append("div")
         .attr("class", "legend-size-circle")
         .style("width", r * 2 + "px")
         .style("height", r * 2 + "px")
@@ -739,9 +884,7 @@ const Task2 = () => {
         .style("opacity", 0.6)
         .style("margin", "0 auto");
 
-      item.append("div")
-        .attr("class", "legend-size-label")
-        .text(example.label);
+      item.append("div").attr("class", "legend-size-label").text(example.label);
     });
   };
 
@@ -751,71 +894,73 @@ const Task2 = () => {
     const container = d3.select(pcScrollRef.current);
     container.style("display", "block").selectAll("*").remove();
 
-    const grouped = d3.group(data, d => d.industry);
+    const grouped = d3.group(data, (d) => d.industry);
     const industries = Array.from(grouped, ([industry, values]) => ({
       industry,
       values: values.sort((a, b) => a.year - b.year),
-      color: INDUSTRY_COLORS[industry] || INDUSTRY_COLORS.default
-    })).filter(d => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
+      color: INDUSTRY_COLORS[industry] || INDUSTRY_COLORS.default,
+    })).filter((d) => selectedIndustries.size === 0 || selectedIndustries.has(d.industry));
 
-    const years = [...new Set(data.map(d => d.year))].sort();
+    const years = [...new Set(data.map((d) => d.year))].sort();
     const pcWidth = 800;
     const pcHeight = 180;
     const pcMargin = { top: 30, right: 50, bottom: 40, left: 60 };
 
-    const xScale = d3.scalePoint().domain(years).range([0, pcWidth - pcMargin.left - pcMargin.right]);
+    const xScale = d3
+      .scalePoint()
+      .domain(years)
+      .range([0, pcWidth - pcMargin.left - pcMargin.right]);
 
     const metrics = [
       {
-        key: 'avgAIIntensity',
-        label: 'AI Intensity Score',
-        domain: d3.extent(data, d => d.avgAIIntensity),
-        format: d => d.toFixed(2)
+        key: "avgAIIntensity",
+        label: "AI Intensity Score",
+        domain: d3.extent(data, (d) => d.avgAIIntensity),
+        format: (d) => d.toFixed(2),
       },
       {
-        key: 'avgSalary',
-        label: 'Average Salary (USD)',
-        domain: d3.extent(data, d => d.avgSalary),
-        format: d => `$${(d / 1000).toFixed(0)}k`
+        key: "avgSalary",
+        label: "Average Salary (USD)",
+        domain: d3.extent(data, (d) => d.avgSalary),
+        format: (d) => `$${(d / 1000).toFixed(0)}k`,
       },
       {
-        key: 'avgAutomationRisk',
-        label: 'Automation Risk Score',
-        domain: d3.extent(data, d => d.avgAutomationRisk),
-        format: d => (d * 100).toFixed(0) + '%'
+        key: "avgAutomationRisk",
+        label: "Automation Risk Score",
+        domain: d3.extent(data, (d) => d.avgAutomationRisk),
+        format: (d) => (d * 100).toFixed(0) + "%",
       },
       {
-        key: 'jobCount',
-        label: 'Job Count',
-        domain: d3.extent(data, d => d.jobCount),
-        format: d => d.toString()
-      }
+        key: "jobCount",
+        label: "Job Count",
+        domain: d3.extent(data, (d) => d.jobCount),
+        format: (d) => d.toString(),
+      },
     ];
 
     metrics.forEach((metric, idx) => {
       const chartDiv = container.append("div").attr("class", "pc-chart-box");
 
-      chartDiv.append("div")
-        .attr("class", "pc-metric-title")
-        .text(metric.label);
+      chartDiv.append("div").attr("class", "pc-metric-title").text(metric.label);
 
-      const svg = chartDiv.append("svg")
-        .attr("width", pcWidth)
-        .attr("height", pcHeight);
+      const svg = chartDiv.append("svg").attr("width", pcWidth).attr("height", pcHeight);
 
-      const g = svg.append("g")
-        .attr("transform", `translate(${pcMargin.left},${pcMargin.top})`);
+      const g = svg.append("g").attr("transform", `translate(${pcMargin.left},${pcMargin.top})`);
 
-      const yScale = d3.scaleLinear()
+      const yScale = d3
+        .scaleLinear()
         .domain(metric.domain)
         .range([pcHeight - pcMargin.top - pcMargin.bottom, 0]);
 
-      years.forEach(year => {
+      years.forEach((year) => {
         const x = xScale(year);
         g.append("line")
-          .attr("x1", x).attr("x2", x)
-          .attr("y1", 0).attr("y2", pcHeight - pcMargin.top - pcMargin.bottom)
-          .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "2,2");
+          .attr("x1", x)
+          .attr("x2", x)
+          .attr("y1", 0)
+          .attr("y2", pcHeight - pcMargin.top - pcMargin.bottom)
+          .attr("stroke", "#e2e8f0")
+          .attr("stroke-dasharray", "2,2");
 
         g.append("text")
           .attr("x", x)
@@ -829,12 +974,13 @@ const Task2 = () => {
       const yAxis = g.append("g").call(d3.axisLeft(yScale).ticks(5).tickFormat(metric.format));
       yAxis.selectAll("text").attr("font-size", "9px").attr("fill", "#64748b");
 
-      const line = d3.line()
-        .x(d => xScale(d.year))
-        .y(d => yScale(d[metric.key]))
+      const line = d3
+        .line()
+        .x((d) => xScale(d.year))
+        .y((d) => yScale(d[metric.key]))
         .curve(d3.curveMonotoneX);
 
-      industries.forEach(ind => {
+      industries.forEach((ind) => {
         const isHovered = pcHoveredIndustry === ind.industry;
         const isDimmed = pcHoveredIndustry && pcHoveredIndustry !== ind.industry;
 
@@ -858,8 +1004,8 @@ const Task2 = () => {
         g.selectAll(`.pc-dot-${idx}-${ind.industry}`)
           .data(ind.values)
           .join("circle")
-          .attr("cx", d => xScale(d.year))
-          .attr("cy", d => yScale(d[metric.key]))
+          .attr("cx", (d) => xScale(d.year))
+          .attr("cy", (d) => yScale(d[metric.key]))
           .attr("r", isHovered ? 5 : 3)
           .attr("fill", ind.color)
           .attr("opacity", isDimmed ? 0.1 : 0.9)
@@ -874,18 +1020,17 @@ const Task2 = () => {
     const legendDiv = container.append("div").attr("class", "pc-global-legend");
     legendDiv.append("div").attr("class", "pc-legend-title").text("Industries (Click to filter)");
 
-    const allIndustries = [...new Set(data.map(d => d.industry))];
+    const allIndustries = [...new Set(data.map((d) => d.industry))];
     const legendItems = legendDiv.append("div").attr("class", "pc-legend-items");
 
-    allIndustries.forEach(industry => {
-      const item = legendItems.append("div")
+    allIndustries.forEach((industry) => {
+      const item = legendItems
+        .append("div")
         .attr("class", "pc-legend-item")
         .style("opacity", selectedIndustries.size === 0 || selectedIndustries.has(industry) ? 1 : 0.3)
         .on("click", () => toggleIndustry(industry));
 
-      item.append("div")
-        .attr("class", "pc-legend-color")
-        .style("background-color", INDUSTRY_COLORS[industry]);
+      item.append("div").attr("class", "pc-legend-color").style("background-color", INDUSTRY_COLORS[industry]);
 
       item.append("span").text(industry);
     });
@@ -895,36 +1040,40 @@ const Task2 = () => {
     const mouseX = d3.pointer(e)[0];
     const years = xScale.domain();
     const closestYear = years.reduce((prev, curr) =>
-      Math.abs(xScale(curr) - mouseX) < Math.abs(xScale(prev) - mouseX) ? curr : prev
+      Math.abs(xScale(curr) - mouseX) < Math.abs(xScale(prev) - mouseX) ? curr : prev,
     );
 
-    const point = industry.values.find(v => v.year === closestYear);
+    const point = industry.values.find((v) => v.year === closestYear);
     if (!point) return;
 
-    const prevPoint = industry.values.find(v => v.year === closestYear - 1);
-    const change = prevPoint ?
-      `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
+    const prevPoint = industry.values.find((v) => v.year === closestYear - 1);
+    const change = prevPoint
+      ? `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>`
+      : "";
 
-    d3.select("body").append("div")
+    d3
+      .select("body")
+      .append("div")
       .attr("class", "pc-floating-tooltip")
-      .style("left", (e.clientX + 15) + "px")
-      .style("top", (e.clientY - 10) + "px")
-      .html(`
+      .style("left", e.clientX + 15 + "px")
+      .style("top", e.clientY - 10 + "px").html(`
         <div style="color:${industry.color};font-weight:600;margin-bottom:4px;">${industry.industry} - ${closestYear}</div>
         <div>${metric.label}: <strong>${metric.format(point[metric.key])}</strong>${change}</div>
       `);
   };
 
   const showPointTooltip = (e, d, industry, metric) => {
-    const prevPoint = industry.values.find(v => v.year === d.year - 1);
-    const change = prevPoint ?
-      `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>` : '';
+    const prevPoint = industry.values.find((v) => v.year === d.year - 1);
+    const change = prevPoint
+      ? `<br/><span style="color:#94a3b8;font-size:11px;">from ${metric.format(prevPoint[metric.key])}</span>`
+      : "";
 
-    d3.select("body").append("div")
+    d3
+      .select("body")
+      .append("div")
       .attr("class", "pc-floating-tooltip")
-      .style("left", (e.clientX + 15) + "px")
-      .style("top", (e.clientY - 10) + "px")
-      .html(`
+      .style("left", e.clientX + 15 + "px")
+      .style("top", e.clientY - 10 + "px").html(`
         <div style="color:${industry.color};font-weight:600;margin-bottom:4px;">${industry.industry} - ${d.year}</div>
         <div>${metric.format(d[metric.key])}${change}</div>
       `);
@@ -949,7 +1098,7 @@ const Task2 = () => {
   const closeGuide = () => {
     const newState = { ...guideState, [activeGuide]: true };
     setGuideState(newState);
-    localStorage.setItem('task2_guide_completed_v2', JSON.stringify(newState));
+    localStorage.setItem("task2_guide_completed_v2", JSON.stringify(newState));
     setActiveGuide(null);
     setGuideStep(0);
   };
@@ -967,59 +1116,59 @@ const Task2 = () => {
     const element = document.querySelector(selector);
     if (!element) {
       console.warn(`Guide target not found: ${selector}`);
-      return { display: 'none' };
+      return { display: "none" };
     }
     const rect = element.getBoundingClientRect();
     return {
       left: rect.left - 4,
       top: rect.top - 4,
       width: rect.width + 8,
-      height: rect.height + 8
+      height: rect.height + 8,
     };
   };
 
   const getGuidePosition = (step) => {
     const highlight = getHighlightPosition(step.target);
-    if (highlight.display === 'none') {
+    if (highlight.display === "none") {
       return {
         left: window.innerWidth / 2,
         top: window.innerHeight / 2,
-        transform: 'translate(-50%, -50%)'
+        transform: "translate(-50%, -50%)",
       };
     }
 
     const offset = 20;
 
     switch (step.position) {
-      case 'bottom':
+      case "bottom":
         return {
           left: highlight.left + highlight.width / 2,
           top: highlight.top + highlight.height + offset,
-          transform: 'translate(-50%, 0)'
+          transform: "translate(-50%, 0)",
         };
-      case 'top':
+      case "top":
         return {
           left: highlight.left + highlight.width / 2,
           top: highlight.top - offset,
-          transform: 'translate(-50%, -100%)'
+          transform: "translate(-50%, -100%)",
         };
-      case 'left':
+      case "left":
         return {
           left: highlight.left - offset,
           top: highlight.top + highlight.height / 2,
-          transform: 'translate(-100%, -50%)'
+          transform: "translate(-100%, -50%)",
         };
-      case 'right':
+      case "right":
         return {
           left: highlight.left + highlight.width + offset,
           top: highlight.top + highlight.height / 2,
-          transform: 'translate(0, -50%)'
+          transform: "translate(0, -50%)",
         };
       default:
         return {
           left: highlight.left + highlight.width / 2,
           top: highlight.top + highlight.height + offset,
-          transform: 'translate(-50%, 0)'
+          transform: "translate(-50%, 0)",
         };
     }
   };
@@ -1036,24 +1185,18 @@ const Task2 = () => {
       {activeGuide && currentStep && (
         <div className="guide-spotlight-overlay">
           <div className="spotlight-backdrop" onClick={closeGuide} />
-          <div
-            className="spotlight-highlight"
-            style={getHighlightPosition(currentStep.target)}
-          >
+          <div className="spotlight-highlight" style={getHighlightPosition(currentStep.target)}>
             <div className="spotlight-inner-glow" />
           </div>
-          <div
-            className={`spotlight-tooltip spotlight-${currentStep.position}`}
-            style={getGuidePosition(currentStep)}
-          >
+          <div className={`spotlight-tooltip spotlight-${currentStep.position}`} style={getGuidePosition(currentStep)}>
             <div className="spotlight-arrow" />
             <h3>{currentStep.title}</h3>
             <p>{currentStep.content}</p>
             <div className="spotlight-actions">
-              <span>{guideStep + 1} / {currentSteps.length}</span>
-              <button onClick={nextStep}>
-                {guideStep === currentSteps.length - 1 ? 'Finish' : 'Next'}
-              </button>
+              <span>
+                {guideStep + 1} / {currentSteps.length}
+              </span>
+              <button onClick={nextStep}>{guideStep === currentSteps.length - 1 ? "Finish" : "Next"}</button>
             </div>
           </div>
         </div>
@@ -1062,20 +1205,24 @@ const Task2 = () => {
       {/* 控制栏 */}
       <div className="control-bar">
         <div className="mode-switcher">
-          <button className={mode === "compare" ? "active" : ""} onClick={() => setMode("compare")}>Compare</button>
-          <button className={mode === "parallel" ? "active" : ""} onClick={() => setMode("parallel")}>Parallel</button>
+          <button className={mode === "compare" ? "active" : ""} onClick={() => setMode("compare")}>
+            Compare
+          </button>
+          <button className={mode === "parallel" ? "active" : ""} onClick={() => setMode("parallel")}>
+            Parallel
+          </button>
         </div>
         {mode === "compare" && (
           <>
-            <button 
+            <button
               className={`trace-toggle-btn ${showTrace ? "active" : ""}`}
-              onClick={() => setShowTrace(prev => !prev)}
+              onClick={() => setShowTrace((prev) => !prev)}
               title="Show/hide industry evolution traces"
             >
               {showTrace ? "✦ Hide Trace" : "✦ Show Trace"}
             </button>
             {showTrace && ghostYear !== null && (
-              <button 
+              <button
                 className="set-start-point-btn"
                 onClick={() => setGhostYear(compareYears.left)}
                 title="Reset ghost marker to left (start) year"
@@ -1085,7 +1232,9 @@ const Task2 = () => {
             )}
           </>
         )}
-        <button className="help-btn" onClick={() => startGuide(mode)}>How to Use</button>
+        <button className="help-btn" onClick={() => startGuide(mode)}>
+          How to Use
+        </button>
       </div>
 
       {/* 图表区域 */}
@@ -1112,15 +1261,15 @@ const Task2 = () => {
                 {/* 年份类型切换：实心圆点（左年份）vs 空心圆点（右年份） */}
                 <div className="year-type-selector">
                   <button
-                    className={`year-type-btn ${leaderboardYearType === 'left' ? 'active solid' : ''}`}
-                    onClick={() => setLeaderboardYearType('left')}
+                    className={`year-type-btn ${leaderboardYearType === "left" ? "active solid" : ""}`}
+                    onClick={() => setLeaderboardYearType("left")}
                     title={`Use Solid dots (${compareYears.left})`}
                   >
                     ● {compareYears.left}
                   </button>
                   <button
-                    className={`year-type-btn ${leaderboardYearType === 'right' ? 'active hollow' : ''}`}
-                    onClick={() => setLeaderboardYearType('right')}
+                    className={`year-type-btn ${leaderboardYearType === "right" ? "active hollow" : ""}`}
+                    onClick={() => setLeaderboardYearType("right")}
                     title={`Use Hollow dots (${compareYears.right})`}
                   >
                     ○ {compareYears.right}
@@ -1128,7 +1277,7 @@ const Task2 = () => {
                 </div>
                 <button
                   className="sort-toggle"
-                  onClick={() => setLeaderboardSortOrder(prev => prev === "desc" ? "asc" : "desc")}
+                  onClick={() => setLeaderboardSortOrder((prev) => (prev === "desc" ? "asc" : "desc"))}
                 >
                   {leaderboardSortOrder === "desc" ? "↓ Descending" : "↑ Ascending"}
                 </button>
@@ -1156,13 +1305,13 @@ const Task2 = () => {
                 ref={svgRef}
                 width={WIDTH + MARGIN.left + MARGIN.right}
                 height={HEIGHT + MARGIN.top + MARGIN.bottom}
-                style={{ display: mode === 'parallel' ? 'none' : 'block' }}
+                style={{ display: mode === "parallel" ? "none" : "block" }}
               />
 
               <div
                 ref={pcScrollRef}
                 className="pc-scroll-container"
-                style={{ display: mode === 'parallel' ? 'block' : 'none' }}
+                style={{ display: mode === "parallel" ? "block" : "none" }}
               />
 
               {/* 图例容器 */}
@@ -1178,13 +1327,27 @@ const Task2 = () => {
                       <span className="industry-name">{selectedPoint.industry}</span>
                       <span className="year-tag">{selectedPoint.year}</span>
                     </div>
-                    <button className="close-btn-header" onClick={() => setSelectedPoint(null)}>×</button>
+                    <button className="close-btn-header" onClick={() => setSelectedPoint(null)}>
+                      ×
+                    </button>
                   </div>
                   <div className="panel-body">
-                    <div className="stat-row"><span>Avg Salary:</span><strong>${Math.round(selectedPoint.avgSalary).toLocaleString()}</strong></div>
-                    <div className="stat-row"><span>AI Intensity:</span><strong>{selectedPoint.avgAIIntensity.toFixed(3)}</strong></div>
-                    <div className="stat-row"><span>Auto Risk:</span><strong className="risk-text">{(selectedPoint.avgAutomationRisk * 100).toFixed(1)}%</strong></div>
-                    <div className="stat-row"><span>Job Count:</span><strong>{selectedPoint.jobCount}</strong></div>
+                    <div className="stat-row">
+                      <span>Avg Salary:</span>
+                      <strong>${Math.round(selectedPoint.avgSalary).toLocaleString()}</strong>
+                    </div>
+                    <div className="stat-row">
+                      <span>AI Intensity:</span>
+                      <strong>{selectedPoint.avgAIIntensity.toFixed(3)}</strong>
+                    </div>
+                    <div className="stat-row">
+                      <span>Auto Risk:</span>
+                      <strong className="risk-text">{(selectedPoint.avgAutomationRisk * 100).toFixed(1)}%</strong>
+                    </div>
+                    <div className="stat-row">
+                      <span>Job Count:</span>
+                      <strong>{selectedPoint.jobCount}</strong>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1205,7 +1368,9 @@ const Task2 = () => {
                       if (!leftData || !rightData) return null;
                       return (
                         <div key={industry} className="compare-item">
-                          <div className="compare-industry-header" style={{ color: INDUSTRY_COLORS[industry] }}>{industry}</div>
+                          <div className="compare-industry-header" style={{ color: INDUSTRY_COLORS[industry] }}>
+                            {industry}
+                          </div>
                           <div className="compare-rows">
                             <div className="compare-row solid-row">
                               <span className="dot">●</span>
