@@ -1,0 +1,229 @@
+/* Prevent global body scroll */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+:root {
+  --fixed-scroll-hold: 120vh;
+  --fixed-scroll-total: calc(100vh + var(--fixed-scroll-hold));
+}
+
+/* 统一所有 Task 的文字样式 */
+.task-section h2,
+.detail-card h2 {
+  font-family:
+    "Inter",
+    -apple-system,
+    sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.description,
+.def-item p {
+  font-family: "Inter", system-ui, sans-serif;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.web-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* LEFT SIDE: Fixed */
+.left-container {
+  width: 380px;
+  height: 100vh;
+  background: #ffffff;
+  color: rgb(24, 24, 24);
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-right: 1px solid #c7c7c7;
+}
+
+.detail-card {
+  background: hsl(0, 0%, 100%);
+  padding: 30px;
+  border-radius: 16px;
+  transition: all 0.5s ease;
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.badge {
+  font-size: 10px;
+  background: #3b82f6;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.description {
+  margin-top: 15px;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
+  will-change: opacity, transform;
+}
+
+.description.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.description.fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* RIGHT SIDE: Scrollable */
+.right-container {
+  flex-grow: 1;
+  height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  background: transparent;
+}
+
+.task-section {
+  min-height: 100vh;
+  width: 100%;
+  padding-bottom: 200px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #f0f0f0;
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+}
+
+/* Transition Band — light with earth viewport */
+.transition-band {
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  padding: 100px 60px;
+  background: transparent; /* 改为透明，不要遮挡粘性图层中的地球 */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  border-bottom: 1px solid #f0f0f0;
+  z-index: 1; /* 保证文字层叠在地球之上 */
+}
+
+.transition-content {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+}
+
+.transition-content h2 {
+  font-size: 34px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.transition-content p {
+  font-size: 17px;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.inline-icon {
+  margin-right: 8px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+/* 新增：地球图层的粘性容器，它会让地球永远固定在右侧屏幕视野内 */
+.earth-sticky-layer {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 0; /* 高度为0不占用文档流实际空间 */
+  z-index: 0; /* 放置在底层 */
+  pointer-events: none;
+}
+
+/* Earth viewport — scroll-driven: fades in from left, slides right */
+.earth-viewport {
+  position: absolute;
+  left: 0;
+  top: calc(100vh - 430px); /* 让地球精确贴靠在屏幕底端 */
+  width: 60%;
+  height: 450px;
+  background-image: url("/images/Earth.jpg");
+  background-size: auto 100%;
+  background-repeat: no-repeat;
+  background-position-y: center;
+  opacity: 0;
+  will-change: transform, opacity, background-position-x;
+  mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.45) 45%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.bottom-spacer {
+  height: 40vh;
+}
+
+.right-container::-webkit-scrollbar {
+  width: 8px;
+}
+.right-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+/* Visualization badges in the left detail card */
+.visualization-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  align-items: flex-start; /* left-align badges with text */
+  width: 100%;
+}
+
+.visualization-badges .vis-badge {
+  height: 28px; /* smaller fixed height */
+  max-width: 160px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  opacity: 1;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+  transform-origin: left center;
+  border-radius: 4px;
+}
