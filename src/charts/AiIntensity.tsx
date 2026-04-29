@@ -2,10 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
 import { dbUrl } from "../utils/paths";
 
-// ─── Part 1: Heatmap ────────────────────────────────────────
-function AiHeatmap() {
+function AiHeatmap({selectedIndustry}) {
   const [data, setData] = useState([]);
-  const [intensityThreshold, setIntensityThreshold] = useState(0.5);
+  const [intensityThreshold, setIntensityThreshold] = useState(0.1);
   const svgRef = useRef(null);
   const tooltipRef = useRef(null);
 
@@ -179,9 +178,25 @@ function AiHeatmap() {
     d3.select(svgRef.current)
       .selectAll(".bin")
       .transition()
-      .duration(200)
-      .style("opacity", (d) => (d.avgIntensity >= intensityThreshold ? 1 : 0.05));
-  }, [intensityThreshold, data]);
+      .duration(300)
+      .style("opacity", (d) => {
+        const passesIntensity = d.avgIntensity >= intensityThreshold;
+        
+      
+        const isSelected = !selectedIndustry || 
+                           selectedIndustry === "Market Average" || 
+                           selectedIndustry === d.industry;
+
+        if (!passesIntensity) return 0;
+
+      if (!isSelected) return 0.1;
+
+      return 1;
+      })
+      // .style("stroke", (d) => (selectedIndustry === d.industry ? "#2d3c4f" : "#fff"))
+      // .style("stroke-width", (d) => (selectedIndustry === d.industry ? "1.5px" : "0.5px"));
+
+  }, [intensityThreshold, data, selectedIndustry]); 
 
   return (
     <div

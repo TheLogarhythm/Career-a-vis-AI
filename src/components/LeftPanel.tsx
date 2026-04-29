@@ -47,46 +47,41 @@ export default function LeftPanel({
 
 
         {activeTask === "section2" && (
-  <div style={{ marginTop: "20px", marginBottom: "20px" }}>
-    <h4 style={{ fontSize: "12px", color: "#64748b", marginBottom: "10px" }}>
-      Select Industry
-    </h4>
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-      {industries.map((ind) => {
-        // SAFETY CHECK: If selectedIndustry is undefined, this will be false instead of crashing
-        const isSelected = selectedIndustry && selectedIndustry === ind;
+          <div className="industry-selector" style={{ marginTop: "20px" }}>
+            <h4 style={{ fontSize: "12px", color: "#64748b", marginBottom: "10px" }}>
+              Select Industry
+            </h4>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {/* Prepend Market Average manually to the list */}
+              {["Market Average", ...industries].map((ind) => {
+                const isSelected = selectedIndustry === ind;
+                const activeBlue = "#3498db";
 
-        return (
-          <button 
-            key={ind}
-            onClick={() => setSelectedIndustry(ind)}
-            style={{
-              padding: "6px 12px",
-              fontSize: "11px",
-              borderRadius: "16px",
-              cursor: "pointer",
-              transition: "all 0.2s",
-              
-              // BASE STYLE: White background
-              background: "white", 
-              
-              // SELECTED STYLE: Border and Text turn Blue
-              // UNSELECTED STYLE: Border is light grey, Text is muted grey
-              border: isSelected ? "2px solid #3498db" : "2px solid #e2e8f0",
-              color: isSelected ? "#3498db" : "#64748b",
-              
-              fontWeight: isSelected ? "600" : "400",
-              outline: "none"
-            }}
-          >
-            {ind}
-          </button>
-        );
-      })}
-    </div>
-  </div>
-)}
-
+                return (
+                  <button
+                    key={ind}
+                    onClick={() => setSelectedIndustry(ind)}
+                    style={{
+                      padding: "6px 12px",
+                      fontSize: "11px",
+                      borderRadius: "16px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      background: "white",
+                      // Logic: Blue border and text if selected
+                      border: isSelected ? `2px solid ${activeBlue}` : "2px solid #e2e8f0",
+                      color: isSelected ? activeBlue : "#64748b",
+                      fontWeight: isSelected ? "600" : "400",
+                      outline: "none"
+                    }}
+                  >
+                    {ind}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
 
         <div

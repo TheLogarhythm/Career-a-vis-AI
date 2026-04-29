@@ -109,6 +109,7 @@ function App() {
 const [industries, setIndustries] = useState([]);
   const [selectedIndustry, setSelectedIndustry] = useState("Market Average");
   const [comparisonIndustry, setComparisonIndustry] = useState("None");
+  const [intensityThreshold, setIntensityThreshold] = useState(0.5);
   
   useEffect(() => {
     d3.csv(dbUrl("ai_impact_jobs_2010_2025.csv")).then((raw) => {
@@ -261,6 +262,7 @@ const [industries, setIndustries] = useState([]);
         setComparisonIndustry={setComparisonIndustry}
         activeTask={activeTask}
         industries={industries}
+
       />
 
       <div className="right-container" ref={rightContainerRef}>
@@ -293,8 +295,8 @@ const [industries, setIndustries] = useState([]);
           />
         </TaskSection>
 
-        <TaskSection task="section3b">
-          <AiHeatmap />
+        <TaskSection task="section2">
+          <AiHeatmap selectedIndustry={selectedIndustry} />
         </TaskSection>
 
         <TransitionSection
