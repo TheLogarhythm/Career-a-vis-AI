@@ -253,18 +253,17 @@ function AiHeatmap({selectedIndustry}) {
 // ─── Part 2: Job Count by Category ──────────────────────────
 function AiJobCount() {
   const [jobDensityData, setJobDensityData] = useState([]);
+  const [showAllSubcategories, setShowAllSubcategories] = useState(false);
   const [segmentedContainerWidth, setSegmentedContainerWidth] = useState(980);
   const segmentedSvgRef = useRef(null);
   const segmentedContainerRef = useRef(null);
   const segmentedTooltipRef = useRef(null);
 
   useEffect(() => {
-    // Map many dataset categories/industries into the 10 target groups
     const mapToGroup = (s) => {
-      if (!s) return "Market Average";
+      if (!s) return "Other";
       const str = s.toString().toLowerCase();
-      if (str.includes("manufactur") || str.includes("transport") || str.includes("logistic")) return "Manufacturing";
-      if (str.includes("retail") || str.includes("consumer")) return "Retail";
+      if (str.includes("manufactur") || str.includes("transport") || str.includes("logistic")) return "Manufacture";
       if (
         str.includes("information") ||
         str.includes("communication") ||
@@ -277,29 +276,14 @@ function AiJobCount() {
         return "Tech";
       if (str.includes("bank") || str.includes("finance") || str.includes("account") || str.includes("financial"))
         return "Finance";
-      if (str.includes("health") || str.includes("medical") || str.includes("care")) return "Healthcare";
-      if (str.includes("education") || str.includes("training") || str.includes("school")) return "Education";
-      if (str.includes("government") || str.includes("defence") || str.includes("public")) return "Government";
-      if (
-        str.includes("mining") ||
-        str.includes("energy") ||
-        str.includes("resource") ||
-        str.includes("oil") ||
-        str.includes("gas")
-      )
-        return "Energy";
-      if (str.includes("farm") || str.includes("agri") || str.includes("animal") || str.includes("conservation"))
-        return "Agriculture";
-      return "Market Average";
+      return "Other";
     };
 
     Promise.all([d3.csv(dbUrl("jobstreet_all_job_dataset.csv")), d3.csv(dbUrl("ai_job_trends_dataset.csv"))])
       .then(([jobsRaw, riskRaw]) => {
-        // Compute average automation risk per mapped group from job trends dataset
-        // Prefer year-specific 'Automation Risk (YYYY)' columns when available.
+        const targetOrder = ["Tech", "Finance", "Manufacture"];
+        const targetSet = new Set(targetOrder);
         const headerKeys = riskRaw && riskRaw.length > 0 ? Object.keys(riskRaw[0]) : [];
-
-        // Find any header keys that match 'automation risk' with a 4-digit year
         const yearKeyMatches = headerKeys
           .map((k) => {
             const m = k.match(/automation\s*risk[^\d]*(\d{4})/i);
@@ -312,15 +296,12 @@ function AiJobCount() {
           const latestYear = d3.max(yearKeyMatches, (d) => d.year);
           chosenRiskKey = yearKeyMatches.find((d) => d.year === latestYear).key;
         } else {
-          // fallback to any key containing 'automation risk'
           chosenRiskKey = headerKeys.find((k) => /automation\s*risk/i.test(k));
         }
 
         const safeRisk = (row) => {
           if (!row) return 0;
-          if (chosenRiskKey && Object.prototype.hasOwnProperty.call(row, chosenRiskKey)) {
-            return +row[chosenRiskKey] || 0;
-          }
+          if (chosenRiskKey && Object.prototype.hasOwnProperty.call(row, chosenRiskKey)) return +row[chosenRiskKey] || 0;
           const fallbackKey = Object.keys(row).find((k) => /automation\s*risk/i.test(k));
           return fallbackKey ? +row[fallbackKey] || 0 : 0;
         };
@@ -330,92 +311,55 @@ function AiJobCount() {
           (v) => d3.mean(v, (d) => safeRisk(d)),
           (d) => mapToGroup(d.Industry),
         );
-
         const riskMap = Object.fromEntries(riskByGroup);
+        const overallAvgRisk = d3.mean(riskRaw, (d) => safeRisk(d)) || 0;
 
-        // Parse jobstreet rows and map to the 10 groups
         const parsed = jobsRaw
           .map((d) => ({
-            rawCategory: (d.category || "").trim(),
             category: mapToGroup(d.category),
             subcategory: (d.subcategory || "").trim(),
           }))
-          .filter((d) => d.category && d.subcategory);
+          .filter((d) => targetSet.has(d.category) && d.subcategory);
 
-        // Aggregate counts by mapped category -> subcategory
-        const grouped = d3
-          .rollups(
-            parsed,
-            (v) => v.length,
-            (d) => d.category,
-            (d) => d.subcategory,
-          )
-          .map(([category, subcats]) => ({
-            category,
-            total: d3.sum(subcats, ([, count]) => count),
-            segments: subcats
-              .map(([subcategory, count]) => ({ subcategory, count }))
-              .sort((a, b) => d3.descending(a.count, b.count)),
-          }));
+        const grouped = d3.rollups(
+          parsed,
+          (v) => v.length,
+          (d) => d.category,
+          (d) => d.subcategory,
+        );
 
-        // Ensure consistent order and include categories even if zero
-        const targetOrder = [
-          "Market Average",
-          "Agriculture",
-          "Education",
-          "Energy",
-          "Finance",
-          "Government",
-          "Healthcare",
-          "Manufacturing",
-          "Retail",
-          "Tech",
-        ];
+        const panels = targetOrder.map((category) => {
+          const found = grouped.find((g) => g[0] === category);
+          const risk = riskMap[category] ?? overallAvgRisk;
+          const weight = isFinite(risk) ? risk / 100 : 1;
+          const subcategories = found
+            ? found[1]
+                .map(([subcategory, count]) => ({
+                  subcategory,
+                  count,
+                  weightedCount: count * weight,
+                }))
+                .sort((a, b) => d3.descending(a.weightedCount, b.weightedCount))
+            : [];
 
-        const overallAvgRisk = d3.mean(riskRaw, (d) => safeRisk(d)) || 0;
-
-        const categorySegments = targetOrder.map((cat) => {
-          const found = grouped.find((g) => g.category === cat);
-          if (!found) {
-            return {
-              category: cat,
-              total: 0,
-              risk: riskMap[cat] ?? overallAvgRisk,
-              weight: (riskMap[cat] ?? overallAvgRisk) / 100,
-              segments: [],
-            };
-          }
-          const riskVal = riskMap[found.category] ?? overallAvgRisk;
-          const weight = isFinite(riskVal) ? riskVal / 100 : 1;
-          const weightedTotal = found.total * weight;
           return {
-            category: found.category,
-            total: found.total,
-            risk: riskVal,
-            weight,
-            weightedTotal,
-            segments: found.segments,
+            category,
+            risk,
+            subcategories,
           };
         });
 
-        // Sort categories by risk-weighted total descending so largest bars appear on top
-        categorySegments.sort((a, b) =>
-          d3.descending(a.weightedTotal ?? a.total * (a.weight || 0), b.weightedTotal ?? b.total * (b.weight || 0)),
-        );
-
-        setJobDensityData(categorySegments);
+        setJobDensityData(panels);
       })
       .catch((error) => console.error(error));
   }, []);
 
   useEffect(() => {
     if (!segmentedContainerRef.current || typeof ResizeObserver === "undefined") return;
-
     const observer = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect?.width;
       if (width) setSegmentedContainerWidth(width);
     });
-
     observer.observe(segmentedContainerRef.current);
     return () => observer.disconnect();
   }, []);
@@ -423,65 +367,46 @@ function AiJobCount() {
   useEffect(() => {
     if (jobDensityData.length === 0) return;
 
+    const panelDataForView = jobDensityData.map((panel) => {
+      if (showAllSubcategories) return panel;
+
+      const topN = 10;
+      const sorted = [...panel.subcategories].sort((a, b) => d3.descending(a.weightedCount, b.weightedCount));
+      const top = sorted.slice(0, topN);
+      const rest = sorted.slice(topN);
+      if (rest.length === 0) return { ...panel, subcategories: top };
+
+      const others = {
+        subcategory: "Others",
+        count: d3.sum(rest, (d) => d.count),
+        weightedCount: d3.sum(rest, (d) => d.weightedCount),
+      };
+      return { ...panel, subcategories: [...top, others] };
+    });
+
     const segmentedWidth = Math.max(860, Math.floor(segmentedContainerWidth || 860));
-    const segmentedHeight = Math.max(520, jobDensityData.length * 26 + 170);
-    const segmentedMargin = { top: 50, right: 40, bottom: 45, left: 260 };
+    const segmentedMargin = { top: 28, right: 24, bottom: 32, left: 12 };
+    const panelGap = 24;
+    const panelTitleHeight = 28;
+    const barHeight = 18;
+    const barGap = 8;
+    const panelInnerLeft = 132;
+    const panelInnerRight = 34;
+    const panelHeights = panelDataForView.map((d) => (d.subcategories.length || 1) * (barHeight + barGap) + 20);
+    const maxPanelHeight = d3.max(panelHeights) || 180;
+    const segmentedHeight = segmentedMargin.top + segmentedMargin.bottom + panelTitleHeight + maxPanelHeight;
 
     const svg = d3.select(segmentedSvgRef.current);
     const tooltip = d3.select(segmentedTooltipRef.current);
     svg.selectAll("*").remove();
 
-    const innerWidth = segmentedWidth - segmentedMargin.left - segmentedMargin.right;
-    const innerHeight = segmentedHeight - segmentedMargin.top - segmentedMargin.bottom;
-
-    const categoryColorScale = d3
-      .scaleOrdinal()
-      .domain(jobDensityData.map((d) => d.category))
-      .range(jobDensityData.map((_, i) => d3.interpolateTurbo(i / Math.max(jobDensityData.length - 1, 1))));
-
-    const xScale = d3
-      .scaleLinear()
-      .domain([0, d3.max(jobDensityData, (d) => d.weightedTotal || d.total * (d.weight || 1)) || 0])
-      .nice()
-      .range([0, innerWidth]);
-
-    const yScale = d3
-      .scaleBand()
-      .domain(jobDensityData.map((d) => d.category))
-      .range([0, innerHeight])
-      .padding(0.16);
-
-    const colorBySegmentIndex = (baseColor, idx, totalSegments) => {
-      const base = d3.hsl(baseColor);
-      const ratio = totalSegments > 1 ? idx / (totalSegments - 1) : 0;
-      const lightness = Math.min(0.88, base.l + ratio * 0.38);
-      const saturation = Math.max(0.28, base.s - ratio * 0.25);
-      return d3.hsl(base.h, saturation, lightness).formatHex();
+    const chartWidth = segmentedWidth - segmentedMargin.left - segmentedMargin.right;
+    const panelWidth = (chartWidth - panelGap * 2) / 3;
+    const categoryColors = {
+      Tech: "#2563eb",
+      Finance: "#0f766e",
+      Manufacture: "#b45309",
     };
-
-    const segmentData = jobDensityData.flatMap((categoryRow) => {
-      const baseColor = categoryColorScale(categoryRow.category);
-      let cumulative = 0;
-      const weight = categoryRow.weight || 1;
-
-      return (categoryRow.segments || []).map((segment, idx) => {
-        const start = cumulative;
-        const segWeighted = segment.count * weight;
-        cumulative += segWeighted;
-
-        return {
-          category: categoryRow.category,
-          subcategory: segment.subcategory,
-          segmentCount: segment.count,
-          weightedCount: segWeighted,
-          total: categoryRow.total,
-          weightedTotal: categoryRow.weightedTotal || categoryRow.total * weight,
-          x0: start,
-          x1: cumulative,
-          color: colorBySegmentIndex(baseColor, idx, categoryRow.segments.length),
-        };
-      });
-    });
 
     const mainGroup = svg
       .attr("width", segmentedWidth)
@@ -489,51 +414,92 @@ function AiJobCount() {
       .append("g")
       .attr("transform", `translate(${segmentedMargin.left},${segmentedMargin.top})`);
 
-    mainGroup
-      .append("g")
-      .call(d3.axisLeft(yScale))
-      .selectAll("text")
-      .style("font-size", "11px")
-      .attr("dominant-baseline", "middle")
-      .attr("dy", "0");
+    panelDataForView.forEach((panel, panelIndex) => {
+      const panelXOffset = panelIndex * (panelWidth + panelGap);
+      const panelHeight = (panel.subcategories.length || 1) * (barHeight + barGap) + 20;
+      const panelGroup = mainGroup.append("g").attr("transform", `translate(${panelXOffset},0)`);
+      const panelColor = categoryColors[panel.category] || "#334155";
+      const xMax = d3.max(panel.subcategories, (d) => d.weightedCount) || 1;
+      const plotWidth = Math.max(90, panelWidth - panelInnerLeft - panelInnerRight);
+      const xScale = d3.scaleLinear().domain([0, xMax]).nice().range([0, plotWidth]);
+      const yScale = d3
+        .scaleBand()
+        .domain(panel.subcategories.map((d) => d.subcategory))
+        .range([0, panelHeight - 20])
+        .padding(0.28);
 
-    mainGroup
-      .append("g")
-      .attr("transform", `translate(0,${innerHeight})`)
-      .call(d3.axisBottom(xScale).ticks(8).tickFormat(d3.format(",.0f")));
+      panelGroup
+        .append("text")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("fill", panelColor)
+        .style("font-size", "15px")
+        .style("font-weight", "700")
+        .text(`${panel.category} (Risk: ${(panel.risk || 0).toFixed(1)}%)`);
 
-    mainGroup
-      .selectAll(".category-segment")
-      .data(segmentData)
-      .enter()
-      .append("rect")
-      .attr("class", "category-segment")
-      .attr("x", (d) => xScale(d.x0))
-      .attr("y", (d) => yScale(d.category) || 0)
-      .attr("width", (d) => Math.max(0, xScale(d.x1) - xScale(d.x0)))
-      .attr("height", yScale.bandwidth())
-      .attr("fill", (d) => d.color)
-      .attr("stroke", "#ffffff")
-      .attr("stroke-width", 0.8)
-      .on("mouseover", function (event, d) {
-        const percentage = d.total > 0 ? (d.segmentCount / d.total) * 100 : 0;
-        tooltip.style("opacity", 1);
-        tooltip.html(
-          `<strong>${d.category}</strong><br/>Subcategory: ${d.subcategory}<br/>Jobs: ${d.segmentCount}<br/>Risk-weighted: ${Math.round(d.weightedCount)}<br/>Share: ${percentage.toFixed(1)}%`,
-        );
-        d3.select(this).attr("stroke", "#111827").attr("stroke-width", 1.2);
-      })
-      .on("mousemove", function (event) {
-        const [x, y] = d3.pointer(event, segmentedSvgRef.current);
-        tooltip.style("left", `${x + 15}px`).style("top", `${y + 15}px`);
-      })
-      .on("mouseout", function () {
-        tooltip.style("opacity", 0);
-        d3.select(this).attr("stroke", "#ffffff").attr("stroke-width", 0.8);
-      });
+      const chartGroup = panelGroup.append("g").attr("transform", `translate(${panelInnerLeft},${panelTitleHeight})`);
+
+      chartGroup
+        .append("g")
+        .call(d3.axisLeft(yScale).tickSize(0))
+        .call((g) => g.select(".domain").remove())
+        .selectAll("text")
+        .style("font-size", "10px")
+        .style("fill", "#1f2937")
+        .style("text-anchor", "end");
+
+      chartGroup
+        .append("g")
+        .attr("transform", `translate(0,${panelHeight - 20})`)
+        .call(d3.axisBottom(xScale).ticks(4).tickFormat(d3.format(",.0f")))
+        .call((g) => g.select(".domain").attr("stroke", "#9ca3af"))
+        .call((g) => g.selectAll("line").attr("stroke", "#d1d5db"))
+        .call((g) => g.selectAll("text").style("font-size", "10px").style("fill", "#4b5563"));
+
+      const bars = chartGroup.selectAll(".subcategory-bar").data(panel.subcategories).enter().append("g");
+
+      bars
+        .append("rect")
+        .attr("class", "subcategory-bar")
+        .attr("x", 0)
+        .attr("y", (d) => yScale(d.subcategory) || 0)
+        .attr("width", (d) => xScale(d.weightedCount))
+        .attr("height", yScale.bandwidth())
+        .attr("rx", 4)
+        .attr("fill", panelColor)
+        .attr("opacity", 0.9)
+        .on("mouseover", function (event, d) {
+          tooltip.style("opacity", 1);
+          tooltip.html(
+            `<strong>${panel.category}</strong><br/>Subcategory: ${d.subcategory}<br/>Jobs: ${d.count}<br/>Risk-weighted: ${Math.round(d.weightedCount)}`,
+          );
+          d3.select(this).attr("opacity", 1);
+        })
+        .on("mousemove", function (event) {
+          const [x, y] = d3.pointer(event, segmentedSvgRef.current);
+          tooltip.style("left", `${x + 15}px`).style("top", `${y + 15}px`);
+        })
+        .on("mouseout", function () {
+          tooltip.style("opacity", 0);
+          d3.select(this).attr("opacity", 0.9);
+        });
+
+      bars
+        .append("text")
+        .attr("x", (d) => {
+          const w = xScale(d.weightedCount);
+          return w >= 46 ? w - 6 : Math.min(w + 6, plotWidth - 2);
+        })
+        .attr("y", (d) => (yScale(d.subcategory) || 0) + yScale.bandwidth() / 2 + 3)
+        .style("font-size", "9px")
+        .style("font-weight", "600")
+        .style("fill", (d) => (xScale(d.weightedCount) >= 46 ? "#ffffff" : "#334155"))
+        .style("text-anchor", (d) => (xScale(d.weightedCount) >= 46 ? "end" : "start"))
+        .text((d) => d3.format(",.0f")(d.weightedCount));
+    });
 
     svg.attr("viewBox", `0 0 ${segmentedWidth} ${segmentedHeight}`).attr("preserveAspectRatio", "xMinYMin meet");
-  }, [jobDensityData, segmentedContainerWidth]);
+  }, [jobDensityData, segmentedContainerWidth, showAllSubcategories]);
 
   return (
     <div
@@ -549,10 +515,27 @@ function AiJobCount() {
         overflowX: "hidden",
       }}
     >
-      <h3 style={{ textAlign: "center", marginBottom: "6px" }}>Job Count by Category (Risk-weighted)</h3>
+      <h3 style={{ textAlign: "center", marginBottom: "6px" }}>Risk-weighted Job Count by Subcategory</h3>
       <p style={{ textAlign: "center", marginTop: 0, color: "#4b5563", fontSize: "12px" }}>
-        Each horizontal bar is a category; widths show job counts multiplied by the category's average automation risk.
+        Focused view: Tech, Finance, and Manufacture. Each bar chart shows subcategory demand adjusted by category risk.
       </p>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px" }}>
+        <button
+          type="button"
+          onClick={() => setShowAllSubcategories((v) => !v)}
+          style={{
+            border: "1px solid #cbd5e1",
+            background: showAllSubcategories ? "#0f172a" : "#ffffff",
+            color: showAllSubcategories ? "#ffffff" : "#0f172a",
+            borderRadius: "999px",
+            padding: "6px 12px",
+            fontSize: "12px",
+            cursor: "pointer",
+          }}
+        >
+          {showAllSubcategories ? "Show Top 10 + Others" : "Show All Subcategories"}
+        </button>
+      </div>
 
       <svg ref={segmentedSvgRef} style={{ width: "100%", height: "auto", display: "block" }}></svg>
 

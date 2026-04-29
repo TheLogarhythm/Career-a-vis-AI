@@ -79,7 +79,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
       </>
     ),
     description:
-      "Understanding job volume across categories and subcategories reveals where the demand 鈥?and competition 鈥?truly lies. This helps career seekers prioritize sectors with the most opportunities.",
+      "To reduce class imbalance, this view focuses on Tech, Finance, and Manufacture only. Compare their subcategories to see where risk-weighted demand is strongest and where competition is likely concentrated.",
   },
   section4: {
     title: (
@@ -303,7 +303,7 @@ const [industries, setIndustries] = useState([]);
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Job count.png")}
           title="How many jobs are out there?"
-          description="Beyond knowing where the high-paying roles are, it matters how many opportunities each category actually offers. The segmented bar chart below breaks down job listings by category and subcategory, revealing where the volume 鈥?and the competition 鈥?really is."
+          description="To make the comparison more meaningful, this chart keeps only Tech, Finance, and Manufacture. Each category has its own bar chart, showing risk-weighted job counts across subcategories so volume differences are clearer and less biased by tiny classes."
         />
 
         <TaskSection task="section3b-2">
