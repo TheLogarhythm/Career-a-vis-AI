@@ -119,16 +119,42 @@ export function DraggablePie({ weights, setWeights }) {
         style={{ touchAction: "none", overflow: "visible" }}
       />
 
-      <div style={{ marginTop: "20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 20px" }}>
-        {metrics.map((m, i) => (
-          <div key={m} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: colors[i % colors.length] }} />
-            <span style={{ fontSize: "10px", color: "#475569", fontWeight: "bold" }}>
-              {m.replace(/_/g, " ").replace(" score", "")}
+     <div style={{ 
+  marginTop: "20px", 
+  display: "grid", 
+  gridTemplateColumns: "1fr", 
+  gap: "5px",               
+  width: "100%",              
+}}>
+    {(() => {
+    const totalWeight = d3.sum(Object.values(weights || {}));
+
+    return metrics.map((m, i) => {
+      const percentage = totalWeight > 0 
+        ? Math.round((weights[m] / totalWeight) * 100) 
+        : 0;
+
+      return (
+        <div key={m} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* Color Dot */}
+          <div style={{ 
+            width: "8px", 
+            height: "8px", 
+            borderRadius: "50%", 
+            background: colors[i % colors.length] 
+          }} />
+          
+          <span style={{ fontSize: "15px", color: "#475569" }}>
+            <span style={{ color: colors[i % colors.length], marginRight: "4px" }}>
+              {percentage}%
             </span>
-          </div>
-        ))}
-      </div>
+            {m.replace(/_/g, " ").replace(" score", "")}
+          </span>
+        </div>
+      );
+    });
+  })()}
+</div>
     </div>
   );
 }
