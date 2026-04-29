@@ -9,7 +9,8 @@ import { AiHeatmap, AiJobCount } from "./charts/AiIntensity";
 import Radar from "./charts/Radar";
 import WeightedBarChart from "./charts/WeightedBarChart";
 import LinechartSection from "./charts/LinechartSection";
-import { imageUrl } from "./utils/paths";
+import { dbUrl, imageUrl } from "./utils/paths";
+import * as d3 from "d3";
 import "./App.css";
 
 const METRIC_DEFAULTS = {
@@ -105,7 +106,16 @@ function App() {
   const [introStage, setIntroStage] = useState(0);
   const [task1Stage, setTask1Stage] = useState(0);
   const [weights, setWeights] = useState<Record<string, number>>({ ...METRIC_DEFAULTS });
-
+const [industries, setIndustries] = useState([]);
+  const [selectedIndustry, setSelectedIndustry] = useState("Market Average");
+  const [comparisonIndustry, setComparisonIndustry] = useState("None");
+  
+  useEffect(() => {
+    d3.csv(dbUrl("ai_impact_jobs_2010_2025.csv")).then((raw) => {
+      const uniqueIndustries = Array.from(new Set(raw.map((d) => d.industry)));
+      setIndustries(uniqueIndustries);
+    });
+  }, []);
   useEffect(() => {
     const options = {
       root: rightContainerRef.current,
@@ -245,6 +255,12 @@ function App() {
         showWeights={activeTask === "section3a"}
         weights={weights}
         setWeights={setWeights}
+        setSelectedIndustry={setSelectedIndustry}
+        comparisonIndustry={comparisonIndustry}
+        selectedIndustry={selectedIndustry}
+        setComparisonIndustry={setComparisonIndustry}
+        activeTask={activeTask}
+        industries={industries}
       />
 
       <div className="right-container" ref={rightContainerRef}>
@@ -271,7 +287,10 @@ function App() {
         />
 
         <TaskSection task="section2">
-          <LinechartSection scrollParentRef={rightContainerRef} />
+          <LinechartSection 
+            scrollParentRef={rightContainerRef} 
+            selectedIndustry={selectedIndustry}
+          />
         </TaskSection>
 
         <TaskSection task="section3b">

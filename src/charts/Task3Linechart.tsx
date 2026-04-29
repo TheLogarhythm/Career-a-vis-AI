@@ -9,14 +9,18 @@ import { dbUrl } from "../utils/paths";
 
 
 
-function Task3Linechart({ scrollParentRef, selectedIndustry, comparisonIndustry }) {
+function Task3Linechart({ scrollParentRef, selectedIndustry, comparisonIndustry, onOverlayChange }) {
   const chartRef = useRef();
   const isFirstRender = useRef(true);
   const [overlay, setOverlay] = useState(false);
   const [data, setData] = useState([]);
   const [scrollProgress, setScrollProgress] = useState(0);
 
-
+useEffect(() => {
+    if (onOverlayChange) {
+      onOverlayChange(overlay);
+    }
+  }, [overlay, onOverlayChange]);
 
 
 
