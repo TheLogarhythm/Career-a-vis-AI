@@ -2,12 +2,26 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { dbUrl } from "../utils/paths";
 
-function Linechart({ scrollParentRef, selectedIndustry }) {
+
+
+
+
+
+
+
+function Task3Linechart({ scrollParentRef, selectedIndustry }) {
   const chartRef = useRef();
   const isFirstRender = useRef(true);
   const [overlay, setOverlay] = useState(false);
   const [data, setData] = useState([]);
   const [scrollProgress, setScrollProgress] = useState(0);
+
+
+
+
+
+
+
 
   const margin = { top: 60, right: 220, bottom: 40, left: 75 };
   const gridW = 420;
@@ -16,10 +30,24 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
   const fullH = 400;
   const bottomChartY = fullH + 100;
 
+
+
+
+
+
+
+
   useEffect(() => {
     d3.csv(dbUrl("ai_impact_jobs_2010_2025.csv")).then((raw) => {
       const filteredRaw =
         selectedIndustry === "Market Average" ? raw : raw.filter((d) => d.industry === selectedIndustry);
+
+
+
+
+
+
+
 
       const grouped = d3.rollups(
         filteredRaw,
@@ -45,27 +73,84 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
     });
   }, [selectedIndustry]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!overlay || !chartRef.current) return;
-      const rect = chartRef.current.getBoundingClientRect();
-      const triggerStart = 200;
-      const scrollWindow = 200;
-      const currentScroll = triggerStart - rect.top;
-      setScrollProgress(Math.min(1, Math.max(0, currentScroll / scrollWindow)));
-    };
 
-    const target = scrollParentRef?.current || window;
-    target.addEventListener("scroll", handleScroll);
-    return () => target.removeEventListener("scroll", handleScroll);
-  }, [overlay, scrollParentRef]);
+
+
+
+
+
+
+useEffect(() => {
+  const handleScroll = () => {
+    if (!overlay || !chartRef.current) return;
+    const rect = chartRef.current.getBoundingClientRect();
+
+
+
+
+
+
+
+
+    const triggerStart = 50;
+
+
+
+
+    const currentScroll = triggerStart - rect.top;
+
+
+
+
+    const isScrollingUp = rect.top > (window._prevScrollTop || 0);
+    window._prevScrollTop = rect.top;
+
+
+
+
+    const scrollWindow = isScrollingUp ? 100 : 400;
+
+
+
+
+    setScrollProgress(Math.min(1, Math.max(0, currentScroll / scrollWindow)));
+  };
+
+
+
+
+  const target = scrollParentRef?.current || window;
+  target.addEventListener("scroll", handleScroll);
+  return () => target.removeEventListener("scroll", handleScroll);
+}, [overlay, scrollParentRef]);
+
+
+
+
+
+
+
 
   useEffect(() => {
     if (data.length === 0) return;
 
+
+
+
+
+
+
+
     const container = d3.select(chartRef.current);
     let svg = container.select("svg");
     if (svg.empty()) svg = container.append("svg").attr("overflow", "visible");
+
+
+
+
+
+
+
 
     let tooltip = container.select(".tooltip-div");
     if (tooltip.empty()) {
@@ -82,6 +167,13 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
         .style("z-index", "10");
     }
 
+
+
+
+
+
+
+
     const charts = [
       { key: "ai_mentioned", title: "AI Adoption %", color: "#3498db", type: "ai" },
       { key: "ai_intensity_score", title: "AI Intensity", color: "#9b59b6", type: "ai" },
@@ -90,12 +182,26 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
       ...(overlay ? [{ key: "comparison", title: `Salary Trends: ${selectedIndustry}`, type: "dual" }] : []),
     ];
 
+
+
+
+
+
+
+
     const groups = svg.selectAll(".chart-group").data(charts, (d) => d.key);
     groups.exit().remove();
     const groupsEnter = groups
       .enter()
       .append("g")
       .attr("class", (d) => `chart-group group-${d.key}`);
+
+
+
+
+
+
+
 
     // Add grid group first so it stays behind lines
     groupsEnter.append("g").attr("class", "grid-lines");
@@ -116,6 +222,13 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
       .style("text-anchor", "middle");
     groupsEnter.append("text").attr("class", "chart-label").style("font-weight", "bold");
 
+
+
+
+
+
+
+
     // Y-axis label per chart
     const yLabels = {
       ai_mentioned: "AI Adoption Rate (%)",
@@ -125,6 +238,13 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
       comparison: "Salary (USD)",
     };
 
+
+
+
+
+
+
+
     const allGroups = groupsEnter.merge(groups);
     const t = d3
       .transition()
@@ -133,16 +253,37 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
     const width = overlay ? fullW - margin.left - margin.right : gridW - margin.left - 20;
     const height = overlay ? fullH - margin.top - margin.bottom : gridH - margin.top - margin.bottom;
 
+
+
+
+
+
+
+
     svg
       .transition(t)
       .attr("width", fullW)
       .attr("height", overlay ? fullH * 2 + 300 : gridH * 2 + 100);
+
+
+
+
+
+
+
 
     allGroups.each(function (chart, i) {
       const g = d3.select(this);
       const isDual = chart.type === "dual";
       const isAi = overlay && chart.type === "ai";
       const isMove = overlay && chart.type === "ai_salary";
+
+
+
+
+
+
+
 
       let targetX, targetY;
       if (overlay) {
@@ -160,11 +301,25 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
       }
       g.transition(t).attr("transform", `translate(${targetX}, ${targetY})`);
 
+
+
+
+
+
+
+
       const x = d3
         .scaleLinear()
         .domain(d3.extent(data, (d) => d.posting_year))
         .range([0, width]);
       const isSalary = chart.key.includes("salary") || isDual || isMove;
+
+
+
+
+
+
+
 
       let y;
       if (isSalary) {
@@ -174,18 +329,46 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
         y = d3.scaleLinear().domain([0, domainMax]).range([height, 0]);
       }
 
+
+
+
+
+
+
+
       // --- ADD GRID LINES ---
       const grid = g.select(".grid-lines");
       // Hide grid when AI metrics are stacked in overlay
       const showGrid = !(overlay && (chart.type === "ai" || chart.type === "ai_salary"));
+
+
+
+
+
+
+
 
       grid
         .transition(t)
         .style("opacity", showGrid ? 1 : 0)
         .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(""));
 
+
+
+
+
+
+
+
       grid.selectAll("line").attr("stroke", "#f0f0f0").attr("stroke-dasharray", "2,2");
       grid.select(".domain").remove();
+
+
+
+
+
+
+
 
       g.select(".chart-label")
         .transition(t)
@@ -194,6 +377,13 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
         .attr("fill", isDual ? "#333" : chart.color)
         .attr("text-anchor", overlay && !isDual ? "start" : "middle")
         .text(chart.title);
+
+
+
+
+
+
+
 
       // Legend Logic
       let legend = g.select(".legend-container");
@@ -237,11 +427,25 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
         })
         .curve(d3.curveMonotoneX);
 
+
+
+
+
+
+
+
       const lineGenSec = d3
         .line()
         .x((d) => x(d.posting_year))
         .y((d) => y(d.non_ai_salary))
         .curve(d3.curveMonotoneX);
+
+
+
+
+
+
+
 
       g.select(".line-main")
         .transition(t)
@@ -253,14 +457,42 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
         .attr("stroke", "#FF6B6B")
         .attr("d", isDual ? lineGenSec(data) : null);
 
+
+
+
+
+
+
+
       g.select(".x-axis")
         .attr("transform", `translate(0, ${height})`)
         .transition(t)
         .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")));
 
+
+
+
+
+
+
+
       const isPrimaryAiChart = overlay && chart.key === "ai_mentioned";
 
+
+
+
+
+
+
+
       const yAxisOpacity = overlay && !isPrimaryAiChart && chart.type !== "dual" ? 0 : 1;
+
+
+
+
+
+
+
 
       g.select(".y-axis")
         .transition(t)
@@ -275,12 +507,26 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
             }),
         );
 
+
+
+
+
+
+
+
       // Update y-axis label
       g.select(".y-axis-label")
         .text(yLabels[chart.key] || "")
         .attr("x", -height / 2)
         .attr("y", -margin.left + 12)
         .style("opacity", yAxisOpacity);
+
+
+
+
+
+
+
 
       // Dots
       const dotsMain = g.selectAll(".dot-main").data(data);
@@ -303,6 +549,13 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
             );
         })
 
+
+
+
+
+
+
+
         .on("mousemove", (e) => tooltip.style("left", e.clientX + 15 + "px").style("top", e.clientY - 40 + "px"))
         .on("mouseout", () => tooltip.style("opacity", 0))
         .transition(t)
@@ -312,6 +565,13 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
           if (overlay && chart.type === "ai" && val <= 1.1) val *= 100;
           return y(val);
         });
+
+
+
+
+
+
+
 
       const dotsSec = g.selectAll(".dot-sec").data(isDual ? data : []);
       dotsSec.exit().remove();
@@ -334,8 +594,22 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
         .attr("cy", (d) => y(d.non_ai_salary));
     });
 
+
+
+
+
+
+
+
     isFirstRender.current = false;
   }, [data, overlay, scrollProgress, selectedIndustry]);
+
+
+
+
+
+
+
 
   return (
     <div>
@@ -369,4 +643,39 @@ function Linechart({ scrollParentRef, selectedIndustry }) {
   );
 }
 
-export default Linechart;
+
+
+
+
+
+
+
+export default Task3Linechart;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
