@@ -92,6 +92,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
 
 const BADGE_MAP: Record<string, string[]> = {
   "intro-1": ["AI-Generated_Data.png", "Dataset_Linked.png", "Open_Data.png"],
+  "section1-0": ["Can_Mouse_Over.png"],
   "section1-1": ["Can_Mouse_Over.png"],
   "section1-2": ["Can_Mouse_Over.png"],
   section2: ["Aggregated_Data.png", "Data_Normalized.png"],
@@ -163,42 +164,31 @@ function App() {
     }
   } else if (activeTask === "section1") {
     if (task1Stage === 0) {
-      displayDescription =
-        "Global 2D map displayed here ro show how AI intensity and salary levels varied across countries in past years and future. Scroll down to see how.";
-    } else if (task1Stage === 1) {
       displayDescription = (
         <div>
           <p>
-            <b>2010-2025 Historical Phase</b>
+            <b>2010-2025 Historical Phase (DS1)</b>
           </p>
           <p style={{ marginTop: "6px" }}>
-            Easy to see that salary distribution varies significantly across countries in past years. North America and
-            Oceania seemsa good choice.
+            Salary distribution varies across countries in the historical dataset. Use this to spot strong markets by
+            average pay.
           </p>
-          <p style={{ marginTop: "6px" }}>In the aspect of AI intensity, seems the average </p>
           <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
             Hover a country to see salary breakdown and year-by-year trend.
           </p>
         </div>
       );
-    } else if (task1Stage === 2) {
+    } else if (task1Stage === 1) {
       displayDescription = (
         <div>
           <p>
-            <b>2030 Projected Phase</b>
+            <b>Current AI Index Level (DS3)</b>
           </p>
           <p style={{ marginTop: "6px" }}>
-            Model projections show how salary levels are expected to diverge across economies as AI matures.{" "}
-          </p>
-          <p style={{ marginTop: "6px" }}>
-            Interested thing is that we can actually see that it seems salary may be not so related with the location in
-            the future!{" "}
-          </p>
-          <p style={{ marginTop: "6px" }}>
-            Only 8 countries' data is being studied in the dataset as they are somewhat representative.
+            See how the AI index varies across different countries and explore metrics like Talent or Research.
           </p>
           <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
-            Hover a country to see projected metrics.
+            Hover a country to see AI Index metrics.
           </p>
         </div>
       );
@@ -206,17 +196,14 @@ function App() {
       displayDescription = (
         <div>
           <p>
-            <b>Current AI index level</b>
+            <b>Speculative Future Salary</b>
           </p>
           <p style={{ marginTop: "6px" }}>
-            See how the AI index varies across different countries. This is also important as AI index may potentially
-            influence your work in the future.
+            Uses DS1 average salary and adjusts by AI Index Total Score to estimate a future salary level.
           </p>
-          <p style={{ marginTop: "6px" }}>
-            This only shows the current state of AI index, but it is enough to give you an idea.
-          </p>
+          <p style={{ marginTop: "6px" }}>Formula: DS1 * 1.03 * (1 - Total Score * 0.5).</p>
           <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
-            Hover a country to see projected metrics.
+            Hover a country to see the speculative calculation.
           </p>
         </div>
       );

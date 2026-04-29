@@ -72,7 +72,9 @@
 .chart-right {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
+  transition:
+    opacity 0.7s ease 0.2s,
+    transform 0.7s ease 0.2s;
   pointer-events: none;
   width: 0;
   overflow: hidden;
@@ -102,7 +104,9 @@
   line-height: 1.5;
 }
 
-.roadmap-container { width: 100%; }
+.roadmap-container {
+  width: 100%;
+}
 
 .roadmap-title {
   font-size: 22px;
@@ -142,7 +146,9 @@
   display: flex;
   align-items: flex-start;
   gap: 24px;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
 }
 
 .roadmap-badge {
@@ -151,7 +157,9 @@
   height: 56px;
   border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15), 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 20px rgba(37, 99, 235, 0.15),
+    0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,8 +168,12 @@
   z-index: 1;
 }
 
-.roadmap-icon { font-size: 22px; }
-.roadmap-icon-svg { color: #2563eb; }
+.roadmap-icon {
+  font-size: 22px;
+}
+.roadmap-icon-svg {
+  color: #2563eb;
+}
 
 .roadmap-num {
   position: absolute;
@@ -223,11 +235,21 @@
 }
 
 @keyframes roadmap-hint-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes roadmap-arrow-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(4px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
 }

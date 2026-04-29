@@ -59,8 +59,8 @@ function AIIntensityHeatmap({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const allRefs = useRef<{
-    bars: d3.Selection<SVGGElement, typeof DECADE_AVGS[number], SVGGElement, unknown>;
-    cells: d3.Selection<SVGRectElement, typeof HEATMAP_DATA[number], SVGGElement, unknown>;
+    bars: d3.Selection<SVGGElement, (typeof DECADE_AVGS)[number], SVGGElement, unknown>;
+    cells: d3.Selection<SVGRectElement, (typeof HEATMAP_DATA)[number], SVGGElement, unknown>;
     yAxisBar: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
     yAxisHeat: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
     titleBar: d3.Selection<SVGTextElement, unknown, SVGGElement, unknown>;
@@ -95,13 +95,17 @@ function AIIntensityHeatmap({
 
     // Scales
     const xScale = d3.scaleBand().range([0, heatW]).domain(DECADES).padding(0.08);
-    const yHeat = d3.scaleBand().range([0, heatH]).domain([...INDUSTRIES].reverse()).padding(0.08);
+    const yHeat = d3
+      .scaleBand()
+      .range([0, heatH])
+      .domain([...INDUSTRIES].reverse())
+      .padding(0.08);
     const yBar = d3.scaleLinear().domain([0, 0.6]).range([heatH, 0]);
     const color = d3.scaleLinear().domain([0.1, 0.35, 0.6]).range(["#22c55e", "#facc15", "#ef4444"]);
 
     // ── Heatmap cells (hidden initially) ──
     const cells = g
-      .selectAll<SVGRectElement, typeof HEATMAP_DATA[number]>("rect.cell")
+      .selectAll<SVGRectElement, (typeof HEATMAP_DATA)[number]>("rect.cell")
       .data(HEATMAP_DATA)
       .enter()
       .append("rect")
@@ -135,7 +139,7 @@ function AIIntensityHeatmap({
 
     // ── Bars (visible initially, overlaid on heatmap columns) ──
     const bars = g
-      .selectAll<SVGRectElement, typeof DECADE_AVGS[number]>("rect.bar")
+      .selectAll<SVGRectElement, (typeof DECADE_AVGS)[number]>("rect.bar")
       .data(DECADE_AVGS)
       .enter()
       .append("rect")
@@ -241,7 +245,19 @@ function AIIntensityHeatmap({
       .remove();
 
     // Store all refs
-    allRefs.current = { bars, cells, yAxisBar, yAxisHeat, titleBar, titleHeat, legendG, yBar, heatH, color, morphProgress: 0 };
+    allRefs.current = {
+      bars,
+      cells,
+      yAxisBar,
+      yAxisHeat,
+      titleBar,
+      titleHeat,
+      legendG,
+      yBar,
+      heatH,
+      color,
+      morphProgress: 0,
+    };
   }, [tooltipRef]);
 
   // ── Update on morph progress ──
@@ -335,8 +351,15 @@ function SalaryByIndustryChart({
       })).sort((a, b) => b.avgSalary - a.avgSalary);
 
       const xMax = d3.max(data, (d) => d.avgSalary);
-      const x = d3.scaleLinear().domain([0, xMax! * 1.12]).range([0, width]);
-      const y = d3.scaleBand().domain(data.map((d) => d.industry)).range([0, height]).padding(0.25);
+      const x = d3
+        .scaleLinear()
+        .domain([0, xMax! * 1.12])
+        .range([0, width]);
+      const y = d3
+        .scaleBand()
+        .domain(data.map((d) => d.industry))
+        .range([0, height])
+        .padding(0.25);
 
       const [iMin, iMax] = d3.extent(data, (d) => d.avgIntensity);
       // ✅ Color: green → yellow → red (matches heatmap)
@@ -359,7 +382,12 @@ function SalaryByIndustryChart({
 
       g.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x).ticks(4).tickFormat((d) => `$${Math.round(d as number / 1000)}k`))
+        .call(
+          d3
+            .axisBottom(x)
+            .ticks(4)
+            .tickFormat((d) => `$${Math.round((d as number) / 1000)}k`),
+        )
         .style("font-size", "11px")
         .select(".domain")
         .remove();
@@ -471,7 +499,8 @@ function RoadmapView({ scrollPos }: { scrollPos: number }) {
         {ROADMAP.map((item, i) => {
           const itemStart = i * 60;
           const opacity = scrollPos < itemStart ? 0 : scrollPos < itemStart + 50 ? (scrollPos - itemStart) / 50 : 1;
-          const translateY = scrollPos < itemStart ? 16 : scrollPos < itemStart + 50 ? 16 * (1 - (scrollPos - itemStart) / 50) : 0;
+          const translateY =
+            scrollPos < itemStart ? 16 : scrollPos < itemStart + 50 ? 16 * (1 - (scrollPos - itemStart) / 50) : 0;
 
           return (
             <div key={i} className="roadmap-node" style={{ opacity, transform: `translateY(${translateY}px)` }}>
@@ -518,7 +547,7 @@ function Introduction({
   const vh = viewportHeight;
 
   // Stage 0: Hero
-  const heroFadeEnd = 0.30 * vh;
+  const heroFadeEnd = 0.3 * vh;
 
   // Stage 1: Bar chart appear + hold
   const chartAppearStart = 0.35 * vh;
@@ -572,14 +601,29 @@ function Introduction({
   // ── Derived values ──
   const heroOpacity = Math.max(0, 1 - scrollProgress / heroFadeEnd);
 
-  const chartOpacity = scrollProgress < chartAppearStart ? 0 : Math.min(1, (scrollProgress - chartAppearStart) / (chartAppearEnd - chartAppearStart));
+  const chartOpacity =
+    scrollProgress < chartAppearStart
+      ? 0
+      : Math.min(1, (scrollProgress - chartAppearStart) / (chartAppearEnd - chartAppearStart));
 
-  const morphProgress = scrollProgress < morphStart ? 0 : scrollProgress < morphEnd ? (scrollProgress - morphStart) / (morphEnd - morphStart) : 1;
+  const morphProgress =
+    scrollProgress < morphStart
+      ? 0
+      : scrollProgress < morphEnd
+        ? (scrollProgress - morphStart) / (morphEnd - morphStart)
+        : 1;
 
-  const heatmapFadeOut = scrollProgress < salaryFadeStart ? 1 : Math.max(0, 1 - (scrollProgress - salaryFadeStart) / (roadmapFadeStart - salaryFadeStart));
+  const heatmapFadeOut =
+    scrollProgress < salaryFadeStart
+      ? 1
+      : Math.max(0, 1 - (scrollProgress - salaryFadeStart) / (roadmapFadeStart - salaryFadeStart));
 
-  const salaryOpacity = scrollProgress < salaryFadeStart ? 0 : Math.min(1, (scrollProgress - salaryFadeStart) / (salaryVisibleEnd - salaryFadeStart));
-  const salaryFadeOut = scrollProgress < roadmapFadeStart ? 1 : Math.max(0, 1 - (scrollProgress - roadmapFadeStart) / (0.4 * vh));
+  const salaryOpacity =
+    scrollProgress < salaryFadeStart
+      ? 0
+      : Math.min(1, (scrollProgress - salaryFadeStart) / (salaryVisibleEnd - salaryFadeStart));
+  const salaryFadeOut =
+    scrollProgress < roadmapFadeStart ? 1 : Math.max(0, 1 - (scrollProgress - roadmapFadeStart) / (0.4 * vh));
 
   // Stage 3: roadmap (only after salary fades out)
   const roadmapOpacity = 1 - salaryFadeOut;

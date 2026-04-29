@@ -55,18 +55,6 @@ const GEO_TO_DS1 = {
   UAE: "United Arab Emirates",
 };
 
-// ── Mapping: TopoJSON .name → DS2 Location name ──────────────────────────
-const GEO_TO_DS2 = {
-  "United States of America": "USA",
-  "United Kingdom": "UK",
-  Canada: "Canada",
-  Australia: "Australia",
-  Germany: "Germany",
-  China: "China",
-  India: "India",
-  Brazil: "Brazil",
-};
-
 // ── Mapping: TopoJSON .name → AI Index country name ─────────────────────
 const GEO_TO_AI = {
   "United States of America": "United States of America",
@@ -137,8 +125,8 @@ const GEO_TO_AI = {
 
 // ── Color palettes ───────────────────────────────────────────────────────
 const DS1_PALETTE = ["#f4ffdb", "#c0d6a4", "#8bae71", "#548943", "#0a6417"];
-const DS2_PALETTE = ["#91ff42", "#6cd739", "#4aaf2f", "#2b8923", "#0a6417"];
 const AI_PALETTE = ["#eff3ff", "#bdd7e7", "#6baed6", "#2171b5", "#08306b"];
+const FUTURE_PALETTE = ["#fff1d6", "#f4c88a", "#e59b52", "#c86f2a", "#9c4a14"];
 
 // ── DS3 metric definitions ──────────────────────────────────────────────
 const DS3_METRICS = [
@@ -159,12 +147,11 @@ function Task1({ scrollParentRef, onStageChange }) {
   const [stageIndex, setStageIndex] = useState(0);
   const [geoData, setGeoData] = useState(null);
   const [ds1Map, setDs1Map] = useState(null); // country → {avgSalary}
-  const [ds2Map, setDs2Map] = useState(null); // location → {avgSalary}
   const [ds3Map, setDs3Map] = useState(null); // country → {metrics}
   const [ds3Metric, setDs3Metric] = useState("Total score");
 
   const DS_STAGE_SCROLL_FACTOR = 1.2; // 120vh per stage
-  const DS_STAGE_COUNT = 3; // ds1, ds2, ds3
+  const DS_STAGE_COUNT = 3; // ds1, ds3, future
   const task1ContainerHeight = `calc(100vh + ${DS_STAGE_COUNT * 120}vh)`;
 
   // ── Load data ──────────────────────────────────────────────────────────
@@ -172,9 +159,8 @@ function Task1({ scrollParentRef, onStageChange }) {
     Promise.all([
       d3.json(dbUrl("world-110m.json")),
       d3.csv(dbUrl("ai_impact_jobs_2010_2025.csv")),
-      d3.csv(dbUrl("ai_job_trends_dataset.csv")),
       d3.csv(dbUrl("AI_index_db.csv")),
-    ]).then(([world, csv1, csv2, csv3]) => {
+    ]).then(([world, csv1, csv3]) => {
       const features = topojson.feature(world, world.objects.countries).features;
       setGeoData(features);
 
@@ -193,20 +179,6 @@ function Task1({ scrollParentRef, onStageChange }) {
         ds1.set(c, { avgSalary: d.sum / d.count });
       }
       setDs1Map(ds1);
-
-      // DS2: Location-level median salary (from csv2)
-      const m2 = new Map();
-      csv2.forEach((r) => {
-        const loc = r.Location;
-        if (!loc) return;
-        if (!m2.has(loc)) m2.set(loc, { sum: 0, count: 0 });
-        const d = m2.get(loc);
-        d.sum += +r["Median Salary (USD)"] || 0;
-        d.count++;
-      });
-      const ds2 = new Map();
-      for (const [c, d] of m2) ds2.set(c, { avgSalary: d.sum / d.count });
-      setDs2Map(ds2);
 
       // DS3: AI Index, one row per country
       const ds3 = new Map();
@@ -239,7 +211,7 @@ function Task1({ scrollParentRef, onStageChange }) {
       const maxScroll = stageSpan * DS_STAGE_COUNT;
       const rawScroll = container.scrollTop - section.offsetTop;
       const relScroll = Math.max(0, Math.min(maxScroll, rawScroll));
-      const nextStage = Math.min(DS_STAGE_COUNT, Math.floor(relScroll / stageSpan));
+      const nextStage = Math.min(DS_STAGE_COUNT - 1, Math.floor(relScroll / stageSpan));
 
       setStageIndex(nextStage);
       if (onStageChange) {
@@ -254,7 +226,7 @@ function Task1({ scrollParentRef, onStageChange }) {
 
   // ── Render map ─────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!geoData || !ds1Map || !ds2Map || !ds3Map || !svgRef.current) return;
+    if (!geoData || !ds1Map || !ds3Map || !svgRef.current) return;
 
     const W = 1000,
       H = 500;
@@ -269,19 +241,32 @@ function Task1({ scrollParentRef, onStageChange }) {
     const g = svg.append("g");
     const tip = d3.select(tooltipRef.current);
 
-    const frame = stageIndex === 0 ? "base" : stageIndex === 1 ? "ds1" : stageIndex === 2 ? "ds2" : "ds3";
+    const frame = stageIndex === 0 ? "ds1" : stageIndex === 1 ? "ds3" : "future";
 
     const ds1Vals = [...ds1Map.values()].map((d) => d.avgSalary).filter((v) => v > 0);
-    const ds2Vals = [...ds2Map.values()].map((d) => d.avgSalary).filter((v) => v > 0);
     const ds3Vals = [...ds3Map.values()].map((d) => d[ds3Metric]).filter((v) => v > 0);
+    const futureVals = [] as number[];
+    geoData.forEach((feature) => {
+      const geoName = feature.properties.name;
+      const ds1Name = GEO_TO_DS1[geoName];
+      const aiName = GEO_TO_AI[geoName];
+      if (!ds1Name || !aiName) return;
+      const d1 = ds1Map.get(ds1Name);
+      const d3 = ds3Map.get(aiName);
+      if (!d1 || !d3) return;
+      const totalScore = d3["Total score"] || 0;
+      const specSalary = d1.avgSalary * 1.03 * (1 - (totalScore / 100) * 0.5);
+      if (specSalary > 0) futureVals.push(specSalary);
+    });
 
     const ds1Scale = d3.scaleSequential().domain(d3.extent(ds1Vals)).interpolator(d3.interpolateRgbBasis(DS1_PALETTE));
-    const ds2Scale = d3.scaleSequential().domain(d3.extent(ds2Vals)).interpolator(d3.interpolateRgbBasis(DS2_PALETTE));
     const ds3Scale = d3.scaleSequential().domain(d3.extent(ds3Vals)).interpolator(d3.interpolateRgbBasis(AI_PALETTE));
+    const futureScale = d3
+      .scaleSequential()
+      .domain(d3.extent(futureVals))
+      .interpolator(d3.interpolateRgbBasis(FUTURE_PALETTE));
 
     const getColor = (geoName) => {
-      if (frame === "base") return "#e8edf2";
-
       if (frame === "ds1") {
         const cName = GEO_TO_DS1[geoName];
         if (!cName) return "#dde3ea";
@@ -290,26 +275,26 @@ function Task1({ scrollParentRef, onStageChange }) {
         return ds1Scale(d.avgSalary);
       }
 
-      if (frame === "ds2") {
-        const loc = GEO_TO_DS2[geoName];
-        if (!loc) return "#dde3ea";
-        const d = ds2Map.get(loc);
+      if (frame === "ds3") {
+        const aiName = GEO_TO_AI[geoName];
+        if (!aiName) return "#dde3ea";
+        const d = ds3Map.get(aiName);
         if (!d) return "#dde3ea";
-        return ds2Scale(d.avgSalary);
+        return ds3Scale(d[ds3Metric]);
       }
 
+      const ds1Name = GEO_TO_DS1[geoName];
       const aiName = GEO_TO_AI[geoName];
-      if (!aiName) return "#dde3ea";
-      const d = ds3Map.get(aiName);
-      if (!d) return "#dde3ea";
-      return ds3Scale(d[ds3Metric]);
+      if (!ds1Name || !aiName) return "#dde3ea";
+      const d1 = ds1Map.get(ds1Name);
+      const d3 = ds3Map.get(aiName);
+      if (!d1 || !d3) return "#dde3ea";
+      const totalScore = d3["Total score"] || 0;
+      const specSalary = d1.avgSalary * 1.03 * (1 - (totalScore / 100) * 0.5);
+      return futureScale(specSalary);
     };
 
     const buildTip = (geoName) => {
-      if (frame === "base") {
-        return `<div class="tp-title">${geoName}</div><div class="tp-note">Scroll down to reveal data</div>`;
-      }
-
       if (frame === "ds1") {
         const cName = GEO_TO_DS1[geoName];
         if (!cName) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
@@ -323,31 +308,38 @@ function Task1({ scrollParentRef, onStageChange }) {
         `;
       }
 
-      if (frame === "ds2") {
-        const loc = GEO_TO_DS2[geoName];
-        if (!loc)
-          return `<div class="tp-title">${geoName}</div><div class="tp-note">No data (only major economies covered)</div>`;
-        const d = ds2Map.get(loc);
+      if (frame === "ds3") {
+        const aiName = GEO_TO_AI[geoName];
+        if (!aiName) return `<div class="tp-title">${geoName}</div><div class="tp-note">No AI Index data</div>`;
+        const d = ds3Map.get(aiName);
         if (!d) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
+        const mDef = DS3_METRICS.find((m) => m.key === ds3Metric);
         return `
           <div class="tp-title">${geoName}</div>
-          <div class="tp-subtitle">2024 &ndash; 2030 &middot; ${loc}</div>
+          <div class="tp-subtitle">AI Index &middot; ${mDef?.label || ds3Metric}</div>
           <div class="tp-divider"></div>
-          <div class="tp-row"><span class="tp-label">Median Salary</span><span class="tp-val">$${Math.round(d.avgSalary).toLocaleString()}</span></div>
+          <div class="tp-row"><span class="tp-label">${mDef?.label || ds3Metric}</span><span class="tp-val">${d[ds3Metric].toFixed(1)}</span></div>
+          <div class="tp-row"><span class="tp-label">Total Score</span><span class="tp-val">${d["Total score"].toFixed(1)}</span></div>
         `;
       }
 
+      const ds1Name = GEO_TO_DS1[geoName];
       const aiName = GEO_TO_AI[geoName];
-      if (!aiName) return `<div class="tp-title">${geoName}</div><div class="tp-note">No AI Index data</div>`;
-      const d = ds3Map.get(aiName);
-      if (!d) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
-      const mDef = DS3_METRICS.find((m) => m.key === ds3Metric);
+      if (!ds1Name || !aiName) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
+      const d1 = ds1Map.get(ds1Name);
+      const d3 = ds3Map.get(aiName);
+      if (!d1 || !d3) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
+      const totalScore = d3["Total score"] || 0;
+      const lossRate = (totalScore / 100) * 0.5;
+      const specSalary = d1.avgSalary * 1.03 * (1 - lossRate);
       return `
         <div class="tp-title">${geoName}</div>
-        <div class="tp-subtitle">AI Index &middot; ${mDef?.label || ds3Metric}</div>
+        <div class="tp-subtitle">Speculative Salary &middot; DS1 * 1.03 * (1 - Total Score * 0.5)</div>
         <div class="tp-divider"></div>
-        <div class="tp-row"><span class="tp-label">${mDef?.label || ds3Metric}</span><span class="tp-val">${d[ds3Metric].toFixed(1)}</span></div>
-        <div class="tp-row"><span class="tp-label">Total Score</span><span class="tp-val">${d["Total score"].toFixed(1)}</span></div>
+        <div class="tp-row"><span class="tp-label">DS1 Avg Salary</span><span class="tp-val">$${Math.round(d1.avgSalary).toLocaleString()}</span></div>
+        <div class="tp-row"><span class="tp-label">Total Score</span><span class="tp-val">${totalScore.toFixed(1)}</span></div>
+        <div class="tp-row"><span class="tp-label">Loss Rate</span><span class="tp-val">${(lossRate * 100).toFixed(1)}%</span></div>
+        <div class="tp-row"><span class="tp-label">Spec Salary</span><span class="tp-val">$${Math.round(specSalary).toLocaleString()}</span></div>
       `;
     };
 
@@ -375,11 +367,8 @@ function Task1({ scrollParentRef, onStageChange }) {
     const legendTitle = fixedRef.current?.querySelector(".legend-title");
 
     if (binsWrap && legendTitle) {
-      if (frame === "base") {
-        legendTitle.textContent = "";
-        binsWrap.innerHTML = "";
-      } else if (frame === "ds1") {
-        legendTitle.textContent = "Avg Salary (USD) \u2014 2010-2025";
+      if (frame === "ds1") {
+        legendTitle.textContent = "Avg Salary (USD) - 2010-2025";
         const [lo, hi] = d3.extent(ds1Vals);
         const N = DS1_PALETTE.length;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
@@ -388,19 +377,9 @@ function Task1({ scrollParentRef, onStageChange }) {
           const color = ds1Scale((loV + hiV) / 2);
           return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${Math.round(loV / 1000)}k &ndash; $${Math.round(hiV / 1000)}k</span></div>`;
         }).join("");
-      } else if (frame === "ds2") {
-        legendTitle.textContent = "Median Salary (USD) \u2014 2024-2030";
-        const [lo, hi] = d3.extent(ds2Vals);
-        const N = DS2_PALETTE.length;
-        binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
-          const loV = lo + ((hi - lo) * i) / N;
-          const hiV = lo + ((hi - lo) * (i + 1)) / N;
-          const color = ds2Scale((loV + hiV) / 2);
-          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${Math.round(loV / 1000)}k &ndash; $${Math.round(hiV / 1000)}k</span></div>`;
-        }).join("");
-      } else {
+      } else if (frame === "ds3") {
         const mDef = DS3_METRICS.find((m) => m.key === ds3Metric);
-        legendTitle.textContent = `${mDef?.label || ds3Metric} \u2014 AI Index`;
+        legendTitle.textContent = `${mDef?.label || ds3Metric} - AI Index`;
         const [lo, hi] = d3.extent(ds3Vals);
         const N = AI_PALETTE.length;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
@@ -408,6 +387,16 @@ function Task1({ scrollParentRef, onStageChange }) {
           const hiV = lo + ((hi - lo) * (i + 1)) / N;
           const color = ds3Scale((loV + hiV) / 2);
           return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>${loV.toFixed(1)} &ndash; ${hiV.toFixed(1)}</span></div>`;
+        }).join("");
+      } else {
+        legendTitle.textContent = "Speculative Salary (USD) - DS1 * 1.03 * (1 - Total Score * 0.5)";
+        const [lo, hi] = d3.extent(futureVals);
+        const N = FUTURE_PALETTE.length;
+        binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
+          const loV = lo + ((hi - lo) * i) / N;
+          const hiV = lo + ((hi - lo) * (i + 1)) / N;
+          const color = futureScale((loV + hiV) / 2);
+          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${Math.round(loV / 1000)}k &ndash; $${Math.round(hiV / 1000)}k</span></div>`;
         }).join("");
       }
     }
@@ -417,27 +406,23 @@ function Task1({ scrollParentRef, onStageChange }) {
     const badgeSub = fixedRef.current?.querySelector(".badge-sub");
     if (badgeMain) {
       badgeMain.textContent =
-        frame === "base"
-          ? "Scroll to reveal AI impact data"
-          : frame === "ds1"
-            ? "Dataset 1: Global AI Impact (2010\u20132025)"
-            : frame === "ds2"
-              ? "Dataset 2: AI Job Trends (2024\u20132030)"
-              : "Dataset 3: Global AI Index";
+        frame === "ds1"
+          ? "Dataset 1: Global AI Impact (2010-2025)"
+          : frame === "ds3"
+            ? "Dataset 3: Global AI Index"
+            : "Speculative Forecast: DS1 + AI Index";
     }
     if (badgeSub) {
       badgeSub.textContent =
-        frame === "base"
-          ? "Four stages: historical salary \u2192 predicted salary \u2192 AI Index"
-          : frame === "ds1"
-            ? "Colored by Country \u00B7 Avg salary per country"
-            : frame === "ds2"
-              ? "Colored by Country \u00B7 Only major economies covered"
-              : "Colored by Country \u00B7 Select metric to explore";
+        frame === "ds1"
+          ? "Colored by Country - Avg salary per country"
+          : frame === "ds3"
+            ? "Colored by Country - Select metric to explore"
+            : "Colored by Country - DS1 * 1.03 * (1 - Total Score * 0.5)";
     }
-  }, [geoData, ds1Map, ds2Map, ds3Map, ds3Metric, stageIndex]);
+  }, [geoData, ds1Map, ds3Map, ds3Metric, stageIndex]);
 
-  const frame = stageIndex === 0 ? "base" : stageIndex === 1 ? "ds1" : stageIndex === 2 ? "ds2" : "ds3";
+  const frame = stageIndex === 0 ? "ds1" : stageIndex === 1 ? "ds3" : "future";
 
   // ── Info panel descriptions ────────────────────────────────────────────
   const DS1_DESC = (
@@ -447,10 +432,10 @@ function Task1({ scrollParentRef, onStageChange }) {
     </>
   );
 
-  const DS2_DESC = (
+  const FUTURE_DESC = (
     <>
-      Salary forecasts for <strong className="hl">8 major economies</strong>, 2024&ndash;2030. Helps{" "}
-      <strong className="hl">anticipate future earnings</strong> for strategic career planning.
+      Speculative salary map based on DS1 averages and the AI Index Total Score. Formula:{" "}
+      <strong className="hl">DS1 * 1.03 * (1 - Total Score * 0.5)</strong>.
     </>
   );
 
@@ -507,27 +492,24 @@ function Task1({ scrollParentRef, onStageChange }) {
     <div className="task1-scroll-container" style={{ height: task1ContainerHeight }}>
       <div className="task1-fixed-viewport" ref={fixedRef}>
         <div className="dataset-badge">
-          <div className="badge-main">Scroll to reveal AI impact data</div>
-          <div className="badge-sub">Four stages: historical salary &rarr; predicted salary &rarr; AI Index</div>
+          <div className="badge-main">Dataset 1: Global AI Impact (2010-2025)</div>
+          <div className="badge-sub">Three stages: DS1 &rarr; DS3 &rarr; speculative forecast</div>
         </div>
 
-        {frame !== "base" && (
-          <div className="info-panel">
-            {frame === "ds1" && DS1_DESC}
-            {frame === "ds2" && DS2_DESC}
-            {frame === "ds3" && (DS3_DESCS[ds3Metric] || null)}
-          </div>
-        )}
+        <div className="info-panel">
+          {frame === "ds1" && DS1_DESC}
+          {frame === "ds3" && (DS3_DESCS[ds3Metric] || null)}
+          {frame === "future" && FUTURE_DESC}
+        </div>
 
         <svg ref={svgRef} viewBox="0 0 1000 500" className="task1-map-svg" />
         <div ref={tooltipRef} className="task1-tooltip" />
 
         <div className="stage-dots">
           {[
-            ["base", "Blank Canvas"],
             ["ds1", "DS1: 2010-2025"],
-            ["ds2", "DS2: 2024-2030"],
             ["ds3", "DS3: AI Index"],
+            ["future", "Speculative: DS1 + AI Index"],
           ].map(([key, label]) => (
             <div key={key} className={`stage-dot-wrap ${frame === key ? "active" : ""}`}>
               <div className="stage-dot" />
