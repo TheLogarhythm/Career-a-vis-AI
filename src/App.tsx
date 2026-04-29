@@ -78,7 +78,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
       </>
     ),
     description:
-      "Understanding job volume across categories and subcategories reveals where the demand — and competition — truly lies. This helps career seekers prioritize sectors with the most opportunities.",
+      "Understanding job volume across categories and subcategories reveals where the demand 鈥?and competition 鈥?truly lies. This helps career seekers prioritize sectors with the most opportunities.",
   },
   section4: {
     title: (
@@ -92,6 +92,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
 
 const BADGE_MAP: Record<string, string[]> = {
   "intro-1": ["AI-Generated_Data.png", "Dataset_Linked.png", "Open_Data.png"],
+  "section1-0": ["Can_Mouse_Over.png"],
   "section1-1": ["Can_Mouse_Over.png"],
   "section1-2": ["Can_Mouse_Over.png"],
   section2: ["Aggregated_Data.png", "Data_Normalized.png"],
@@ -130,7 +131,7 @@ function App() {
   const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.intro;
 
   if (!TASK_DETAILS[activeTask] && process.env.NODE_ENV === "development") {
-    console.warn(`⚠️ No task detail found for: ${activeTask}`);
+    console.warn(`鈿狅笍 No task detail found for: ${activeTask}`);
   }
 
   let displayDescription = currentDetail.description;
@@ -140,35 +141,9 @@ function App() {
       displayDescription = (
         <div>
           <p>
-            Jobs are increasingly exposed to AI. The heatmap shows how AI intensity has grown across industries and time
+            Jobs are increasingly exposed to AI. The graph shows how AI intensity has grown across industries and time
             periods.
           </p>
-          <div
-            style={{
-              marginTop: "8px",
-              fontSize: "12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px",
-            }}
-          >
-            <a
-              href="https://www.kaggle.com/datasets/sarcasmos/ai-society/data"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "#2563eb" }}
-            >
-              Dataset 1: Global AI Impact on Jobs (2010-2025)
-            </a>
-            <a
-              href="https://www.kaggle.com/datasets/sahilislam007/ai-impact-on-job-market-20242030/data"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "#2563eb" }}
-            >
-              Dataset 2: AI Impact on Job Market (2024-2030)
-            </a>
-          </div>
         </div>
       );
     } else if (introStage === 2) {
@@ -189,42 +164,31 @@ function App() {
     }
   } else if (activeTask === "section1") {
     if (task1Stage === 0) {
-      displayDescription =
-        "Global 2D map displayed here ro show how AI intensity and salary levels varied across countries in past years and future. Scroll down to see how.";
-    } else if (task1Stage === 1) {
       displayDescription = (
         <div>
           <p>
-            <b>2010-2025 Historical Phase</b>
+            <b>2010-2025 Historical Phase (DS1)</b>
           </p>
           <p style={{ marginTop: "6px" }}>
-            Easy to see that salary distribution varies significantly across countries in past years. North America and
-            Oceania seemsa good choice.
+            Salary distribution varies across countries in the historical dataset. Use this to spot strong markets by
+            average pay.
           </p>
-          <p style={{ marginTop: "6px" }}>In the aspect of AI intensity, seems the average </p>
           <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
             Hover a country to see salary breakdown and year-by-year trend.
           </p>
         </div>
       );
-    } else if (task1Stage === 2) {
+    } else if (task1Stage === 1) {
       displayDescription = (
         <div>
           <p>
-            <b>2030 Projected Phase</b>
+            <b>Current AI Index Level (DS3)</b>
           </p>
           <p style={{ marginTop: "6px" }}>
-            Model projections show how salary levels are expected to diverge across economies as AI matures.{" "}
-          </p>
-          <p style={{ marginTop: "6px" }}>
-            Interested thing is that we can actually see that it seems salary may be not so related with the location in
-            the future!{" "}
-          </p>
-          <p style={{ marginTop: "6px" }}>
-            Only 8 countries' data is being studied in the dataset as they are somewhat representative.
+            See how the AI index varies across different countries and explore metrics like Talent or Research.
           </p>
           <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
-            Hover a country to see projected metrics.
+            Hover a country to see AI Index metrics.
           </p>
         </div>
       );
@@ -232,17 +196,14 @@ function App() {
       displayDescription = (
         <div>
           <p>
-            <b>Current AI index level</b>
+            <b>Speculative Future Salary</b>
           </p>
           <p style={{ marginTop: "6px" }}>
-            See how the AI index varies across different countries. This is also important as AI index may potentially
-            influence your work in the future.
+            Uses DS1 average salary and adjusts by AI Index Total Score to estimate a future salary level.
           </p>
-          <p style={{ marginTop: "6px" }}>
-            This only shows the current state of AI index, but it is enough to give you an idea.
-          </p>
+          <p style={{ marginTop: "6px" }}>Formula: DS1 * 1.03 * (1 - Total Score * 0.5).</p>
           <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
-            Hover a country to see projected metrics.
+            Hover a country to see the speculative calculation.
           </p>
         </div>
       );
@@ -272,7 +233,7 @@ function App() {
       setLeftDescVisible(true);
     }, 260);
     return () => clearTimeout(timeout);
-  }, [descKey, displayDescription]);
+  }, [descKey]);
 
   return (
     <div className="web-container">
@@ -306,7 +267,7 @@ function App() {
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("industries.png")}
           title="Which industry to work in? Industry-level trends and risks. And how AI intensity correlates with salary."
-          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities — and risks — lie."
+          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities 鈥?and risks 鈥?lie."
         />
 
         <TaskSection task="section2">
@@ -321,7 +282,7 @@ function App() {
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Job count.png")}
           title="How many jobs are out there?"
-          description="Beyond knowing where the high-paying roles are, it matters how many opportunities each category actually offers. The segmented bar chart below breaks down job listings by category and subcategory, revealing where the volume — and the competition — really is."
+          description="Beyond knowing where the high-paying roles are, it matters how many opportunities each category actually offers. The segmented bar chart below breaks down job listings by category and subcategory, revealing where the volume 鈥?and the competition 鈥?really is."
         />
 
         <TaskSection task="section3b-2">
@@ -332,7 +293,7 @@ function App() {
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Evaluation.png")}
           title="How does AI risk compare across industries?"
-          description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions — and adjust the weights to see what matters most to you."
+          description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions 鈥?and adjust the weights to see what matters most to you."
         />
 
         <TaskSection task="section4">

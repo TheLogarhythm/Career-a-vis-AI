@@ -1,96 +1,132 @@
-import React, { useEffect, useState, useRef } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
 import "./introduction.css";
 import { Globe, Briefcase, DollarSign, BarChart2 } from "lucide-react";
 import { dbUrl } from "../utils/paths";
 
-// ─── Heatmap + BarChart Animation Component ─────────────────
-function AIIntensityHeatmap({ showBarChart, tooltipRef }) {
-  const containerRef = useRef(null);
-  const svgRef = useRef(null);
-  const hasAnimated = useRef(false);
+// ─── Seeded random for consistent data ──────────────────────
+let _seed = 42;
+function seededRandom() {
+  _seed = (_seed * 16807) % 2147483647;
+  return (_seed - 1) / 2147483646;
+}
+function resetSeed() {
+  _seed = 42;
+}
 
+// ─── Shared data generation ─────────────────────────────────
+const INDUSTRIES = [
+  "Agriculture",
+  "Education",
+  "Energy",
+  "Finance",
+  "Government",
+  "Healthcare",
+  "Manufacturing",
+  "Retail",
+  "Tech",
+];
+const DECADES = ["2010-2014", "2015-2019", "2020-2025"];
+
+function generateData() {
+  resetSeed();
+  const data: { industry: string; decade: string; value: number }[] = [];
+  const decadeSums: Record<string, number> = {};
+  DECADES.forEach((d) => (decadeSums[d] = 0));
+  INDUSTRIES.forEach((ind) =>
+    DECADES.forEach((dec, i) => {
+      const val = 0.1 + i * 0.15 + seededRandom() * 0.15;
+      data.push({ industry: ind, decade: dec, value: val });
+      decadeSums[dec] += val;
+    }),
+  );
+  const decadeAvgs = DECADES.map((dec) => ({
+    decade: dec,
+    value: decadeSums[dec] / INDUSTRIES.length,
+  }));
+  return { data, decadeAvgs };
+}
+
+const { data: HEATMAP_DATA, decadeAvgs: DECADE_AVGS } = generateData();
+
+// ─── AIIntensityHeatmap: bar chart → heatmap morph ─────────
+function AIIntensityHeatmap({
+  morphProgress,
+  tooltipRef,
+}: {
+  morphProgress: number;
+  tooltipRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const allRefs = useRef<{
+    bars: d3.Selection<SVGGElement, (typeof DECADE_AVGS)[number], SVGGElement, unknown>;
+    cells: d3.Selection<SVGRectElement, (typeof HEATMAP_DATA)[number], SVGGElement, unknown>;
+    yAxisBar: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
+    yAxisHeat: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
+    titleBar: d3.Selection<SVGTextElement, unknown, SVGGElement, unknown>;
+    titleHeat: d3.Selection<SVGTextElement, unknown, SVGGElement, unknown>;
+    legendG: d3.Selection<SVGGElement, unknown, SVGGElement, unknown>;
+    yBar: d3.ScaleLinear<number, number>;
+    heatH: number;
+    color: d3.ScaleLinear<string, string>;
+    morphProgress: number;
+  } | null>(null);
+
+  // ── Build SVG once ──
   useEffect(() => {
     if (!containerRef.current) return;
     d3.select(containerRef.current).selectAll("*").remove();
 
-    const svgW = 1100;
-    const svgH = 450;
-    const heatW = 380;
-    const heatH = 320;
-    const barW = 300;
-    const barH = 320;
+    const svgW = 860;
+    const svgH = 440;
+    const margin = { top: 55, right: 55, bottom: 45, left: 140 };
+    const heatW = svgW - margin.left - margin.right;
+    const heatH = svgH - margin.top - margin.bottom;
 
     const svg = d3
       .select(containerRef.current)
       .append("svg")
-      .attr("viewBox", `-100 0 ${svgW} ${svgH}`)
+      .attr("viewBox", `0 0 ${svgW} ${svgH}`)
       .attr("width", "100%")
-      .attr("height", "100%");
+      .attr("height", "100%")
+      .style("overflow", "visible");
 
-    const industries = [
-      "Agriculture",
-      "Education",
-      "Energy",
-      "Finance",
-      "Government",
-      "Healthcare",
-      "Manufacturing",
-      "Retail",
-      "Tech",
-    ];
-    const decades = ["2010-2014", "2015-2019", "2020-2025"];
-    const data = [];
-    const decadeSums = { "2010-2014": 0, "2015-2019": 0, "2020-2025": 0 };
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    industries.forEach((ind) =>
-      decades.forEach((dec, i) => {
-        const val = 0.1 + i * 0.15 + Math.random() * 0.15;
-        data.push({ industry: ind, decade: dec, value: val });
-        decadeSums[dec] += val;
-      }),
-    );
-
-    const decadeAvgs = decades.map((dec) => ({
-      decade: dec,
-      value: decadeSums[dec] / industries.length,
-    }));
-
-    const xHeat = d3.scaleBand().range([0, heatW]).domain(decades).padding(0.08);
+    // Scales
+    const xScale = d3.scaleBand().range([0, heatW]).domain(DECADES).padding(0.08);
     const yHeat = d3
       .scaleBand()
-      .range([heatH, 0])
-      .domain([...industries].reverse())
+      .range([0, heatH])
+      .domain([...INDUSTRIES].reverse())
       .padding(0.08);
+    const yBar = d3.scaleLinear().domain([0, 0.6]).range([heatH, 0]);
     const color = d3.scaleLinear().domain([0.1, 0.35, 0.6]).range(["#22c55e", "#facc15", "#ef4444"]);
 
-    const xBar = d3.scaleBand().range([0, barW]).domain(decades).padding(0.3);
-    const yBar = d3.scaleLinear().domain([0, 0.6]).range([barH, 0]);
-
-    const gHeat = svg.append("g").attr("class", "g-heat").attr("transform", "translate(240, 60)");
-    const gBar = svg.append("g").attr("class", "g-bar").attr("transform", "translate(640, 60)").style("opacity", 0);
-    const gFly = svg.append("g").attr("class", "g-fly");
-
-    gHeat
-      .selectAll("rect.cell")
-      .data(data)
+    // ── Heatmap cells (hidden initially) ──
+    const cells = g
+      .selectAll<SVGRectElement, (typeof HEATMAP_DATA)[number]>("rect.cell")
+      .data(HEATMAP_DATA)
       .enter()
       .append("rect")
-      .attr("x", (d) => xHeat(d.decade))
-      .attr("y", (d) => yHeat(d.industry))
+      .attr("class", "cell")
+      .attr("x", (d) => xScale(d.decade)!)
+      .attr("y", (d) => yHeat(d.industry)!)
       .attr("rx", 4)
       .attr("ry", 4)
-      .attr("width", xHeat.bandwidth())
+      .attr("width", xScale.bandwidth())
       .attr("height", yHeat.bandwidth())
       .style("fill", (d) => color(d.value))
+      .style("opacity", 0)
       .style("cursor", "pointer")
-      .on("mouseover", (e, d) => {
+      .on("mouseover", function (e: MouseEvent, d) {
+        if (allRefs.current?.morphProgress < 0.25) return;
         const el = tooltipRef?.current;
         if (!el) return;
         el.style.opacity = "1";
         el.innerHTML = `<b>${d.industry}</b> · ${d.decade}<br/>AI Intensity: <span style="color:${color(d.value)};font-weight:bold">${d.value.toFixed(3)}</span>`;
       })
-      .on("mousemove", (e) => {
+      .on("mousemove", (e: MouseEvent) => {
         const el = tooltipRef?.current;
         if (!el) return;
         el.style.left = e.clientX + 15 + "px";
@@ -101,139 +137,187 @@ function AIIntensityHeatmap({ showBarChart, tooltipRef }) {
         if (el) el.style.opacity = "0";
       });
 
-    gHeat
-      .append("g")
-      .attr("transform", `translate(0,${heatH})`)
-      .call(d3.axisBottom(xHeat).tickSize(0))
-      .style("font-size", "13px")
-      .select(".domain")
-      .remove();
-    gHeat.append("g").call(d3.axisLeft(yHeat).tickSize(0)).style("font-size", "13px").select(".domain").remove();
-    gHeat
-      .append("text")
-      .attr("x", heatW / 2)
-      .attr("y", -30)
-      .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "900")
-      .text("General view of AI intensity change");
-
-    const lg = gHeat.append("g").attr("transform", `translate(${heatW + 20},0)`);
-    const ly = d3.scaleLinear().domain([0.1, 0.6]).range([heatH, 0]);
-    lg.selectAll("rect")
-      .data(d3.range(0.1, 0.61, 0.01))
+    // ── Bars (visible initially, overlaid on heatmap columns) ──
+    const bars = g
+      .selectAll<SVGRectElement, (typeof DECADE_AVGS)[number]>("rect.bar")
+      .data(DECADE_AVGS)
       .enter()
       .append("rect")
-      .attr("y", (d) => ly(d))
-      .attr("width", 12)
-      .attr("height", heatH / 50)
-      .style("fill", (d) => color(d));
-    lg.append("g").attr("transform", "translate(12,0)").call(d3.axisRight(ly).ticks(5)).select(".domain").remove();
+      .attr("class", "bar")
+      .attr("x", (d) => xScale(d.decade)!)
+      .attr("y", (d) => yBar(d.value))
+      .attr("rx", 6)
+      .attr("ry", 6)
+      .attr("width", xScale.bandwidth())
+      .attr("height", (d) => heatH - yBar(d.value))
+      .style("fill", (d) => color(d.value))
+      .style("opacity", 1)
+      .style("cursor", "pointer")
+      .on("mouseover", function (e: MouseEvent, d) {
+        if (allRefs.current?.morphProgress > 0.7) return;
+        const el = tooltipRef?.current;
+        if (!el) return;
+        el.style.opacity = "1";
+        el.innerHTML = `<b>${d.decade}</b><br/>Avg AI Intensity: <span style="color:${color(d.value)};font-weight:bold">${d.value.toFixed(3)}</span><br/>Across ${INDUSTRIES.length} industries`;
+      })
+      .on("mousemove", (e: MouseEvent) => {
+        const el = tooltipRef?.current;
+        if (!el) return;
+        el.style.left = e.clientX + 15 + "px";
+        el.style.top = e.clientY - 40 + "px";
+      })
+      .on("mouseleave", () => {
+        const el = tooltipRef?.current;
+        if (el) el.style.opacity = "0";
+      });
 
-    gBar.append("g").attr("transform", `translate(0,${barH})`).call(d3.axisBottom(xBar)).style("font-size", "13px");
-    gBar.append("g").call(d3.axisLeft(yBar).ticks(5)).style("font-size", "13px");
-    gBar
+    // ── X-axis (shared) ──
+    const xAxisG = g
+      .append("g")
+      .attr("transform", `translate(0,${heatH})`)
+      .call(d3.axisBottom(xScale).tickSize(0))
+      .style("font-size", "13px");
+    xAxisG.select(".domain").remove();
+
+    // ── Y-axis: numeric (bar chart) ──
+    const yAxisBar = g
+      .append("g")
+      .attr("class", "y-bar")
+      .call(d3.axisLeft(yBar).ticks(5).tickSize(0))
+      .style("font-size", "13px");
+    yAxisBar.select(".domain").remove();
+
+    // ── Y-axis: industry names (heatmap) ──
+    const yAxisHeat = g
+      .append("g")
+      .attr("class", "y-heat")
+      .call(d3.axisLeft(yHeat).tickSize(0))
+      .style("font-size", "12px")
+      .style("opacity", 0);
+    yAxisHeat.select(".domain").remove();
+
+    // ── Title: bar chart ──
+    const titleBar = svg
       .append("text")
-      .attr("x", barW / 2)
-      .attr("y", -30)
+      .attr("x", svgW / 2)
+      .attr("y", 32)
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
       .style("font-weight", "900")
       .style("fill", "#ef4444")
       .text("Average Intensity Growth");
 
-    svg
-      .append("defs")
-      .append("marker")
-      .attr("id", "arrowhead")
-      .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 8)
-      .attr("refY", 0)
-      .attr("orient", "auto")
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .append("path")
-      .attr("d", "M0,-5L10,0L0,5")
-      .attr("fill", "#ef4444");
+    // ── Title: heatmap ──
+    const titleHeat = svg
+      .append("text")
+      .attr("x", svgW / 2)
+      .attr("y", 32)
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .style("font-weight", "900")
+      .style("fill", "#0f172a")
+      .text("General view of AI intensity change")
+      .style("opacity", 0);
 
-    svgRef.current = { gHeat, gBar, gFly, decadeAvgs, xHeat, xBar, yBar, color, barH, industries };
+    // ── Legend (heatmap only) ──
+    const legendG = g
+      .append("g")
+      .attr("class", "legend")
+      .attr("transform", `translate(${heatW + 18}, 0)`)
+      .style("opacity", 0);
+
+    const legendScale = d3.scaleLinear().domain([0.1, 0.6]).range([heatH, 0]);
+    legendG
+      .selectAll("rect")
+      .data(d3.range(0.1, 0.61, 0.01))
+      .enter()
+      .append("rect")
+      .attr("y", (d) => legendScale(d))
+      .attr("width", 12)
+      .attr("height", heatH / 50)
+      .style("fill", (d) => color(d));
+    legendG
+      .append("g")
+      .attr("transform", "translate(12, 0)")
+      .call(d3.axisRight(legendScale).ticks(5))
+      .style("font-size", "10px")
+      .select(".domain")
+      .remove();
+
+    // Store all refs
+    allRefs.current = {
+      bars,
+      cells,
+      yAxisBar,
+      yAxisHeat,
+      titleBar,
+      titleHeat,
+      legendG,
+      yBar,
+      heatH,
+      color,
+      morphProgress: 0,
+    };
   }, [tooltipRef]);
 
+  // ── Update on morph progress ──
   useEffect(() => {
-    if (!svgRef.current) return;
-    const { gHeat, gBar, gFly, decadeAvgs, xHeat, xBar, yBar, color, barH, industries } = svgRef.current;
+    const r = allRefs.current;
+    if (!r) return;
+    r.morphProgress = morphProgress;
+    const p = morphProgress;
 
-    if (showBarChart && !hasAnimated.current) {
-      hasAnimated.current = true;
-      gHeat.transition().duration(1000).attr("transform", "translate(140, 60)");
-      gBar.transition().delay(500).duration(500).style("opacity", 1);
-      gFly
-        .selectAll("rect.fly")
-        .data(decadeAvgs)
-        .enter()
-        .append("rect")
-        .attr("class", "fly")
-        .attr("fill", (d) => color(d.value))
-        .attr("rx", 4)
-        .attr("x", (d) => 140 + xHeat(d.decade))
-        .attr("y", 60)
-        .attr("width", xHeat.bandwidth())
-        .attr("height", 320)
-        .style("opacity", 0.7)
-        .style("cursor", "pointer")
-        .on("mouseover", (e, d) => {
-          const el = tooltipRef?.current;
-          if (!el) return;
-          el.style.opacity = "1";
-          el.innerHTML = `<b>${d.decade}</b><br/>Avg AI Intensity: <span style="color:${color(d.value)};font-weight:bold">${d.value.toFixed(3)}</span><br/>Across ${industries.length} industries`;
-        })
-        .on("mousemove", (e) => {
-          const el = tooltipRef?.current;
-          if (!el) return;
-          el.style.left = e.clientX + 15 + "px";
-          el.style.top = e.clientY - 40 + "px";
-        })
-        .on("mouseleave", () => {
-          if (tooltipRef?.current) tooltipRef.current.style.opacity = "0";
-        })
-        .transition()
-        .delay(1000)
-        .duration(1200)
-        .attr("x", (d) => 640 + xBar(d.decade))
-        .attr("y", (d) => 60 + yBar(d.value))
-        .attr("width", xBar.bandwidth())
-        .attr("height", (d) => barH - yBar(d.value));
-      const line = d3
-        .line()
-        .x((d) => 640 + xBar(d.decade) + xBar.bandwidth() / 2)
-        .y((d) => 60 + yBar(d.value))
-        .curve(d3.curveMonotoneX);
-      const path = gFly
-        .append("path")
-        .attr("d", line(decadeAvgs))
-        .attr("fill", "none")
-        .attr("stroke", "#ef4444")
-        .attr("stroke-width", 3)
-        .attr("marker-end", "url(#arrowhead)");
-      const len = path.node().getTotalLength();
-      path
-        .attr("stroke-dasharray", len)
-        .attr("stroke-dashoffset", len)
-        .transition()
-        .delay(2200)
-        .duration(1000)
-        .attr("stroke-dashoffset", 0);
-    }
-  }, [showBarChart]);
+    // Helper: map p through a window [pStart, pEnd] → [0, 1]
+    const windowFn = (pStart: number, pEnd: number) => Math.min(1, Math.max(0, (p - pStart) / (pEnd - pStart)));
 
-  return (
-    <div ref={containerRef} style={{ width: "100%", maxWidth: "900px", height: "450px", minWidth: 0, flex: "1 1 0" }} />
-  );
+    // Bars: height tweak early, fade out mid
+    const barHeightTweak = windowFn(0, 0.25);
+    const barOpacity = 1 - windowFn(0.25, 0.65);
+
+    r.bars
+      .attr("y", (d) => {
+        const base = r.yBar(d.value);
+        const bump = barHeightTweak * 12 * (1 - DECADES.indexOf(d.decade) / 2);
+        return Math.max(0, base - bump);
+      })
+      .attr("height", (d) => {
+        const base = r.heatH - r.yBar(d.value);
+        const bump = barHeightTweak * 12 * (1 - DECADES.indexOf(d.decade) / 2);
+        return base + bump;
+      })
+      .style("opacity", barOpacity);
+
+    // Cells: fade in
+    const cellOpacity = windowFn(0.2, 0.7);
+    r.cells.style("opacity", cellOpacity);
+
+    // Y-axis crossfade
+    const axisCross = windowFn(0.35, 0.7);
+    r.yAxisBar.style("opacity", 1 - axisCross);
+    r.yAxisHeat.style("opacity", axisCross);
+
+    // Title crossfade
+    const titleCross = windowFn(0.4, 0.75);
+    r.titleBar.style("opacity", 1 - titleCross);
+    r.titleHeat.style("opacity", titleCross);
+
+    // Legend fade in
+    const legendOp = windowFn(0.6, 1.0);
+    r.legendG.style("opacity", legendOp);
+  }, [morphProgress]);
+
+  return <div ref={containerRef} style={{ width: "100%", maxWidth: "860px", height: "440px", minWidth: 0 }} />;
 }
 
-// ─── Salary by Industry Bar Chart (colored by AI intensity) ──
-function SalaryByIndustryChart({ visible, tooltipRef }) {
-  const svgRef = useRef(null);
+// ─── Salary by Industry Bar Chart (green→yellow→red) ───────
+function SalaryByIndustryChart({
+  visible,
+  tooltipRef,
+}: {
+  visible: boolean;
+  tooltipRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const svgRef = useRef<HTMLDivElement>(null);
   const hasDrawn = useRef(false);
 
   useEffect(() => {
@@ -245,7 +329,7 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
 
     const csvUrl = dbUrl("ai_impact_jobs_2010_2025.csv");
     const margin = { top: 40, right: 110, bottom: 25, left: 130 };
-    const totalW = 510;
+    const totalW = 620;
     const totalH = 380;
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
@@ -269,7 +353,7 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
       const xMax = d3.max(data, (d) => d.avgSalary);
       const x = d3
         .scaleLinear()
-        .domain([0, xMax * 1.12])
+        .domain([0, xMax! * 1.12])
         .range([0, width]);
       const y = d3
         .scaleBand()
@@ -278,10 +362,11 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
         .padding(0.25);
 
       const [iMin, iMax] = d3.extent(data, (d) => d.avgIntensity);
+      // ✅ Color: green → yellow → red (matches heatmap)
       const colorScale = d3
         .scaleLinear()
-        .domain([iMin, (iMin + iMax) / 2, iMax])
-        .range(["#fca5a5", "#ef4444", "#7f1d1d"]);
+        .domain([iMin!, (iMin! + iMax!) / 2, iMax!])
+        .range(["#22c55e", "#facc15", "#ef4444"]);
 
       const svg = d3
         .select(container)
@@ -301,7 +386,7 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
           d3
             .axisBottom(x)
             .ticks(4)
-            .tickFormat((d) => `$${Math.round(d / 1000)}k`),
+            .tickFormat((d) => `$${Math.round((d as number) / 1000)}k`),
         )
         .style("font-size", "11px")
         .select(".domain")
@@ -319,13 +404,13 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
         .attr("rx", 4)
         .attr("fill", (d) => colorScale(d.avgIntensity))
         .style("cursor", "pointer")
-        .on("mouseover", (e, d) => {
+        .on("mouseover", (e: MouseEvent, d) => {
           const el = tooltipRef?.current;
           if (!el) return;
           el.style.opacity = "1";
           el.innerHTML = `<b>${d.industry}</b><br/>Avg Salary: $${Math.round(d.avgSalary).toLocaleString()}<br/>AI Intensity: ${d.avgIntensity.toFixed(2)}`;
         })
-        .on("mousemove", (e) => {
+        .on("mousemove", (e: MouseEvent) => {
           const el = tooltipRef?.current;
           if (!el) return;
           el.style.left = e.clientX + 15 + "px";
@@ -351,10 +436,10 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
 
       const legendG = svg.append("g").attr("transform", `translate(${margin.left + width + 15}, ${margin.top})`);
       const legendH = height;
-      const legendScale = d3.scaleLinear().domain([iMin, iMax]).range([legendH, 0]);
+      const legendScale = d3.scaleLinear().domain([iMin!, iMax!]).range([legendH, 0]);
       legendG
         .selectAll("rect")
-        .data(d3.range(iMin, iMax + 0.01, (iMax - iMin) / 30))
+        .data(d3.range(iMin!, iMax! + 0.01, (iMax! - iMin!) / 30))
         .enter()
         .append("rect")
         .attr("y", (d) => legendScale(d))
@@ -373,7 +458,7 @@ function SalaryByIndustryChart({ visible, tooltipRef }) {
     });
   }, [visible, tooltipRef]);
 
-  return <div ref={svgRef} style={{ width: "100%", maxWidth: "510px", height: "380px", minWidth: 0 }} />;
+  return <div ref={svgRef} style={{ width: "100%", maxWidth: "620px", height: "380px", minWidth: 0 }} />;
 }
 
 // ─── Roadmap Steps ──────────────────────────────────────────
@@ -401,8 +486,7 @@ const ROADMAP = [
 ];
 
 // ─── Stage 3: Roadmap ───────────────────────────────────────
-function RoadmapView({ scrollPos }) {
-  // Each item fades in over a 50px scroll range, staggered by 60px
+function RoadmapView({ scrollPos }: { scrollPos: number }) {
   return (
     <div className="roadmap-container">
       <div className="roadmap-title">
@@ -410,7 +494,6 @@ function RoadmapView({ scrollPos }) {
       </div>
 
       <div className="roadmap-track">
-        {/* Vertical connecting line */}
         <div className="roadmap-line" />
 
         {ROADMAP.map((item, i) => {
@@ -434,7 +517,6 @@ function RoadmapView({ scrollPos }) {
         })}
       </div>
 
-      {/* Scroll prompt */}
       {scrollPos > 250 && (
         <div className="roadmap-scroll-hint">
           <span>Then, scroll down and explore with us</span>
@@ -446,37 +528,53 @@ function RoadmapView({ scrollPos }) {
 }
 
 // ─── Main Introduction Component ────────────────────────────
-function Introduction({ scrollParentRef, onStageChange }) {
+function Introduction({
+  scrollParentRef,
+  onStageChange,
+}: {
+  scrollParentRef: React.RefObject<HTMLDivElement | null>;
+  onStageChange?: (stage: number) => void;
+}) {
   const [scrollProgress, setScrollProgress] = useState(0);
-  const tooltipRef = useRef(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const [viewportHeight, setViewportHeight] = useState(() => {
     const h = scrollParentRef?.current?.clientHeight;
     if (h && h > 0) return h;
     return typeof window !== "undefined" ? window.innerHeight : 900;
   });
 
-  const GRAPH_HOLD_FACTOR = 1.2; // 120vh
-  const INTRO_HERO_OFFSET_FACTOR = 0.25;
-  const HOLD_SEGMENTS = 4;
+  // ── Scroll thresholds (all in px, relative to intro section) ──
+  const vh = viewportHeight;
 
-  const graphHoldPx = viewportHeight * GRAPH_HOLD_FACTOR;
-  const contentStartPx = viewportHeight * INTRO_HERO_OFFSET_FACTOR;
-  const barChartStartPx = contentStartPx + graphHoldPx;
-  const salaryChartStartPx = barChartStartPx + graphHoldPx;
-  const roadmapStartPx = salaryChartStartPx + graphHoldPx;
-  const stage2FadeSpanPx = viewportHeight * 0.35;
-  const stage3LocalStartPx = roadmapStartPx + viewportHeight * 0.12;
-  const introContainerHeight = `calc(100vh + ${HOLD_SEGMENTS * 120}vh)`;
+  // Stage 0: Hero
+  const heroFadeEnd = 0.3 * vh;
+
+  // Stage 1: Bar chart appear + hold
+  const chartAppearStart = 0.35 * vh;
+  const chartAppearEnd = 0.65 * vh;
+  const morphStart = 1.0 * vh;
+  const morphEnd = 2.6 * vh;
+
+  // Stage 2: Salary chart
+  const salaryFadeStart = 3.0 * vh;
+  const salaryVisibleEnd = 3.5 * vh;
+
+  // Stage 3: Roadmap
+  const roadmapFadeStart = 4.0 * vh;
+  const roadmapLocalStart = 4.2 * vh;
+
+  // Total container height
+  const HOLD_SEGMENTS = 5;
+  const introContainerHeight = `calc(100vh + ${HOLD_SEGMENTS * 100}vh)`;
 
   useEffect(() => {
-    const updateViewportHeight = () => {
+    const update = () => {
       const h = scrollParentRef?.current?.clientHeight;
       setViewportHeight(h && h > 0 ? h : window.innerHeight);
     };
-
-    updateViewportHeight();
-    window.addEventListener("resize", updateViewportHeight);
-    return () => window.removeEventListener("resize", updateViewportHeight);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, [scrollParentRef]);
 
   useEffect(() => {
@@ -489,62 +587,92 @@ function Introduction({ scrollParentRef, onStageChange }) {
       const pos = Math.min(Math.max(container.scrollTop - intro.offsetTop, 0), maxScroll);
       setScrollProgress(pos);
       if (onStageChange) {
-        if (pos < contentStartPx) onStageChange(0);
-        else if (pos < salaryChartStartPx) onStageChange(1);
-        else if (pos < roadmapStartPx) onStageChange(2);
+        if (pos < chartAppearStart) onStageChange(0);
+        else if (pos < salaryFadeStart) onStageChange(1);
+        else if (pos < roadmapFadeStart) onStageChange(2);
         else onStageChange(3);
       }
     };
     container.addEventListener("scroll", handle);
     handle();
     return () => container.removeEventListener("scroll", handle);
-  }, [scrollParentRef, onStageChange, contentStartPx, salaryChartStartPx, roadmapStartPx]);
+  }, [scrollParentRef, onStageChange, chartAppearStart, salaryFadeStart, roadmapFadeStart]);
 
-  // Stage 0
-  const s0Opacity = Math.max(0, 1 - scrollProgress / (viewportHeight * 0.2));
+  // ── Derived values ──
+  const heroOpacity = Math.max(0, 1 - scrollProgress / heroFadeEnd);
 
-  // Stage 1 + 2
-  const contentOpacity =
-    scrollProgress < contentStartPx ? 0 : Math.min(1, (scrollProgress - contentStartPx) / (viewportHeight * 0.2));
-  const showBarChart = scrollProgress >= barChartStartPx;
-  const salaryChartVisible = scrollProgress >= salaryChartStartPx;
+  const chartOpacity =
+    scrollProgress < chartAppearStart
+      ? 0
+      : Math.min(1, (scrollProgress - chartAppearStart) / (chartAppearEnd - chartAppearStart));
 
-  // Stage 3: stage 2 fades out, roadmap fades in
-  const stage2Fade =
-    scrollProgress < roadmapStartPx ? 1 : Math.max(0, 1 - (scrollProgress - roadmapStartPx) / stage2FadeSpanPx);
-  const stage3Local = Math.max(0, scrollProgress - stage3LocalStartPx); // 0-based progress within stage 3
+  const morphProgress =
+    scrollProgress < morphStart
+      ? 0
+      : scrollProgress < morphEnd
+        ? (scrollProgress - morphStart) / (morphEnd - morphStart)
+        : 1;
+
+  const heatmapFadeOut =
+    scrollProgress < salaryFadeStart
+      ? 1
+      : Math.max(0, 1 - (scrollProgress - salaryFadeStart) / (roadmapFadeStart - salaryFadeStart));
+
+  const salaryOpacity =
+    scrollProgress < salaryFadeStart
+      ? 0
+      : Math.min(1, (scrollProgress - salaryFadeStart) / (salaryVisibleEnd - salaryFadeStart));
+  const salaryFadeOut =
+    scrollProgress < roadmapFadeStart ? 1 : Math.max(0, 1 - (scrollProgress - roadmapFadeStart) / (0.4 * vh));
+
+  // Stage 3: roadmap (only after salary fades out)
+  const roadmapOpacity = 1 - salaryFadeOut;
+  const roadmapLocal = Math.max(0, scrollProgress - roadmapLocalStart);
 
   return (
     <div className="intro-container" data-section="intro" style={{ height: introContainerHeight }}>
       <div className="intro-sticky-viewport">
-        {/* Stage 0 */}
-        <div className="layer" style={{ opacity: s0Opacity }}>
+        {/* Stage 0 — Hero */}
+        <div className="layer" style={{ opacity: heroOpacity }}>
           <span className="highlight-audience">Dear job seekers,</span>
           <p className="pre-intro-text">AI is reshaping the job market. Are you ready?</p>
         </div>
 
-        {/* Stage 1 + 2 — combined in one card */}
+        {/* Stage 1 — Bar chart → Heatmap morph */}
         <div
-          className="layer stage-content"
+          className="layer layer-chart-card"
           style={{
-            opacity: contentOpacity * stage2Fade,
-            pointerEvents: contentOpacity * stage2Fade > 0.1 ? "auto" : "none",
+            opacity: chartOpacity * heatmapFadeOut,
+            pointerEvents: chartOpacity * heatmapFadeOut > 0.1 ? "auto" : "none",
           }}
         >
-          <div className="charts-wrapper">
-            <AIIntensityHeatmap showBarChart={showBarChart} tooltipRef={tooltipRef} />
-            <div className={`chart-right ${salaryChartVisible ? "visible" : ""}`}>
-              <SalaryByIndustryChart visible={salaryChartVisible} tooltipRef={tooltipRef} />
-            </div>
+          <div className="charts-wrapper charts-wrapper-single">
+            <AIIntensityHeatmap morphProgress={morphProgress} tooltipRef={tooltipRef} />
+          </div>
+        </div>
+
+        {/* Stage 2 — Salary chart */}
+        <div
+          className="layer layer-chart-card"
+          style={{
+            opacity: salaryOpacity * salaryFadeOut,
+            pointerEvents: salaryOpacity * salaryFadeOut > 0.1 ? "auto" : "none",
+          }}
+        >
+          <div className="charts-wrapper charts-wrapper-single">
+            <SalaryByIndustryChart visible={salaryOpacity > 0.05} tooltipRef={tooltipRef} />
           </div>
         </div>
 
         {/* Stage 3 — Roadmap */}
         <div
           className="layer layer-roadmap"
-          style={{ opacity: 1 - stage2Fade, pointerEvents: 1 - stage2Fade > 0.1 ? "auto" : "none" }}
+          style={{
+            opacity: roadmapOpacity,
+            pointerEvents: roadmapOpacity > 0.1 ? "auto" : "none",
+          }}
         >
-          <RoadmapView scrollPos={stage3Local} />
+          <RoadmapView scrollPos={roadmapLocal} />
         </div>
       </div>
 
