@@ -78,7 +78,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
       </>
     ),
     description:
-      "Understanding job volume across categories and subcategories reveals where the demand — and competition — truly lies. This helps career seekers prioritize sectors with the most opportunities.",
+      "Understanding job volume across categories and subcategories reveals where the demand 鈥?and competition 鈥?truly lies. This helps career seekers prioritize sectors with the most opportunities.",
   },
   section4: {
     title: (
@@ -130,7 +130,7 @@ function App() {
   const currentDetail = TASK_DETAILS[activeTask] || TASK_DETAILS.intro;
 
   if (!TASK_DETAILS[activeTask] && process.env.NODE_ENV === "development") {
-    console.warn(`⚠️ No task detail found for: ${activeTask}`);
+    console.warn(`鈿狅笍 No task detail found for: ${activeTask}`);
   }
 
   let displayDescription = currentDetail.description;
@@ -140,35 +140,9 @@ function App() {
       displayDescription = (
         <div>
           <p>
-            Jobs are increasingly exposed to AI. The heatmap shows how AI intensity has grown across industries and time
+            Jobs are increasingly exposed to AI. The graph shows how AI intensity has grown across industries and time
             periods.
           </p>
-          <div
-            style={{
-              marginTop: "8px",
-              fontSize: "12px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px",
-            }}
-          >
-            <a
-              href="https://www.kaggle.com/datasets/sarcasmos/ai-society/data"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "#2563eb" }}
-            >
-              Dataset 1: Global AI Impact on Jobs (2010-2025)
-            </a>
-            <a
-              href="https://www.kaggle.com/datasets/sahilislam007/ai-impact-on-job-market-20242030/data"
-              target="_blank"
-              rel="noreferrer"
-              style={{ color: "#2563eb" }}
-            >
-              Dataset 2: AI Impact on Job Market (2024-2030)
-            </a>
-          </div>
         </div>
       );
     } else if (introStage === 2) {
@@ -272,7 +246,7 @@ function App() {
       setLeftDescVisible(true);
     }, 260);
     return () => clearTimeout(timeout);
-  }, [descKey, displayDescription]);
+  }, [descKey]);
 
   return (
     <div className="web-container">
@@ -306,7 +280,7 @@ function App() {
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("industries.png")}
           title="Which industry to work in? Industry-level trends and risks. And how AI intensity correlates with salary."
-          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities — and risks — lie."
+          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities 鈥?and risks 鈥?lie."
         />
 
         <TaskSection task="section2">
@@ -321,7 +295,7 @@ function App() {
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Job count.png")}
           title="How many jobs are out there?"
-          description="Beyond knowing where the high-paying roles are, it matters how many opportunities each category actually offers. The segmented bar chart below breaks down job listings by category and subcategory, revealing where the volume — and the competition — really is."
+          description="Beyond knowing where the high-paying roles are, it matters how many opportunities each category actually offers. The segmented bar chart below breaks down job listings by category and subcategory, revealing where the volume 鈥?and the competition 鈥?really is."
         />
 
         <TaskSection task="section3b-2">
@@ -332,7 +306,7 @@ function App() {
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Evaluation.png")}
           title="How does AI risk compare across industries?"
-          description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions — and adjust the weights to see what matters most to you."
+          description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions 鈥?and adjust the weights to see what matters most to you."
         />
 
         <TaskSection task="section4">

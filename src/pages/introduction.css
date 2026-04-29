@@ -33,6 +33,10 @@
   max-width: 1000px;
 }
 
+.layer-chart-card {
+  align-items: center;
+}
+
 .highlight-audience {
   font-size: 52px;
   font-weight: 900;
@@ -47,21 +51,9 @@
   text-align: center;
 }
 
-/* ── Stage content — single row ── */
-.stage-content {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-  padding: 0 12px;
-}
-
-/* ── Unified card wrapper ── */
 .charts-wrapper {
   background: #f8fafc;
-  width: min(100%, 980px);
+  width: min(100%, 1200px);
   max-width: 100%;
   padding: clamp(14px, 2.6vw, 36px) clamp(12px, 2.4vw, 32px);
   border-radius: 30px;
@@ -69,18 +61,18 @@
   display: flex;
   align-items: center;
   gap: clamp(10px, 1.8vw, 24px);
-  transition: padding 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   box-sizing: border-box;
-  overflow: hidden;
 }
 
-/* ── Right chart container — fades in ── */
+.charts-wrapper-single {
+  width: min(100%, 920px);
+  justify-content: center;
+}
+
 .chart-right {
   opacity: 0;
   transform: translateY(16px);
-  transition:
-    opacity 0.7s ease 0.2s,
-    transform 0.7s ease 0.2s;
+  transition: opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s;
   pointer-events: none;
   width: 0;
   overflow: hidden;
@@ -95,7 +87,6 @@
   width: clamp(220px, 36%, 510px);
 }
 
-/* ── Shared tooltip ── */
 .chart-tooltip {
   position: fixed;
   background: rgba(15, 23, 42, 0.95);
@@ -111,13 +102,7 @@
   line-height: 1.5;
 }
 
-/* ═══════════════════════════════════════════
-   Stage 3 — Roadmap
-   ═══════════════════════════════════════════ */
-
-.roadmap-container {
-  width: 100%;
-}
+.roadmap-container { width: 100%; }
 
 .roadmap-title {
   font-size: 22px;
@@ -135,7 +120,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* ── Track with vertical line ── */
 .roadmap-track {
   position: relative;
   display: flex;
@@ -154,14 +138,11 @@
   border-radius: 2px;
 }
 
-/* ── Individual node ── */
 .roadmap-node {
   display: flex;
   align-items: flex-start;
   gap: 24px;
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .roadmap-badge {
@@ -170,9 +151,7 @@
   height: 56px;
   border-radius: 16px;
   background: #ffffff;
-  box-shadow:
-    0 4px 20px rgba(37, 99, 235, 0.15),
-    0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15), 0 1px 3px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,13 +160,8 @@
   z-index: 1;
 }
 
-.roadmap-icon {
-  font-size: 22px;
-}
-
-.roadmap-icon-svg {
-  color: #2563eb;
-}
+.roadmap-icon { font-size: 22px; }
+.roadmap-icon-svg { color: #2563eb; }
 
 .roadmap-num {
   position: absolute;
@@ -231,7 +205,6 @@
   line-height: 1.5;
 }
 
-/* ── Scroll hint at bottom ── */
 .roadmap-scroll-hint {
   margin-top: 36px;
   padding-left: 92px;
@@ -250,21 +223,11 @@
 }
 
 @keyframes roadmap-hint-pulse {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 @keyframes roadmap-arrow-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(4px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
 }
