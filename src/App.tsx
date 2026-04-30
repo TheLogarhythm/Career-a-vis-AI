@@ -98,7 +98,7 @@ const BADGE_MAP: Record<string, string[]> = {
   "section1-2": ["Can_Mouse_Over.png"],
   section2: ["Aggregated_Data.png", "Data_Normalized.png"],
   section3b: ["Can_Sort_&_Filter.png"],
-  "section3b-2": ["Can_Mouse_Over.png", "Can_Sort_&_Filter.png", "Aggregated_Data.png"],
+  "section3b-2": ["Can_Mouse_Over.png", "Aggregated_Data.png"],
 };
 
 function App() {
