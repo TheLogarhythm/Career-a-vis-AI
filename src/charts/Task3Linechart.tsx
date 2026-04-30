@@ -92,11 +92,11 @@ useEffect(() => {
     if (!chartRef.current) return;
 
     const rect = chartRef.current.getBoundingClientRect();
+    const triggerPoint = 20; // This should match your trigger condition
 
     if (!overlay && rect.top <= triggerPoint) {
       setOverlay(true);
     }
-
     if (overlay && rect.top > 70) {
       setOverlay(false);
       setScrollProgress(0); // Reset progress when going back to grid
@@ -105,7 +105,6 @@ useEffect(() => {
     if (overlay) {
       const distanceScrolled = triggerPoint - rect.top;
       
-      // Only start moving if distance is positive
       const currentProgress = Math.max(0, distanceScrolled) / 400; 
       
       setScrollProgress(Math.min(1, currentProgress));
@@ -647,6 +646,8 @@ useEffect(() => {
 
 return (
   <div style={{ 
+    // This provides the "track" for scrolling. 
+    // When overlay is true, we make it tall so there is room to scroll.
     height: overlay ? "200vh" : "auto", 
     position: "relative",
     marginTop: "40px" 
@@ -654,6 +655,7 @@ return (
     <div
       ref={chartRef}
       style={{
+        // Pins the chart to the top while scrolling through the 200vh track
         position: overlay ? "sticky" : "relative",
         top: overlay ? "50px" : "0px",
         background: "white",
