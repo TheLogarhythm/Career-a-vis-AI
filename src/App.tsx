@@ -79,7 +79,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
       </>
     ),
     description:
-      "To reduce class imbalance, this view focuses on Tech, Finance, and Manufacture only. Compare their subcategories to see where risk-weighted demand is strongest and where competition is likely concentrated.",
+      "This view uses a fixed 9-category taxonomy (Agriculture, Education, Energy, Finance, Government, Healthcare, Manufacturing, Retail, Tech). Select a category to compare subcategories and see where risk-weighted demand is strongest.",
   },
   section4: {
     title: (
@@ -98,6 +98,7 @@ const BADGE_MAP: Record<string, string[]> = {
   "section1-2": ["Can_Mouse_Over.png"],
   section2: ["Aggregated_Data.png", "Data_Normalized.png"],
   section3b: ["Can_Sort_&_Filter.png"],
+  "section3b-2": ["Can_Mouse_Over.png", "Can_Sort_&_Filter.png", "Aggregated_Data.png"],
 };
 
 function App() {
@@ -303,7 +304,7 @@ const [industries, setIndustries] = useState([]);
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Job count.png")}
           title="How many jobs are out there?"
-          description="To make the comparison more meaningful, this chart keeps only Tech, Finance, and Manufacture. Each category has its own bar chart, showing risk-weighted job counts across subcategories so volume differences are clearer and less biased by tiny classes."
+          description="Explore risk-weighted demand through circle packing. Choose one of the 9 categories and compare the relative size of subcategory job volumes."
         />
 
         <TaskSection task="section3b-2">
