@@ -15,6 +15,8 @@ function Task3Linechart({ scrollParentRef, selectedIndustry, comparisonIndustry,
   const [overlay, setOverlay] = useState(false);
   const [data, setData] = useState([]);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const scrollRequestRef = useRef(null);
+  const lastScrollTop = useRef(0);
 
 useEffect(() => {
     if (onOverlayChange) {
@@ -85,53 +87,35 @@ useEffect(() => {
 
 
 
+useEffect(() => {
+  const handleScroll = () => {
+    if (!chartRef.current) return;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!overlay || !chartRef.current) return;
-      const rect = chartRef.current.getBoundingClientRect();
+    const rect = chartRef.current.getBoundingClientRect();
 
+    if (!overlay && rect.top <= triggerPoint) {
+      setOverlay(true);
+    }
 
+    if (overlay && rect.top > 70) {
+      setOverlay(false);
+      setScrollProgress(0); // Reset progress when going back to grid
+    }
 
+    if (overlay) {
+      const distanceScrolled = triggerPoint - rect.top;
+      
+      // Only start moving if distance is positive
+      const currentProgress = Math.max(0, distanceScrolled) / 400; 
+      
+      setScrollProgress(Math.min(1, currentProgress));
+    }
+  };
 
-
-
-
-
-      const triggerStart = 50;
-
-
-
-
-      const currentScroll = triggerStart - rect.top;
-
-
-
-
-      const isScrollingUp = rect.top > (window._prevScrollTop || 0);
-      window._prevScrollTop = rect.top;
-
-
-
-
-      const scrollWindow = isScrollingUp ? 100 : 400;
-
-
-
-
-      setScrollProgress(Math.min(1, Math.max(0, currentScroll / scrollWindow)));
-    };
-
-
-
-
-    const target = scrollParentRef?.current || window;
-    target.addEventListener("scroll", handleScroll);
-    return () => target.removeEventListener("scroll", handleScroll);
-  }, [overlay, scrollParentRef]);
-
-
-
+  const target = scrollParentRef?.current || window;
+  target.addEventListener("scroll", handleScroll);
+  return () => target.removeEventListener("scroll", handleScroll);
+}, [overlay, scrollParentRef]);
 
 
 
@@ -661,36 +645,31 @@ useEffect(() => {
 
 
 
-  return (
-    <div>
-      <div style={{ textAlign: "center", position: "sticky", top: "20px", zIndex: 10 }}>
-        <button
-          onClick={() => setOverlay(!overlay)}
-          style={{
-            padding: "10px 20px",
-            cursor: "pointer",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            background: "white",
-            fontWeight: "bold",
-          }}
-        >
-          {overlay ? "Switch to Grid View" : "Switch to Overlay View"}
-        </button>
-      </div>
-      <div style={{ display: "flex", justifyContent: "center", marginTop: "40px" }}>
-        <div
-          ref={chartRef}
-          style={{
-            background: "white",
-            padding: "40px",
-            borderRadius: "16px",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-          }}
-        />
-      </div>
-    </div>
-  );
+return (
+  <div style={{ 
+    height: overlay ? "200vh" : "auto", 
+    position: "relative",
+    marginTop: "40px" 
+  }}>
+    <div
+      ref={chartRef}
+      style={{
+        position: overlay ? "sticky" : "relative",
+        top: overlay ? "50px" : "0px",
+        background: "white",
+        padding: "40px",
+        borderRadius: "16px",
+        boxShadow: overlay ? "0 10px 30px rgba(0,0,0,0.1)" : "none",
+        zIndex: 5,
+        margin: "0 auto",
+        width: "fit-content",
+        transition: "box-shadow 0.3s ease"
+      }}
+    />
+  </div>
+);
+
+
 }
 
 
