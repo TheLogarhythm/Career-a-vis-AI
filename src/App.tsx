@@ -62,7 +62,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
         <MessageCircle size={18} className="inline-icon" /> How AI automation risk affected
       </>
     ),
-    description: "Compare how different industries intersect with regional AI profiles and automation risks.",
+    description: "Drag the pie chart weights to see how different factors influence across industries and countries.",
   },
   section3b: {
     title: (
@@ -285,8 +285,8 @@ const [industries, setIndustries] = useState([]);
         <TransitionSection
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("industries.png")}
-          title="Which industry to work in? Industry-level trends and risks. And how AI intensity correlates with salary."
-          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities 鈥?and risks 鈥?lie."
+          title="Which industry to work in? How AI intensity correlates with salary?"
+          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities lie."
         />
 
         <TaskSection task="section2">
@@ -314,13 +314,11 @@ const [industries, setIndustries] = useState([]);
         <TransitionSection
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Evaluation.png")}
-          title="How does AI risk compare across industries?"
-          description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions 鈥?and adjust the weights to see what matters most to you."
+          title="Job seeking guide under AI era?"
+          description="By weighting different areas, from salary and AI intensity to automation risk, reskilling rate, displacement risk, and skill complexity, you can create a personalized scorecard that reflects what matters most to you!"
         />
 
-        <TaskSection task="section4">
-          <Radar scrollParentRef={rightContainerRef} />
-        </TaskSection>
+      
 
         <TaskSection task="section3a">
           <WeightedBarChart weights={weights} activeMetrics={ACTIVE_METRICS} />
