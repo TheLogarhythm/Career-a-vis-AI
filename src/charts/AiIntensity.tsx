@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
 import { dbUrl } from "../utils/paths";
 
-function AiHeatmap({selectedIndustry}) {
+function AiHeatmap({ selectedIndustry }) {
   const [data, setData] = useState([]);
   const [intensityThreshold, setIntensityThreshold] = useState(0.1);
   const svgRef = useRef(null);
@@ -24,6 +24,47 @@ function AiHeatmap({selectedIndustry}) {
       })
       .catch((error) => console.error(error));
   }, []);
+
+
+ 
+  
+
+const bubbleBottomStyle = (targetValue) => {
+  const positionPercent = targetValue * 80; 
+  
+  return {
+    position: "absolute",
+    top: "35px",
+  
+    left: `calc(${positionPercent}% + 94px)`, 
+    transform: "translateX(-50%)",
+    backgroundColor: "#007bff",
+    color: "#fff",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    whiteSpace: "nowrap",
+    pointerEvents: "none",
+    zIndex: 10,
+    boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+    transition: "all 0.3s ease" // Smooth appearance
+  };
+};
+
+const arrowUpStyle = {
+  position: "absolute",
+  top: "-6px",
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "0",
+  height: "0",
+  borderLeft: "6px solid transparent",
+  borderRight: "6px solid transparent",
+  borderBottom: "6px solid #007bff"
+};
+
+
+
 
   useEffect(() => {
     if (data.length === 0) return;
@@ -181,22 +222,22 @@ function AiHeatmap({selectedIndustry}) {
       .duration(300)
       .style("opacity", (d) => {
         const passesIntensity = d.avgIntensity >= intensityThreshold;
-        
-      
-        const isSelected = !selectedIndustry || 
-                           selectedIndustry === "Market Average" || 
-                           selectedIndustry === d.industry;
+
+
+        const isSelected = !selectedIndustry ||
+          selectedIndustry === "Market Average" ||
+          selectedIndustry === d.industry;
 
         if (!passesIntensity) return 0;
 
-      if (!isSelected) return 0.1;
+        if (!isSelected) return 0.1;
 
-      return 1;
+        return 1;
       })
-      // .style("stroke", (d) => (selectedIndustry === d.industry ? "#2d3c4f" : "#fff"))
-      // .style("stroke-width", (d) => (selectedIndustry === d.industry ? "1.5px" : "0.5px"));
+    // .style("stroke", (d) => (selectedIndustry === d.industry ? "#2d3c4f" : "#fff"))
+    // .style("stroke-width", (d) => (selectedIndustry === d.industry ? "1.5px" : "0.5px"));
 
-  }, [intensityThreshold, data, selectedIndustry]); 
+  }, [intensityThreshold, data, selectedIndustry]);
 
   return (
     <div
@@ -230,21 +271,46 @@ function AiHeatmap({selectedIndustry}) {
         }}
       ></div>
 
-      <div style={{ marginTop: "15px", padding: "15px", backgroundColor: "#f4f4f4", borderRadius: "8px" }}>
+      <div style={{
+        marginTop: "15px",
+        padding: "15px",
+        paddingBottom: "45px", // Extra space for the bubble below
+        backgroundColor: "#f4f4f4",
+        borderRadius: "8px",
+        position: "relative"
+      }}>
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
           Highlight Blocks with Avg AI Intensity Above:{" "}
           <span style={{ color: "#007bff" }}>{intensityThreshold.toFixed(2)}</span>
         </label>
 
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.05"
-          value={intensityThreshold}
-          onChange={(e) => setIntensityThreshold(+e.target.value)}
-          style={{ width: "80%", cursor: "pointer" }}
-        />
+        <div style={{ position: "relative", width: "100%" }}>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={intensityThreshold}
+            onChange={(e) => setIntensityThreshold(+e.target.value)}
+            style={{ width: "80%", cursor: "pointer" }}
+          />
+
+          {/* Bubble 1: Shown until 0.4 */}
+          {intensityThreshold <= 0.4 && (
+            <div style={bubbleBottomStyle(0.4)}>
+              <div style={arrowUpStyle} />
+              At 0.4, only blocks with salary ≥ $90k are highlighted
+            </div>
+          )}
+
+          {/* Bubble 2: Points at 0.8 */}
+          {intensityThreshold > 0.4 && intensityThreshold <= 0.85 && (
+            <div style={bubbleBottomStyle(0.85)}>
+              <div style={arrowUpStyle} />
+              At 0.85, no block is highlighted
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

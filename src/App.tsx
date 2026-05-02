@@ -54,7 +54,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
         <Briefcase size={18} className="inline-icon" /> Across Industries
       </>
     ),
-    description: "Analyzing how metrics have shifted over the last decade across different sectors.",
+    description: "Analyzing how metrics have shifted across different sectors.",
   },
   section3a: {
     title: (
