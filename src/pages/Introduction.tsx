@@ -361,11 +361,11 @@ function SalaryByIndustryChart({
         .range([0, height])
         .padding(0.25);
 
-      const [iMin, iMax] = d3.extent(data, (d) => d.avgIntensity);
+      // Color domain fixed to match heatmap: [0.1, 0.35, 0.6]
       // ✅ Color: green → yellow → red (matches heatmap)
       const colorScale = d3
         .scaleLinear()
-        .domain([iMin!, (iMin! + iMax!) / 2, iMax!])
+        .domain([0.1, 0.35, 0.6])
         .range(["#22c55e", "#facc15", "#ef4444"]);
 
       const svg = d3
@@ -436,10 +436,10 @@ function SalaryByIndustryChart({
 
       const legendG = svg.append("g").attr("transform", `translate(${margin.left + width + 15}, ${margin.top})`);
       const legendH = height;
-      const legendScale = d3.scaleLinear().domain([iMin!, iMax!]).range([legendH, 0]);
+      const legendScale = d3.scaleLinear().domain([0.1, 0.6]).range([legendH, 0]);
       legendG
         .selectAll("rect")
-        .data(d3.range(iMin!, iMax! + 0.01, (iMax! - iMin!) / 30))
+        .data(d3.range(0.1, 0.61, 0.01))
         .enter()
         .append("rect")
         .attr("y", (d) => legendScale(d))
@@ -556,15 +556,16 @@ function Introduction({
   const morphEnd = 2.6 * vh;
 
   // Stage 2: Salary chart
-  const salaryFadeStart = 3.0 * vh;
-  const salaryVisibleEnd = 3.5 * vh;
+  const salarySlideStart = 3.0 * vh;
+  const salarySlideEnd = 3.6 * vh;
 
   // Stage 3: Roadmap
-  const roadmapFadeStart = 4.0 * vh;
-  const roadmapLocalStart = 4.2 * vh;
+  const roadmapSlideStart = 4.2 * vh;
+  const roadmapSlideEnd = 4.8 * vh;
+  const roadmapLocalStart = 5.0 * vh;
 
   // Total container height
-  const HOLD_SEGMENTS = 5;
+  const HOLD_SEGMENTS = 7;
   const introContainerHeight = `calc(100vh + ${HOLD_SEGMENTS * 100}vh)`;
 
   useEffect(() => {
@@ -588,15 +589,15 @@ function Introduction({
       setScrollProgress(pos);
       if (onStageChange) {
         if (pos < chartAppearStart) onStageChange(0);
-        else if (pos < salaryFadeStart) onStageChange(1);
-        else if (pos < roadmapFadeStart) onStageChange(2);
+        else if (pos < salarySlideStart) onStageChange(1);
+        else if (pos < roadmapSlideStart) onStageChange(2);
         else onStageChange(3);
       }
     };
     container.addEventListener("scroll", handle);
     handle();
     return () => container.removeEventListener("scroll", handle);
-  }, [scrollParentRef, onStageChange, chartAppearStart, salaryFadeStart, roadmapFadeStart]);
+  }, [scrollParentRef, onStageChange, chartAppearStart, salarySlideStart, roadmapSlideStart]);
 
   // ── Derived values ──
   const heroOpacity = Math.max(0, 1 - scrollProgress / heroFadeEnd);
@@ -613,20 +614,35 @@ function Introduction({
         ? (scrollProgress - morphStart) / (morphEnd - morphStart)
         : 1;
 
-  const heatmapFadeOut =
-    scrollProgress < salaryFadeStart
-      ? 1
-      : Math.max(0, 1 - (scrollProgress - salaryFadeStart) / (roadmapFadeStart - salaryFadeStart));
-
-  const salaryOpacity =
-    scrollProgress < salaryFadeStart
+  // Stage 1 -> Stage 2: heatmap slides up, salary chart slides in from below
+  const heatmapSlideUp =
+    scrollProgress < salarySlideStart
       ? 0
-      : Math.min(1, (scrollProgress - salaryFadeStart) / (salaryVisibleEnd - salaryFadeStart));
-  const salaryFadeOut =
-    scrollProgress < roadmapFadeStart ? 1 : Math.max(0, 1 - (scrollProgress - roadmapFadeStart) / (0.4 * vh));
+      : Math.min(1, (scrollProgress - salarySlideStart) / (salarySlideEnd - salarySlideStart));
+  const heatmapTranslateY = heatmapSlideUp * (-1.2 * vh);
+  const heatmapSlideOpacity = scrollProgress < salarySlideStart ? 1 : Math.max(0, 1 - heatmapSlideUp * 1.5);
 
-  // Stage 3: roadmap (only after salary fades out)
-  const roadmapOpacity = 1 - salaryFadeOut;
+  const salarySlideProgress =
+    scrollProgress < salarySlideStart
+      ? 0
+      : Math.min(1, (scrollProgress - salarySlideStart) / (salarySlideEnd - salarySlideStart));
+  const salaryTranslateY = (1 - salarySlideProgress) * vh;
+  const salarySlideOpacity = salarySlideProgress;
+
+  // Stage 2 -> Stage 3: salary chart slides up, roadmap slides in from below
+  const salarySlideOut =
+    scrollProgress < roadmapSlideStart
+      ? 0
+      : Math.min(1, (scrollProgress - roadmapSlideStart) / (roadmapSlideEnd - roadmapSlideStart));
+  const salaryOutTranslateY = salarySlideOut * (-1.2 * vh);
+  const salaryOutOpacity = Math.max(0, 1 - salarySlideOut * 1.5);
+
+  const roadmapSlideProgress =
+    scrollProgress < roadmapSlideStart
+      ? 0
+      : Math.min(1, (scrollProgress - roadmapSlideStart) / (roadmapSlideEnd - roadmapSlideStart));
+  const roadmapTranslateY = (1 - roadmapSlideProgress) * vh;
+  const roadmapSlideOpacity = roadmapSlideProgress;
   const roadmapLocal = Math.max(0, scrollProgress - roadmapLocalStart);
 
   return (
@@ -642,8 +658,9 @@ function Introduction({
         <div
           className="layer layer-chart-card"
           style={{
-            opacity: chartOpacity * heatmapFadeOut,
-            pointerEvents: chartOpacity * heatmapFadeOut > 0.1 ? "auto" : "none",
+            opacity: chartOpacity * heatmapSlideOpacity,
+            transform: `translateY(${heatmapTranslateY}px)`,
+            pointerEvents: chartOpacity * heatmapSlideOpacity > 0.1 ? "auto" : "none",
           }}
         >
           <div className="charts-wrapper charts-wrapper-single">
@@ -655,12 +672,13 @@ function Introduction({
         <div
           className="layer layer-chart-card"
           style={{
-            opacity: salaryOpacity * salaryFadeOut,
-            pointerEvents: salaryOpacity * salaryFadeOut > 0.1 ? "auto" : "none",
+            opacity: salarySlideOpacity * salaryOutOpacity,
+            transform: `translateY(${salaryTranslateY + salaryOutTranslateY}px)`,
+            pointerEvents: salarySlideOpacity * salaryOutOpacity > 0.1 ? "auto" : "none",
           }}
         >
           <div className="charts-wrapper charts-wrapper-single">
-            <SalaryByIndustryChart visible={salaryOpacity > 0.05} tooltipRef={tooltipRef} />
+            <SalaryByIndustryChart visible={salarySlideOpacity > 0.05} tooltipRef={tooltipRef} />
           </div>
         </div>
 
@@ -668,8 +686,9 @@ function Introduction({
         <div
           className="layer layer-roadmap"
           style={{
-            opacity: roadmapOpacity,
-            pointerEvents: roadmapOpacity > 0.1 ? "auto" : "none",
+            opacity: roadmapSlideOpacity,
+            transform: `translateY(${roadmapTranslateY}px)`,
+            pointerEvents: roadmapSlideOpacity > 0.1 ? "auto" : "none",
           }}
         >
           <RoadmapView scrollPos={roadmapLocal} />
