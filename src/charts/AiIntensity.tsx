@@ -346,8 +346,50 @@ function AiJobCount() {
   const segmentedSvgRef = useRef(null);
   const segmentedContainerRef = useRef(null);
   const segmentedTooltipRef = useRef(null);
+  const categoryColorMap = {
+    Agriculture: "#2f855a",
+    Education: "#2c7a7b",
+    Energy: "#b7791f",
+    Finance: "#2b6cb0",
+    Government: "#4a5568",
+    Healthcare: "#c05621",
+    Manufacturing: "#285e61",
+    Retail: "#805ad5",
+    Tech: "#0f4c81",
+  };
 
   useEffect(() => {
+    const STOP_WORDS = new Set([
+      "and",
+      "or",
+      "the",
+      "of",
+      "to",
+      "for",
+      "in",
+      "on",
+      "with",
+      "by",
+      "from",
+      "at",
+      "a",
+      "an",
+      "as",
+      "amp",
+      "services",
+      "service",
+      "support",
+      "management",
+      "operations",
+      "operation",
+    ]);
+    const tokenize = (s) =>
+      (s || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter((t) => t && t.length > 2 && !STOP_WORDS.has(t));
+
     const mapRawCategoryToTarget = (s) => {
       const str = (s || "").toLowerCase();
       if (
@@ -423,14 +465,40 @@ function AiJobCount() {
         const cleanRows = jobsRaw
           .map((d) => ({
             category: mapRawCategoryToTarget(d.category),
+            rawCategory: (d.category || "").trim(),
             subcategory: (d.subcategory || "").trim(),
+            jobTitle: (d.job_title || "").trim(),
           }))
           .filter((d) => d.category && d.subcategory);
         const targetSet = new Set(TARGET_CATEGORIES);
+        const riskRows = riskRaw.map((d) => ({
+          industry: (d.Industry || "").trim(),
+          risk: +d["Automation Risk (%)"] || 0,
+          titleTokens: tokenize(d["Job Title"] || ""),
+        }));
+
+        const estimateSubcategoryRisk = (subcategory, jobTitles, mappedIndustry) => {
+          const subTokens = tokenize(subcategory);
+          const titleTokenSet = new Set(jobTitles.flatMap((t) => tokenize(t)));
+          const queryTokens = Array.from(new Set([...subTokens, ...Array.from(titleTokenSet)]));
+          const querySet = new Set(queryTokens);
+          const relevantIndustryRows = riskRows.filter((r) => r.industry === mappedIndustry);
+
+          const matches = relevantIndustryRows.filter((r) => r.titleTokens.some((token) => querySet.has(token)));
+          if (matches.length > 0) return d3.mean(matches, (m) => m.risk) || overallAvgRisk;
+
+          const broadMatches = riskRows.filter((r) => r.titleTokens.some((token) => querySet.has(token)));
+          if (broadMatches.length > 0) return d3.mean(broadMatches, (m) => m.risk) || overallAvgRisk;
+
+          return riskByIndustry[mappedIndustry] ?? overallAvgRisk;
+        };
 
         const grouped = d3.rollups(
           cleanRows.filter((d) => targetSet.has(d.category)),
-          (v) => v.length,
+          (v) => ({
+            count: v.length,
+            jobTitles: v.map((x) => x.jobTitle).filter(Boolean),
+          }),
           (d) => d.category,
           (d) => d.subcategory,
         );
@@ -438,17 +506,26 @@ function AiJobCount() {
         const panels = TARGET_CATEGORIES.map((category) => {
           const found = grouped.find((g) => g[0] === category);
           const mappedIndustry = mapTargetCategoryToRiskIndustry(category);
-          const risk = riskByIndustry[mappedIndustry] ?? overallAvgRisk;
-          const weight = isFinite(risk) ? risk / 100 : 0.5;
           const subcategories = (found?.[1] || [])
-            .map(([subcategory, count]) => ({
+            .map(([subcategory, stats]) => {
+              const subRisk = estimateSubcategoryRisk(subcategory, stats.jobTitles || [], mappedIndustry);
+              const weight = isFinite(subRisk) ? subRisk / 100 : 0.5;
+              return {
               subcategory,
-              count,
-              weightedCount: count * weight,
-            }))
+              count: stats.count,
+              risk: subRisk,
+              weightedCount: stats.count * weight,
+              };
+            })
             .sort((a, b) => d3.descending(a.weightedCount, b.weightedCount));
 
-          return { category, risk, subcategories };
+          const totalCount = d3.sum(subcategories, (d) => d.count);
+          const totalWeightedCount = d3.sum(subcategories, (d) => d.weightedCount);
+          const risk =
+            totalCount > 0
+              ? d3.sum(subcategories, (d) => d.risk * d.count) / totalCount
+              : riskByIndustry[mappedIndustry] ?? overallAvgRisk;
+          return { category, risk, subcategories, totalCount, totalWeightedCount };
         });
 
         setJobDensityData(panels);
@@ -494,20 +571,7 @@ function AiJobCount() {
     const leaves = root.leaves();
     const maxValue = d3.max(leaves, (d) => d.value || 0) || 1;
     const minValue = d3.min(leaves, (d) => d.value || 0) || 0;
-    const categoryAccent = {
-      Accounting: "#1d4ed8",
-      Engineering: "#0f766e",
-      "Information & Communication Technology": "#0369a1",
-      "Administration & Office Support": "#7c3aed",
-      Sales: "#c2410c",
-      "Manufacturing, Transport & Logistics": "#b45309",
-      "Human Resources & Recruitment": "#be185d",
-      "Marketing & Communications": "#4338ca",
-      "Banking & Financial Services": "#0e7490",
-      "Call Centre & Customer Service": "#7c2d12",
-      default: "#0f766e",
-    };
-    const accent = categoryAccent[panel.category] || categoryAccent.default;
+    const accent = categoryColorMap[panel.category] || "#0f4c81";
     const colorScale = d3
       .scaleLinear()
       .domain([minValue, maxValue])
@@ -548,9 +612,12 @@ function AiJobCount() {
       .attr("stroke-width", 1.2)
       .attr("opacity", 0.92)
       .on("mouseover", function (event, d) {
+        const beforePct = panel.totalCount > 0 ? ((d.data.count / panel.totalCount) * 100).toFixed(1) : "0.0";
+        const afterPct =
+          panel.totalWeightedCount > 0 ? (((d.value || 0) / panel.totalWeightedCount) * 100).toFixed(1) : "0.0";
         tooltip.style("opacity", 1);
         tooltip.html(
-          `<strong>${panel.category}</strong><br/>Subcategory: ${d.data.name}<br/>Jobs: ${d3.format(",")(d.data.count)}<br/>Risk-weighted: ${d3.format(",.0f")(d.value || 0)}`,
+          `<strong>${panel.category}</strong><br/>Subcategory: ${d.data.name}<br/>Before risk-weighting: ${beforePct}%<br/>After risk-weighting: ${afterPct}%`,
         );
         d3.select(this).attr("stroke", "#334155").attr("stroke-width", 1.5);
       })
@@ -674,6 +741,17 @@ function AiJobCount() {
       >
         Circle area encodes risk-weighted job count. Select one category to compare subcategory demand distribution.
       </p>
+      <p
+        style={{
+          textAlign: "center",
+          marginTop: "0px",
+          marginBottom: "10px",
+          color: "#6b7280",
+          fontSize: "11px",
+        }}
+      >
+        Risk-weighted means raw job count multiplied by the category's average automation risk (%).
+      </p>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", marginBottom: "10px" }}>
         {jobDensityData.map((d) => (
           <button
@@ -681,15 +759,15 @@ function AiJobCount() {
             type="button"
             onClick={() => setSelectedCategory(d.category)}
             style={{
-              border: "1px solid #d5deea",
-              background: selectedCategory === d.category ? "#e0efff" : "#ffffff",
-              color: selectedCategory === d.category ? "#0b3b78" : "#334155",
+              border: `1px solid ${selectedCategory === d.category ? categoryColorMap[d.category] || "#0f4c81" : "#d5deea"}`,
+              background: selectedCategory === d.category ? categoryColorMap[d.category] || "#0f4c81" : "#ffffff",
+              color: selectedCategory === d.category ? "#ffffff" : categoryColorMap[d.category] || "#334155",
               borderRadius: "999px",
               padding: "6px 12px",
               fontSize: "12px",
               cursor: "pointer",
               fontWeight: selectedCategory === d.category ? 600 : 500,
-              boxShadow: selectedCategory === d.category ? "0 1px 4px rgba(29, 78, 216, 0.12)" : "none",
+              boxShadow: selectedCategory === d.category ? "0 2px 6px rgba(15, 23, 42, 0.16)" : "none",
               letterSpacing: "0.015em",
             }}
           >
