@@ -371,32 +371,44 @@ function Task1({ scrollParentRef, onStageChange }) {
         legendTitle.textContent = "Avg Salary (USD) - 2010-2025";
         const [lo, hi] = d3.extent(ds1Vals);
         const N = DS1_PALETTE.length;
+        let previousHi: number | null = null;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
           const loV = lo + ((hi - lo) * i) / N;
           const hiV = lo + ((hi - lo) * (i + 1)) / N;
           const color = ds1Scale((loV + hiV) / 2);
-          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${Math.round(loV / 1000)}k &ndash; $${Math.round(hiV / 1000)}k</span></div>`;
+          const displayLo = i === 0 ? Math.round(loV / 1000) : Math.max((previousHi ?? 0) + 1, Math.round(loV / 1000));
+          const displayHi = Math.max(displayLo, Math.round(hiV / 1000));
+          previousHi = displayHi;
+          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${displayLo}k &ndash; $${displayHi}k</span></div>`;
         }).join("");
       } else if (frame === "ds3") {
         const mDef = DS3_METRICS.find((m) => m.key === ds3Metric);
         legendTitle.textContent = `${mDef?.label || ds3Metric} - AI Index`;
         const [lo, hi] = d3.extent(ds3Vals);
         const N = AI_PALETTE.length;
+        let previousHi: number | null = null;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
           const loV = lo + ((hi - lo) * i) / N;
           const hiV = lo + ((hi - lo) * (i + 1)) / N;
           const color = ds3Scale((loV + hiV) / 2);
-          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>${loV.toFixed(1)} &ndash; ${hiV.toFixed(1)}</span></div>`;
+          const displayLo = i === 0 ? +loV.toFixed(1) : Math.max((previousHi ?? 0) + 0.1, +loV.toFixed(1));
+          const displayHi = Math.max(displayLo, +hiV.toFixed(1));
+          previousHi = displayHi;
+          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>${displayLo.toFixed(1)} &ndash; ${displayHi.toFixed(1)}</span></div>`;
         }).join("");
       } else {
-        legendTitle.textContent = "Speculative Salary (USD) - DS1 * 1.03 * (1 - Total Score * 0.5)";
+        legendTitle.textContent = "Speculative Salary";
         const [lo, hi] = d3.extent(futureVals);
         const N = FUTURE_PALETTE.length;
+        let previousHi: number | null = null;
         binsWrap.innerHTML = Array.from({ length: N }, (_, i) => {
           const loV = lo + ((hi - lo) * i) / N;
           const hiV = lo + ((hi - lo) * (i + 1)) / N;
           const color = futureScale((loV + hiV) / 2);
-          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${Math.round(loV / 1000)}k &ndash; $${Math.round(hiV / 1000)}k</span></div>`;
+          const displayLo = i === 0 ? Math.round(loV / 1000) : Math.max((previousHi ?? 0) + 1, Math.round(loV / 1000));
+          const displayHi = Math.max(displayLo, Math.round(hiV / 1000));
+          previousHi = displayHi;
+          return `<div class="legend-bin"><span class="legend-swatch" style="background:${color}"></span><span>$${displayLo}k &ndash; $${displayHi}k</span></div>`;
         }).join("");
       }
     }
@@ -407,10 +419,10 @@ function Task1({ scrollParentRef, onStageChange }) {
     if (badgeMain) {
       badgeMain.textContent =
         frame === "ds1"
-          ? "Dataset 1: Global AI Impact (2010-2025)"
+          ? "Average Salary (2010-2025)"
           : frame === "ds3"
-            ? "Dataset 3: Global AI Index"
-            : "Speculative Forecast: DS1 + AI Index";
+            ? "Global AI Index"
+            : "Speculative Salary";
     }
     if (badgeSub) {
       badgeSub.textContent =
@@ -496,20 +508,14 @@ function Task1({ scrollParentRef, onStageChange }) {
           <div className="badge-sub">Three stages: DS1 &rarr; DS3 &rarr; speculative forecast</div>
         </div>
 
-        <div className="info-panel">
-          {frame === "ds1" && DS1_DESC}
-          {frame === "ds3" && (DS3_DESCS[ds3Metric] || null)}
-          {frame === "future" && FUTURE_DESC}
-        </div>
-
         <svg ref={svgRef} viewBox="0 0 1000 500" className="task1-map-svg" />
         <div ref={tooltipRef} className="task1-tooltip" />
 
         <div className="stage-dots">
           {[
-            ["ds1", "DS1: 2010-2025"],
-            ["ds3", "DS3: AI Index"],
-            ["future", "Speculative: DS1 + AI Index"],
+            ["ds1", "Avg Salary"],
+            ["ds3", "Global AI Index"],
+            ["future", "Speculative Salary"],
           ].map(([key, label]) => (
             <div key={key} className={`stage-dot-wrap ${frame === key ? "active" : ""}`}>
               <div className="stage-dot" />

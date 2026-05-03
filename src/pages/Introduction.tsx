@@ -651,7 +651,7 @@ function Introduction({
         {/* Stage 0 — Hero */}
         <div className="layer" style={{ opacity: heroOpacity }}>
           <span className="highlight-audience">Dear job seekers,</span>
-          <p className="pre-intro-text">AI is reshaping the job market. Are you ready?</p>
+          <p className="pre-intro-text">AI is reshaping the job market. Are you prepared?</p>
         </div>
 
         {/* Stage 1 — Bar chart → Heatmap morph */}
