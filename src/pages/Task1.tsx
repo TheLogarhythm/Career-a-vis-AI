@@ -314,6 +314,20 @@ function Task1({ scrollParentRef, onStageChange }) {
         const d = ds3Map.get(aiName);
         if (!d) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
         const mDef = DS3_METRICS.find((m) => m.key === ds3Metric);
+
+        if (ds3Metric === "Total score") {
+          return `
+          <div class="tp-title">${geoName}</div>
+          <div class="tp-subtitle">AI Index &middot; ${mDef?.label || ds3Metric}</div>
+          <div class="tp-divider"></div>
+          ${DS3_METRICS.map(
+            (metric) => `
+            <div class="tp-row"><span class="tp-label">${metric.label}</span><span class="tp-val">${d[metric.key].toFixed(1)}</span></div>
+          `,
+          ).join("")}
+        `;
+        }
+
         return `
           <div class="tp-title">${geoName}</div>
           <div class="tp-subtitle">AI Index &middot; ${mDef?.label || ds3Metric}</div>
@@ -330,16 +344,11 @@ function Task1({ scrollParentRef, onStageChange }) {
       const d3 = ds3Map.get(aiName);
       if (!d1 || !d3) return `<div class="tp-title">${geoName}</div><div class="tp-note">No data</div>`;
       const totalScore = d3["Total score"] || 0;
-      const lossRate = (totalScore / 100) * 0.5;
-      const specSalary = d1.avgSalary * 1.03 * (1 - lossRate);
+      const specSalary = d1.avgSalary * 1.03 * (1 - (totalScore / 100) * 0.5);
       return `
         <div class="tp-title">${geoName}</div>
-        <div class="tp-subtitle">Speculative Salary &middot; DS1 * 1.03 * (1 - Total Score * 0.5)</div>
         <div class="tp-divider"></div>
-        <div class="tp-row"><span class="tp-label">DS1 Avg Salary</span><span class="tp-val">$${Math.round(d1.avgSalary).toLocaleString()}</span></div>
-        <div class="tp-row"><span class="tp-label">Total Score</span><span class="tp-val">${totalScore.toFixed(1)}</span></div>
-        <div class="tp-row"><span class="tp-label">Loss Rate</span><span class="tp-val">${(lossRate * 100).toFixed(1)}%</span></div>
-        <div class="tp-row"><span class="tp-label">Spec Salary</span><span class="tp-val">$${Math.round(specSalary).toLocaleString()}</span></div>
+        <div class="tp-row"><span class="tp-label">Speculative Salary</span><span class="tp-val">$${Math.round(specSalary).toLocaleString()}</span></div>
       `;
     };
 
