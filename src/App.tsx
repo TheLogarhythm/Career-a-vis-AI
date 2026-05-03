@@ -37,8 +37,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
     description:
       "Nowadays, AI's impact on the job market is a hot topic.\n\n" +
       "AI automation risk, job openings, AI exposure, and wage are key factors in this discussion.\n\n" +
-      "We are investigating these factors in two datasets to provide an exploratory analysis of AI's impact and a guide for job seekers.\n\n" +
-      "Details of the datasets are provided with links below.",
+      "We are investigating these factors in datasets to provide an analysis of AI's impact and a guide for job seekers.\n\n" 
   },
   section1: {
     title: (
@@ -162,7 +161,7 @@ const [industries, setIndustries] = useState([]);
       displayDescription = (
         <div>
           <p>
-            AI adoption across industries has accelerated - and there are signs that AI intensity correlates with higher
+            There are signs that AI intensity correlates with higher
             salaries.
           </p>
         </div>

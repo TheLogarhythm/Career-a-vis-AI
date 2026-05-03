@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import * as d3 from "d3";
 import "./introduction.css";
 import { Globe, Briefcase, DollarSign, BarChart2 } from "lucide-react";
@@ -285,7 +285,8 @@ function AIIntensityHeatmap({
         const bump = barHeightTweak * 12 * (1 - DECADES.indexOf(d.decade) / 2);
         return base + bump;
       })
-      .style("opacity", barOpacity);
+      .style("opacity", barOpacity)
+      .style("pointer-events", barOpacity < 0.05 ? "none" : "auto");
 
     // Cells: fade in
     const cellOpacity = windowFn(0.2, 0.7);
@@ -362,7 +363,7 @@ function SalaryByIndustryChart({
         .padding(0.25);
 
       // Color domain fixed to match heatmap: [0.1, 0.35, 0.6]
-      // ✅ Color: green → yellow → red (matches heatmap)
+      // ? Color: green → yellow → red (matches heatmap)
       const colorScale = d3
         .scaleLinear()
         .domain([0.1, 0.35, 0.6])
