@@ -2,13 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { dbUrl } from "../utils/paths";
 
-
-
-
-
-
-
-
 function Task3Linechart({ scrollParentRef, selectedIndustry, comparisonIndustry, onOverlayChange }) {
   const chartRef = useRef();
   const isFirstRender = useRef(true);
@@ -18,16 +11,11 @@ function Task3Linechart({ scrollParentRef, selectedIndustry, comparisonIndustry,
   const scrollRequestRef = useRef(null);
   const lastScrollTop = useRef(0);
 
-useEffect(() => {
+  useEffect(() => {
     if (onOverlayChange) {
       onOverlayChange(overlay);
     }
   }, [overlay, onOverlayChange]);
-
-
-
-
-
 
   const margin = { top: 60, right: 220, bottom: 40, left: 75 };
   const gridW = 420;
@@ -36,33 +24,29 @@ useEffect(() => {
   const fullH = 400;
   const bottomChartY = fullH + 100;
 
-
-
-
-
-
-
-
   useEffect(() => {
     d3.csv(dbUrl("ai_impact_jobs_2010_2025.csv")).then((raw) => {
-
       const process = (ind) => {
-        const filtered = ind === "Market Average" ? raw : raw.filter(d => d.industry === ind);
-        return d3.rollups(filtered, v => {
-          // Separate AI and Non-AI groups to get specific averages
-          const aiJobs = v.filter(d => String(d.ai_mentioned).toLowerCase() === "true");
-          const nonAiJobs = v.filter(d => String(d.ai_mentioned).toLowerCase() === "false");
+        const filtered = ind === "Market Average" ? raw : raw.filter((d) => d.industry === ind);
+        return d3.rollups(
+          filtered,
+          (v) => {
+            // Separate AI and Non-AI groups to get specific averages
+            const aiJobs = v.filter((d) => String(d.ai_mentioned).toLowerCase() === "true");
+            const nonAiJobs = v.filter((d) => String(d.ai_mentioned).toLowerCase() === "false");
 
-          return {
-            ai_mentioned: (aiJobs.length / v.length) * 100,
-            salary_usd: d3.mean(v, d => +d.salary_usd),
-            // Add these two lines to separate the salary data
-            ai_salary_only: d3.mean(aiJobs, d => +d.salary_usd) || 0,
-            non_ai_salary: d3.mean(nonAiJobs, d => +d.salary_usd) || 0,
-            ai_intensity_score: d3.mean(v, d => +d.ai_intensity_score),
-            automation_risk_score: d3.mean(v, d => +d.automation_risk_score),
-          };
-        }, d => +d.posting_year);
+            return {
+              ai_mentioned: (aiJobs.length / v.length) * 100,
+              salary_usd: d3.mean(v, (d) => +d.salary_usd),
+              // Add these two lines to separate the salary data
+              ai_salary_only: d3.mean(aiJobs, (d) => +d.salary_usd) || 0,
+              non_ai_salary: d3.mean(nonAiJobs, (d) => +d.salary_usd) || 0,
+              ai_intensity_score: d3.mean(v, (d) => +d.ai_intensity_score),
+              automation_risk_score: d3.mean(v, (d) => +d.automation_risk_score),
+            };
+          },
+          (d) => +d.posting_year,
+        );
       };
 
       const mainGrouped = process(selectedIndustry);
@@ -85,61 +69,41 @@ useEffect(() => {
     });
   }, [selectedIndustry, comparisonIndustry]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!chartRef.current) return;
 
+      const rect = chartRef.current.getBoundingClientRect();
+      const triggerPoint = 20; // This should match your trigger condition
 
-useEffect(() => {
-  const handleScroll = () => {
-    if (!chartRef.current) return;
+      if (!overlay && rect.top <= triggerPoint) {
+        setOverlay(true);
+      }
+      if (overlay && rect.top > 70) {
+        setOverlay(false);
+        setScrollProgress(0); // Reset progress when going back to grid
+      }
 
-    const rect = chartRef.current.getBoundingClientRect();
-    const triggerPoint = 20; // This should match your trigger condition
+      if (overlay) {
+        const distanceScrolled = triggerPoint - rect.top;
 
-    if (!overlay && rect.top <= triggerPoint) {
-      setOverlay(true);
-    }
-    if (overlay && rect.top > 70) {
-      setOverlay(false);
-      setScrollProgress(0); // Reset progress when going back to grid
-    }
+        const currentProgress = Math.max(0, distanceScrolled) / 400;
 
-    if (overlay) {
-      const distanceScrolled = triggerPoint - rect.top;
-      
-      const currentProgress = Math.max(0, distanceScrolled) / 400; 
-      
-      setScrollProgress(Math.min(1, currentProgress));
-    }
-  };
+        setScrollProgress(Math.min(1, currentProgress));
+      }
+    };
 
-  const target = scrollParentRef?.current || window;
-  target.addEventListener("scroll", handleScroll);
-  return () => target.removeEventListener("scroll", handleScroll);
-}, [overlay, scrollParentRef]);
-
-
-
-
+    const target = scrollParentRef?.current || window;
+    target.addEventListener("scroll", handleScroll);
+    return () => target.removeEventListener("scroll", handleScroll);
+  }, [overlay, scrollParentRef]);
 
   useEffect(() => {
     if (data.length === 0) return;
 
-
-
-
-
-
-
-
     const container = d3.select(chartRef.current);
     let svg = container.select("svg");
     if (svg.empty()) svg = container.append("svg").attr("overflow", "visible");
-
-
-
-
-
-
-
 
     let tooltip = container.select(".tooltip-div");
     if (tooltip.empty()) {
@@ -156,13 +120,6 @@ useEffect(() => {
         .style("z-index", "10");
     }
 
-
-
-
-
-
-
-
     const charts = [
       { key: "ai_mentioned", title: "AI Adoption %", color: "#3498db", type: "ai" },
       { key: "ai_intensity_score", title: "AI Intensity", color: "#9b59b6", type: "ai" },
@@ -171,26 +128,12 @@ useEffect(() => {
       ...(overlay ? [{ key: "comparison", title: `Salary Trends: ${selectedIndustry}`, type: "dual" }] : []),
     ];
 
-
-
-
-
-
-
-
     const groups = svg.selectAll(".chart-group").data(charts, (d) => d.key);
     groups.exit().remove();
     const groupsEnter = groups
       .enter()
       .append("g")
       .attr("class", (d) => `chart-group group-${d.key}`);
-
-
-
-
-
-
-
 
     // Add grid group first so it stays behind lines
     groupsEnter.append("g").attr("class", "grid-lines");
@@ -211,8 +154,6 @@ useEffect(() => {
       .style("text-anchor", "middle");
     groupsEnter.append("text").attr("class", "chart-label").style("font-weight", "bold");
 
-
-
     const yLabels = {
       ai_mentioned: "AI Adoption Rate (%)",
       ai_intensity_score: "AI Intensity Score",
@@ -220,10 +161,6 @@ useEffect(() => {
       automation_risk_score: "Automation Risk Score",
       comparison: "Salary (USD)",
     };
-
-
-
-
 
     const allGroups = groupsEnter.merge(groups);
     const t = d3
@@ -233,24 +170,10 @@ useEffect(() => {
     const width = overlay ? fullW - margin.left - margin.right : gridW - margin.left - 20;
     const height = overlay ? fullH - margin.top - margin.bottom : gridH - margin.top - margin.bottom;
 
-
-
-
-
-
-
-
     svg
       .transition(t)
       .attr("width", fullW)
       .attr("height", overlay ? fullH * 2 + 300 : gridH * 2 + 100);
-
-
-
-
-
-
-
 
     allGroups.each(function (chart, i) {
       const g = d3.select(this);
@@ -260,7 +183,8 @@ useEffect(() => {
       const isMove = overlay && chart.type === "ai_salary";
 
       // Define once at the top of your drawing useEffect
-      const lineGenMain = d3.line()
+      const lineGenMain = d3
+        .line()
         .x((d) => x(d.posting_year))
         .y((d) => {
           // Determine the value based on chart type
@@ -279,7 +203,6 @@ useEffect(() => {
         })
         .curve(d3.curveMonotoneX);
 
-
       let targetX, targetY;
       if (overlay) {
         targetX = margin.left;
@@ -296,74 +219,33 @@ useEffect(() => {
       }
       g.transition(t).attr("transform", `translate(${targetX}, ${targetY})`);
 
-
-
-
-
-
-
-
       const x = d3
         .scaleLinear()
         .domain(d3.extent(data, (d) => d.posting_year))
         .range([0, width]);
       const isSalary = chart.key.includes("salary") || isDual || isMove;
 
-
-
-
-
-
-
       let y;
       // Ensure "dual" chart uses the salary scale, not the 0-100 scale
       if (isSalary || chart.type === "dual") {
         y = d3.scaleLinear().domain([0, 100000]).range([height, 0]);
       } else {
-        const domainMax = overlay ? 100 : (d3.max(data, (d) => d[chart.key]) > 1.1 ? 100 : 1);
+        const domainMax = overlay ? 100 : d3.max(data, (d) => d[chart.key]) > 1.1 ? 100 : 1;
         y = d3.scaleLinear().domain([0, domainMax]).range([height, 0]);
       }
-
-
-
-
-
-
-
 
       // --- ADD GRID LINES ---
       const grid = g.select(".grid-lines");
       // Hide grid when AI metrics are stacked in overlay
       const showGrid = !(overlay && (chart.type === "ai" || chart.type === "ai_salary"));
 
-
-
-
-
-
-
-
       grid
         .transition(t)
         .style("opacity", showGrid ? 1 : 0)
         .call(d3.axisLeft(y).ticks(5).tickSize(-width).tickFormat(""));
 
-
-
-
-
-
-
-
       grid.selectAll("line").attr("stroke", "#f0f0f0").attr("stroke-dasharray", "2,2");
       grid.select(".domain").remove();
-
-
-
-
-
-
-
 
       g.select(".chart-label")
         .transition(t)
@@ -372,13 +254,6 @@ useEffect(() => {
         .attr("fill", isDual ? "#333" : chart.color)
         .attr("text-anchor", overlay && !isDual ? "start" : "middle")
         .text(chart.title);
-
-
-
-
-
-
-
 
       // Legend Logic
       let legend = g.select(".legend-container");
@@ -397,12 +272,7 @@ useEffect(() => {
           .attr("class", "legend-item")
           .attr("transform", (d, idx) => `translate(0, ${idx * 50})`);
         itemEnter.append("line").attr("x1", 0).attr("x2", 20).attr("stroke-width", 3);
-        itemEnter
-          .append("text")
-          .attr("x", 25)
-          .attr("y", 5)
-          .style("font-size", "11px")
-          .style("font-family", "sans-serif");
+        itemEnter.append("text").attr("x", 25).attr("y", 5).style("font-size", "11px");
         const itemMerge = itemEnter.merge(itemJoin);
         itemMerge
           .select("line")
@@ -413,38 +283,19 @@ useEffect(() => {
         g.select(".legend-container").remove();
       }
 
-
-
-
-
-
-
-      const lineGenComp = d3.line()
-        .x(d => x(d.posting_year))
-        .y(d => y(d[`comp_${chart.key}`]))
-        .defined(d => d[`comp_${chart.key}`] !== null)
+      const lineGenComp = d3
+        .line()
+        .x((d) => x(d.posting_year))
+        .y((d) => y(d[`comp_${chart.key}`]))
+        .defined((d) => d[`comp_${chart.key}`] !== null)
         .curve(d3.curveMonotoneX);
-
-
-
-
-
-
-
 
       const lineGenSec = d3
         .line()
         .x((d) => x(d.posting_year))
         .y((d) => y(d.non_ai_salary))
-        .defined(d => d.non_ai_salary > 0)
+        .defined((d) => d.non_ai_salary > 0)
         .curve(d3.curveMonotoneX);
-
-
-
-
-
-
-
 
       // Render Main Line [cite: 363-366]
       g.select(".line-main")
@@ -454,7 +305,8 @@ useEffect(() => {
       const lineSec = g.selectAll(".line-non-ai").data(isDual ? [data] : []);
       lineSec.exit().remove();
 
-      lineSec.enter()
+      lineSec
+        .enter()
         .append("path")
         .attr("class", "line-non-ai")
         .attr("fill", "none")
@@ -464,7 +316,6 @@ useEffect(() => {
         .transition(t)
         .attr("stroke", "#FF6B6B") // Non-AI color from your legend [cite: 466]
         .attr("d", isDual ? lineGenSec(data) : null);
-
 
       const showComp = !overlay && comparisonIndustry !== "None";
       g.select(".line-secondary")
@@ -479,46 +330,16 @@ useEffect(() => {
         .attr("fill", isDual ? "#9b59b6" : chart.color); // Matches the line color
 
       // Update Secondary Dot Color (Non-AI Jobs)
-      g.selectAll(".dot-sec")
-        .transition(t)
-        .attr("fill", "#FF6B6B"); // Set to Red for Non-AI comparison
-
-
-
-
-
-
-
+      g.selectAll(".dot-sec").transition(t).attr("fill", "#FF6B6B"); // Set to Red for Non-AI comparison
 
       g.select(".x-axis")
         .attr("transform", `translate(0, ${height})`)
         .transition(t)
         .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")));
 
-
-
-
-
-
-
-
       const isPrimaryAiChart = overlay && chart.key === "ai_mentioned";
 
-
-
-
-
-
-
-
       const yAxisOpacity = overlay && !isPrimaryAiChart && chart.type !== "dual" ? 0 : 1;
-
-
-
-
-
-
-
 
       g.select(".y-axis")
         .transition(t)
@@ -533,26 +354,12 @@ useEffect(() => {
             }),
         );
 
-
-
-
-
-
-
-
       // Update y-axis label
       g.select(".y-axis-label")
         .text(yLabels[chart.key] || "")
         .attr("x", -height / 2)
         .attr("y", -margin.left + 12)
         .style("opacity", yAxisOpacity);
-
-
-
-
-
-
-
 
       // Dots
       const dotsMain = g.selectAll(".dot-main").data(data);
@@ -573,38 +380,28 @@ useEffect(() => {
             rawVal = rawVal * 100;
           }
 
-          tooltip
-            .style("opacity", 1)
-            .html(`
+          tooltip.style("opacity", 1).html(`
         <strong>${d.posting_year}</strong><br/>
         ${chart.title}: ${isSalary ? d3.format("$,.0f")(rawVal) : d3.format(".2f")(rawVal)}
       `);
         }) // This parenthesis closes .on("mouseover")
         .on("mousemove", (e) => {
-          tooltip
-            .style("left", e.clientX + 15 + "px")
-            .style("top", e.clientY - 40 + "px");
+          tooltip.style("left", e.clientX + 15 + "px").style("top", e.clientY - 40 + "px");
         }) // This parenthesis closes .on("mousemove")
         .on("mouseout", () => {
           tooltip.style("opacity", 0);
         })
         .transition(t)
-  .attr("cx", (d) => x(d.posting_year))
-  .attr("cy", (d) => {
-    let val = isDual ? d.ai_salary_only : d[chart.key];
-    if (overlay && chart.type === "ai" && val <= 1.1) {
-      val = val * 100;
-    }
-    return y(val);
-  })
-  // CHANGE THIS LINE:
-  .attr("fill", isDual ? "#bb1dd3" : chart.color);
-
-
-
-
-
-
+        .attr("cx", (d) => x(d.posting_year))
+        .attr("cy", (d) => {
+          let val = isDual ? d.ai_salary_only : d[chart.key];
+          if (overlay && chart.type === "ai" && val <= 1.1) {
+            val = val * 100;
+          }
+          return y(val);
+        })
+        // CHANGE THIS LINE:
+        .attr("fill", isDual ? "#bb1dd3" : chart.color);
 
       const dotsSec = g.selectAll(".dot-sec").data(isDual ? data : []);
       dotsSec.exit().remove();
@@ -627,86 +424,37 @@ useEffect(() => {
         .attr("cy", (d) => y(d.non_ai_salary));
     });
 
-
-
-
-
-
-
-
     isFirstRender.current = false;
   }, [data, overlay, scrollProgress, selectedIndustry]);
 
-
-
-
-
-
-
-
-return (
-  <div style={{ 
-    // This provides the "track" for scrolling. 
-    // When overlay is true, we make it tall so there is room to scroll.
-    height: overlay ? "200vh" : "auto", 
-    position: "relative",
-    marginTop: "40px" 
-  }}>
+  return (
     <div
-      ref={chartRef}
       style={{
-        // Pins the chart to the top while scrolling through the 200vh track
-        position: overlay ? "sticky" : "relative",
-        top: overlay ? "50px" : "0px",
-        background: "white",
-        padding: "40px",
-        borderRadius: "16px",
-        boxShadow: overlay ? "0 10px 30px rgba(0,0,0,0.1)" : "none",
-        zIndex: 5,
-        margin: "0 auto",
-        width: "fit-content",
-        transition: "box-shadow 0.3s ease"
+        // This provides the "track" for scrolling.
+        // When overlay is true, we make it tall so there is room to scroll.
+        height: overlay ? "200vh" : "auto",
+        position: "relative",
+        marginTop: "40px",
       }}
-    />
-  </div>
-);
-
-
+    >
+      <div
+        ref={chartRef}
+        style={{
+          // Pins the chart to the top while scrolling through the 200vh track
+          position: overlay ? "sticky" : "relative",
+          top: overlay ? "50px" : "0px",
+          background: "white",
+          padding: "40px",
+          borderRadius: "16px",
+          boxShadow: overlay ? "0 10px 30px rgba(0,0,0,0.1)" : "none",
+          zIndex: 5,
+          margin: "0 auto",
+          width: "fit-content",
+          transition: "box-shadow 0.3s ease",
+        }}
+      />
+    </div>
+  );
 }
 
-
-
-
-
-
-
-
 export default Task3Linechart;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

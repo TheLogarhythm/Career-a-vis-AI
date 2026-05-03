@@ -6,7 +6,7 @@ import { dbUrl } from "../utils/paths";
 function LinechartSection({ scrollParentRef, selectedIndustry }) {
   const [industryData, setIndustryData] = useState([]);
   const [selectedIndustryLine, setSelectedIndustryLine] = useState("Market Average");
-const [isOverlayActive, setIsOverlayActive] = useState(false);
+  const [isOverlayActive, setIsOverlayActive] = useState(false);
   // State for the secondary comparison industry
   const [comparisonIndustry, setComparisonIndustry] = useState("None");
 
@@ -33,7 +33,7 @@ const [isOverlayActive, setIsOverlayActive] = useState(false);
             displacement_risk: d3.mean(v, (d) => riskMap[d.ai_job_displacement_risk] || 0),
             skill_complexity: d3.mean(v, (d) => (d.ai_skills ? d.ai_skills.split(",").length : 0)),
           }),
-          (d) => d[dimension]
+          (d) => d[dimension],
         );
 
         const stats = rolled
@@ -60,9 +60,7 @@ const [isOverlayActive, setIsOverlayActive] = useState(false);
   }, []);
 
   const industryColorScale = useMemo(() => {
-    const names = industryData
-      .filter((d) => d.industry !== "Market Average")
-      .map((d) => d.industry);
+    const names = industryData.filter((d) => d.industry !== "Market Average").map((d) => d.industry);
     return d3.scaleOrdinal().domain(names).range(d3.schemeTableau10);
   }, [industryData]);
 
@@ -79,57 +77,65 @@ const [isOverlayActive, setIsOverlayActive] = useState(false);
   });
 
   return (
-    <div style={{ background: "#f8fafc", fontFamily: "sans-serif" }}>
+    <div style={{ background: "#f8fafc" }}>
       <div style={{ background: "white", padding: "40px", position: "relative", zIndex: 20 }}>
-        <h3 style={{ textAlign: "center", color: "#1e293b", marginBottom: "20px" }}>
-          Trend Analysis
-        </h3>
-
-
+        <h3 style={{ textAlign: "center", color: "#1e293b", marginBottom: "20px" }}>Trend Analysis</h3>
 
         {/* Comparison Industry Selection List */}
-  { !isOverlayActive &&(     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginBottom: "30px", maxWidth: "900px", margin: "10px auto 30px" }}>
-          <span style={{ fontSize: "12px", width: "100%", textAlign: "center", marginBottom: "5px", color: "#64748b" }}>
-            Compare With:
-          </span>
-          <button
-            style={btnStyle(comparisonIndustry === "None", "#94a3b8")}
-            onClick={() => setComparisonIndustry("None")}
+        {!isOverlayActive && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              marginBottom: "30px",
+              maxWidth: "900px",
+              margin: "10px auto 30px",
+            }}
           >
-            None
-          </button>
-          {industryData.map((d) => {
-            const isActive = comparisonIndustry === d.industry;
+            <span
+              style={{ fontSize: "12px", width: "100%", textAlign: "center", marginBottom: "5px", color: "#64748b" }}
+            >
+              Compare With:
+            </span>
+            <button
+              style={btnStyle(comparisonIndustry === "None", "#94a3b8")}
+              onClick={() => setComparisonIndustry("None")}
+            >
+              None
+            </button>
+            {industryData.map((d) => {
+              const isActive = comparisonIndustry === d.industry;
 
-            const activeBlue = "#3498db";
+              const activeBlue = "#3498db";
 
-            return (
-              <button
-                key={`compare-btn-${d.industry}`}
-                onClick={() => setComparisonIndustry(d.industry)}
-                style={{
-                  padding: "6px 12px",
-                  fontSize: "11px",
-                  borderRadius: "16px",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  margin: "3px",
+              return (
+                <button
+                  key={`compare-btn-${d.industry}`}
+                  onClick={() => setComparisonIndustry(d.industry)}
+                  style={{
+                    padding: "6px 12px",
+                    fontSize: "11px",
+                    borderRadius: "16px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    margin: "3px",
 
-                  background: "white",
+                    background: "white",
 
-                  border: isActive ? `2px solid ${activeBlue}` : "2px solid #e2e8f0",
-                  color: isActive ? activeBlue : "#64748b",
+                    border: isActive ? `2px solid ${activeBlue}` : "2px solid #e2e8f0",
+                    color: isActive ? activeBlue : "#64748b",
 
-                  fontWeight: isActive ? "600" : "400",
-                  outline: "none"
-                }}
-              >
-                {d.industry}
-              </button>
-            );
-          })}
-        </div>)
-}
+                    fontWeight: isActive ? "600" : "400",
+                    outline: "none",
+                  }}
+                >
+                  {d.industry}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <Task3Linechart
           scrollParentRef={scrollParentRef}
           selectedIndustry={selectedIndustry}

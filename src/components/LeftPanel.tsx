@@ -37,7 +37,7 @@ export default function LeftPanel({
   setSelectedIndustry,
   comparisonIndustry,
   setComparisonIndustry,
-  activeTask
+  activeTask,
 }: LeftPanelProps) {
   return (
     <div className="left-container">
@@ -45,12 +45,9 @@ export default function LeftPanel({
         <span className="badge">Current Stage</span>
         <h2>{currentDetail.title}</h2>
 
-
         {activeTask === "section2" && (
           <div className="industry-selector" style={{ marginTop: "20px" }}>
-            <h4 style={{ fontSize: "12px", color: "#64748b", marginBottom: "10px" }}>
-              Select Industry
-            </h4>
+            <h4 style={{ fontSize: "12px", color: "#64748b", marginBottom: "10px" }}>Select Industry</h4>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
               {/* Prepend Market Average manually to the list */}
               {["Market Average", ...industries].map((ind) => {
@@ -72,7 +69,7 @@ export default function LeftPanel({
                       border: isSelected ? `2px solid ${activeBlue}` : "2px solid #e2e8f0",
                       color: isSelected ? activeBlue : "#64748b",
                       fontWeight: isSelected ? "600" : "400",
-                      outline: "none"
+                      outline: "none",
                     }}
                   >
                     {ind}
@@ -82,7 +79,6 @@ export default function LeftPanel({
             </div>
           </div>
         )}
-
 
         <div
           className={`description ${descriptionVisible ? "fade-in" : "fade-out"}`}

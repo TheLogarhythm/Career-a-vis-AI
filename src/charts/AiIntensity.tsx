@@ -25,46 +25,39 @@ function AiHeatmap({ selectedIndustry }) {
       .catch((error) => console.error(error));
   }, []);
 
+  const bubbleBottomStyle = (targetValue) => {
+    const positionPercent = targetValue * 80;
 
- 
-  
+    return {
+      position: "absolute",
+      top: "35px",
 
-const bubbleBottomStyle = (targetValue) => {
-  const positionPercent = targetValue * 80; 
-  
-  return {
-    position: "absolute",
-    top: "35px",
-  
-    left: `calc(${positionPercent}% + 94px)`, 
-    transform: "translateX(-50%)",
-    backgroundColor: "#007bff",
-    color: "#fff",
-    padding: "6px 12px",
-    borderRadius: "6px",
-    fontSize: "12px",
-    whiteSpace: "nowrap",
-    pointerEvents: "none",
-    zIndex: 10,
-    boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
-    transition: "all 0.3s ease" // Smooth appearance
+      left: `calc(${positionPercent}% + 94px)`,
+      transform: "translateX(-50%)",
+      backgroundColor: "#007bff",
+      color: "#fff",
+      padding: "6px 12px",
+      borderRadius: "6px",
+      fontSize: "12px",
+      whiteSpace: "nowrap",
+      pointerEvents: "none",
+      zIndex: 10,
+      boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
+      transition: "all 0.3s ease", // Smooth appearance
+    };
   };
-};
 
-const arrowUpStyle = {
-  position: "absolute",
-  top: "-6px",
-  left: "50%",
-  transform: "translateX(-50%)",
-  width: "0",
-  height: "0",
-  borderLeft: "6px solid transparent",
-  borderRight: "6px solid transparent",
-  borderBottom: "6px solid #007bff"
-};
-
-
-
+  const arrowUpStyle = {
+    position: "absolute",
+    top: "-6px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "0",
+    height: "0",
+    borderLeft: "6px solid transparent",
+    borderRight: "6px solid transparent",
+    borderBottom: "6px solid #007bff",
+  };
 
   useEffect(() => {
     if (data.length === 0) return;
@@ -223,20 +216,17 @@ const arrowUpStyle = {
       .style("opacity", (d) => {
         const passesIntensity = d.avgIntensity >= intensityThreshold;
 
-
-        const isSelected = !selectedIndustry ||
-          selectedIndustry === "Market Average" ||
-          selectedIndustry === d.industry;
+        const isSelected =
+          !selectedIndustry || selectedIndustry === "Market Average" || selectedIndustry === d.industry;
 
         if (!passesIntensity) return 0;
 
         if (!isSelected) return 0.1;
 
         return 1;
-      })
+      });
     // .style("stroke", (d) => (selectedIndustry === d.industry ? "#2d3c4f" : "#fff"))
     // .style("stroke-width", (d) => (selectedIndustry === d.industry ? "1.5px" : "0.5px"));
-
   }, [intensityThreshold, data, selectedIndustry]);
 
   return (
@@ -247,7 +237,6 @@ const arrowUpStyle = {
         maxWidth: "980px",
         margin: "0 auto",
         textAlign: "center",
-        fontFamily: "sans-serif",
       }}
     >
       <h2>Job Density: Industry vs. Salary Brackets</h2>
@@ -271,14 +260,16 @@ const arrowUpStyle = {
         }}
       ></div>
 
-      <div style={{
-        marginTop: "15px",
-        padding: "15px",
-        paddingBottom: "45px", // Extra space for the bubble below
-        backgroundColor: "#f4f4f4",
-        borderRadius: "8px",
-        position: "relative"
-      }}>
+      <div
+        style={{
+          marginTop: "15px",
+          padding: "15px",
+          paddingBottom: "45px", // Extra space for the bubble below
+          backgroundColor: "#f4f4f4",
+          borderRadius: "8px",
+          position: "relative",
+        }}
+      >
         <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>
           Highlight Blocks with Avg AI Intensity Above:{" "}
           <span style={{ color: "#007bff" }}>{intensityThreshold.toFixed(2)}</span>
@@ -318,8 +309,6 @@ const arrowUpStyle = {
 
 // ─── Part 2: Job Count by Category ──────────────────────────
 function AiJobCount() {
-  const headlineFont = "'Avenir Next', 'Segoe UI', 'Helvetica Neue', 'Inter', sans-serif";
-  const labelFont = "'Avenir Next', 'Segoe UI', 'Helvetica Neue', sans-serif";
   const TARGET_CATEGORIES = [
     "Agriculture",
     "Education",
@@ -486,11 +475,11 @@ function AiJobCount() {
     const maxValue = d3.max(leaves, (d) => d.value || 0) || 1;
     const minValue = d3.min(leaves, (d) => d.value || 0) || 0;
     const categoryAccent = {
-      "Accounting": "#1d4ed8",
-      "Engineering": "#0f766e",
+      Accounting: "#1d4ed8",
+      Engineering: "#0f766e",
       "Information & Communication Technology": "#0369a1",
       "Administration & Office Support": "#7c3aed",
-      "Sales": "#c2410c",
+      Sales: "#c2410c",
       "Manufacturing, Transport & Logistics": "#b45309",
       "Human Resources & Recruitment": "#be185d",
       "Marketing & Communications": "#4338ca",
@@ -510,7 +499,9 @@ function AiJobCount() {
     svg.selectAll("*").remove();
     svg.attr("width", segmentedWidth).attr("height", segmentedHeight);
 
-    const mainGroup = svg.append("g").attr("transform", `translate(${centerX - circleAreaSize / 2},${centerY - circleAreaSize / 2})`);
+    const mainGroup = svg
+      .append("g")
+      .attr("transform", `translate(${centerX - circleAreaSize / 2},${centerY - circleAreaSize / 2})`);
 
     mainGroup
       .append("circle")
@@ -646,7 +637,6 @@ function AiJobCount() {
         style={{
           textAlign: "center",
           marginBottom: "6px",
-          fontFamily: headlineFont,
           letterSpacing: "0.01em",
           color: "#1f2937",
         }}
@@ -659,7 +649,6 @@ function AiJobCount() {
           marginTop: 0,
           color: "#4b5563",
           fontSize: "12px",
-          fontFamily: labelFont,
           letterSpacing: "0.02em",
         }}
       >
@@ -681,7 +670,6 @@ function AiJobCount() {
               cursor: "pointer",
               fontWeight: selectedCategory === d.category ? 600 : 500,
               boxShadow: selectedCategory === d.category ? "0 1px 4px rgba(29, 78, 216, 0.12)" : "none",
-              fontFamily: labelFont,
               letterSpacing: "0.015em",
             }}
           >
@@ -697,7 +685,6 @@ function AiJobCount() {
             color: "#334155",
             fontSize: "12px",
             fontWeight: 600,
-            fontFamily: headlineFont,
             letterSpacing: "0.03em",
             textTransform: "uppercase",
           }}
@@ -720,7 +707,6 @@ function AiJobCount() {
           borderRadius: "8px",
           pointerEvents: "none",
           fontSize: "12px",
-          fontFamily: labelFont,
           textAlign: "left",
           boxShadow: "0px 8px 20px rgba(15,23,42,0.10)",
           zIndex: 10,

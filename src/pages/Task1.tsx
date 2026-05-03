@@ -418,23 +418,62 @@ function Task1({ scrollParentRef, onStageChange }) {
     const badgeSub = fixedRef.current?.querySelector(".badge-sub");
     if (badgeMain) {
       badgeMain.textContent =
-        frame === "ds1"
-          ? "Average Salary (2010-2025)"
-          : frame === "ds3"
-            ? "Global AI Index"
-            : "Speculative Salary";
+        frame === "ds1" ? "Average Salary (2010-2025)" : frame === "ds3" ? "Global AI Index" : "Speculative Salary";
     }
     if (badgeSub) {
       badgeSub.textContent =
         frame === "ds1"
-          ? "Colored by Country - Avg salary per country"
+          ? "Avg salary for jobs in country"
           : frame === "ds3"
-            ? "Colored by Country - Select metric to explore"
-            : "Colored by Country - DS1 * 1.03 * (1 - Total Score * 0.5)";
+            ? "Select metric to explore"
+            : "Calculated based on Avg Salary and AI Index Total Score";
     }
   }, [geoData, ds1Map, ds3Map, ds3Metric, stageIndex]);
 
   const frame = stageIndex === 0 ? "ds1" : stageIndex === 1 ? "ds3" : "future";
+
+  const leaderboardEntries = (() => {
+    if (!geoData || !ds1Map || !ds3Map) return [];
+
+    const items: Array<{ name: string; value: number }> = [];
+
+    geoData.forEach((feature) => {
+      const geoName = feature.properties.name;
+      const ds1Name = GEO_TO_DS1[geoName];
+      const aiName = GEO_TO_AI[geoName];
+      if (!ds1Name || !aiName) return;
+
+      const d1 = ds1Map.get(ds1Name);
+      const d3 = ds3Map.get(aiName);
+      if (!d1 || !d3) return;
+
+      const totalScore = d3["Total score"] || 0;
+      const speculativeSalary = d1.avgSalary * 1.03 * (1 - (totalScore / 100) * 0.5);
+
+      const value = frame === "ds1" ? d1.avgSalary : frame === "ds3" ? d3[ds3Metric] || 0 : speculativeSalary;
+
+      if (value > 0) {
+        items.push({ name: geoName, value });
+      }
+    });
+
+    return items.sort((a, b) => b.value - a.value).slice(0, 10);
+  })();
+
+  const leaderboardMax = Math.max(1, ...leaderboardEntries.map((item) => item.value));
+  const leaderboardTitle =
+    frame === "ds1"
+      ? "Top 10 countries by avg salary"
+      : frame === "ds3"
+        ? `Top 10 countries by ${DS3_METRICS.find((metric) => metric.key === ds3Metric)?.label || ds3Metric}`
+        : "Top 10 countries by speculative salary";
+  const leaderboardSubtitle =
+    frame === "ds1"
+      ? "Ranked by DS1 average salary"
+      : frame === "ds3"
+        ? "Ranked by the selected AI Index metric"
+        : "Ranked by the speculative salary formula";
+  const leaderboardAccent = frame === "ds1" ? "#548943" : frame === "ds3" ? "#2171b5" : "#c86f2a";
 
   // ── Info panel descriptions ────────────────────────────────────────────
   const DS1_DESC = (
@@ -446,8 +485,11 @@ function Task1({ scrollParentRef, onStageChange }) {
 
   const FUTURE_DESC = (
     <>
-      Speculative salary map based on DS1 averages and the AI Index Total Score. Formula:{" "}
-      <strong className="hl">DS1 * 1.03 * (1 - Total Score * 0.5)</strong>.
+      Speculative salary map based on Average Salary and the AI Index Total Score. Formula:{" "}
+      <strong className="hl">
+        Avg Salary * (1 + Inflation (3%)) * (1 - AI Score * Probability of Replacement (50%))
+      </strong>
+      .
     </>
   );
 
@@ -508,8 +550,49 @@ function Task1({ scrollParentRef, onStageChange }) {
           <div className="badge-sub">Three stages: DS1 &rarr; DS3 &rarr; speculative forecast</div>
         </div>
 
-        <svg ref={svgRef} viewBox="0 0 1000 500" className="task1-map-svg" />
-        <div ref={tooltipRef} className="task1-tooltip" />
+        <div className="task1-stage-layout">
+          <div className="task1-map-shell">
+            <svg ref={svgRef} viewBox="0 0 1000 500" className="task1-map-svg" />
+            <div ref={tooltipRef} className="task1-tooltip" />
+          </div>
+
+          <aside className="task1-sidebar">
+            <section className="leaderboard-card">
+              <div className="leaderboard-chart">
+                {leaderboardEntries.length ? (
+                  leaderboardEntries.map((item, index) => {
+                    const width = (item.value / leaderboardMax) * 100;
+                    const displayValue =
+                      frame === "ds3" ? item.value.toFixed(1) : `$${Math.round(item.value).toLocaleString()}`;
+
+                    return (
+                      <div key={`${item.name}-${index}`} className="leaderboard-row">
+                        <div className="leaderboard-row-top">
+                          <div className="leaderboard-rank">{index + 1}</div>
+                          <div className="leaderboard-country">{item.name}</div>
+                          <div className="leaderboard-value">{displayValue}</div>
+                        </div>
+                        <div className="leaderboard-bar-track">
+                          <div
+                            className="leaderboard-bar-fill"
+                            style={{ width: `${width}%`, backgroundColor: leaderboardAccent }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="leaderboard-empty">Waiting for data...</div>
+                )}
+              </div>
+            </section>
+
+            <div className="legend-container">
+              <div className="legend-title"></div>
+              <div className="legend-bins-wrap" />
+            </div>
+          </aside>
+        </div>
 
         <div className="stage-dots">
           {[
@@ -534,11 +617,6 @@ function Task1({ scrollParentRef, onStageChange }) {
               {m.label}
             </button>
           ))}
-        </div>
-
-        <div className="legend-container">
-          <div className="legend-title"></div>
-          <div className="legend-bins-wrap" />
         </div>
       </div>
     </div>

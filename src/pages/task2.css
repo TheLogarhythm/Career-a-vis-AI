@@ -4,11 +4,6 @@
   background: linear-gradient(160deg, #0f172a 0%, #1e293b 40%, #334155 100%);
   display: flex;
   flex-direction: column;
-  font-family:
-    "Inter",
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
   color: #e2e8f0;
   overflow: hidden;
   position: relative;
@@ -436,7 +431,6 @@
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: "Courier New", monospace;
 }
 
 .year-type-btn:hover {
@@ -853,7 +847,6 @@
 .tick-year {
   font-size: 10px;
   color: #64748b;
-  font-family: "Courier New", monospace;
   transition: all 0.2s;
 }
 
@@ -908,7 +901,6 @@
   border-radius: 4px;
   font-size: 10px;
   font-weight: 600;
-  font-family: "Courier New", monospace;
   white-space: nowrap;
 }
 

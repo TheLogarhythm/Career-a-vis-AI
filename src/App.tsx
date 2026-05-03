@@ -37,7 +37,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
     description:
       "Nowadays, AI's impact on the job market is a hot topic.\n\n" +
       "AI automation risk, job openings, AI exposure, and wage are key factors in this discussion.\n\n" +
-      "We are investigating these factors in datasets to provide an analysis of AI's impact and a guide for job seekers.\n\n" 
+      "We are investigating these factors in datasets to provide an analysis of AI's impact and a guide for job seekers.\n\n",
   },
   section1: {
     title: (
@@ -106,11 +106,11 @@ function App() {
   const [introStage, setIntroStage] = useState(0);
   const [task1Stage, setTask1Stage] = useState(0);
   const [weights, setWeights] = useState<Record<string, number>>({ ...METRIC_DEFAULTS });
-const [industries, setIndustries] = useState([]);
+  const [industries, setIndustries] = useState([]);
   const [selectedIndustry, setSelectedIndustry] = useState("Market Average");
   const [comparisonIndustry, setComparisonIndustry] = useState("None");
   const [intensityThreshold, setIntensityThreshold] = useState(0.5);
-  
+
   useEffect(() => {
     d3.csv(dbUrl("ai_impact_jobs_2010_2025.csv")).then((raw) => {
       const uniqueIndustries = Array.from(new Set(raw.map((d) => d.industry)));
@@ -160,10 +160,7 @@ const [industries, setIndustries] = useState([]);
     } else if (introStage === 2) {
       displayDescription = (
         <div>
-          <p>
-            There are signs that AI intensity correlates with higher
-            salaries.
-          </p>
+          <p>There are signs that AI intensity correlates with higher salaries.</p>
         </div>
       );
     } else if (introStage >= 3) {
@@ -178,7 +175,7 @@ const [industries, setIndustries] = useState([]);
       displayDescription = (
         <div>
           <p>
-            <b>2010-2025 Historical Phase (DS1)</b>
+            <b>2010-2025 Historical Phase</b>
           </p>
           <p style={{ marginTop: "6px" }}>
             Salary distribution varies across countries in the historical dataset. Use this to spot strong markets by
@@ -193,7 +190,7 @@ const [industries, setIndustries] = useState([]);
       displayDescription = (
         <div>
           <p>
-            <b>Current AI Index Level (DS3)</b>
+            <b>Current AI Index Level</b>
           </p>
           <p style={{ marginTop: "6px" }}>
             See how the AI index varies across different countries and explore metrics like Talent or Research.
@@ -210,9 +207,11 @@ const [industries, setIndustries] = useState([]);
             <b>Speculative Future Salary</b>
           </p>
           <p style={{ marginTop: "6px" }}>
-            Uses DS1 average salary and adjusts by AI Index Total Score to estimate a future salary level.
+            Speculative salary map based on Average Salary and the AI Index Total Score.
           </p>
-          <p style={{ marginTop: "6px" }}>Formula: DS1 * 1.03 * (1 - Total Score * 0.5).</p>
+          <p style={{ marginTop: "6px" }}>
+            Formula: Avg Salary * (1 + Inflation (3%)) * (1 - AI Score * Probability of Replacement (50%))
+          </p>
           <p style={{ marginTop: "6px", fontStyle: "italic", color: "#64748b", fontSize: "12px" }}>
             Hover a country to see the speculative calculation.
           </p>
@@ -262,7 +261,6 @@ const [industries, setIndustries] = useState([]);
         setComparisonIndustry={setComparisonIndustry}
         activeTask={activeTask}
         industries={industries}
-
       />
 
       <div className="right-container" ref={rightContainerRef}>
@@ -289,10 +287,7 @@ const [industries, setIndustries] = useState([]);
         />
 
         <TaskSection task="section2">
-          <LinechartSection 
-            scrollParentRef={rightContainerRef} 
-            selectedIndustry={selectedIndustry}
-          />
+          <LinechartSection scrollParentRef={rightContainerRef} selectedIndustry={selectedIndustry} />
         </TaskSection>
 
         <TaskSection task="section2">
@@ -316,8 +311,6 @@ const [industries, setIndustries] = useState([]);
           title="Job seeking guide under AI era?"
           description="By weighting different areas, from salary and AI intensity to automation risk, reskilling rate, displacement risk, and skill complexity, you can create a personalized scorecard that reflects what matters most to you!"
         />
-
-      
 
         <TaskSection task="section3a">
           <WeightedBarChart weights={weights} activeMetrics={ACTIVE_METRICS} />

@@ -364,10 +364,7 @@ function SalaryByIndustryChart({
 
       // Color domain fixed to match heatmap: [0.1, 0.35, 0.6]
       // ? Color: green → yellow → red (matches heatmap)
-      const colorScale = d3
-        .scaleLinear()
-        .domain([0.1, 0.35, 0.6])
-        .range(["#22c55e", "#facc15", "#ef4444"]);
+      const colorScale = d3.scaleLinear().domain([0.1, 0.35, 0.6]).range(["#22c55e", "#facc15", "#ef4444"]);
 
       const svg = d3
         .select(container)
@@ -475,7 +472,7 @@ const ROADMAP = [
     desc: "Compare across industries and see how AI intensity correlates with wages ",
   },
   {
-    icon: < Briefcase size={20} className="roadmap-icon-svg" />,
+    icon: <Briefcase size={20} className="roadmap-icon-svg" />,
     question: "Which job role is better?",
     desc: "Job openings analysis & our evaluation for job seekers",
   },
@@ -651,7 +648,9 @@ function Introduction({
       <div className="intro-sticky-viewport">
         {/* Stage 0 — Hero */}
         <div className="layer" style={{ opacity: heroOpacity }}>
-          <span className="highlight-audience">Dear job seekers,</span>
+          <span className="highlight-audience">
+            <b>Dear job seekers,</b>
+          </span>
           <p className="pre-intro-text">AI is reshaping the job market. Are you prepared?</p>
         </div>
 

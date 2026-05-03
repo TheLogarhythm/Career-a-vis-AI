@@ -11,7 +11,14 @@ export function DraggablePie({ weights, setWeights }) {
   const colors = ["#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#1abc9c"];
   const radius = 85;
   const padding = 30;
-  const labels = ["Salary", "Low AI intensity", "Low Automation score", "Low reskilling need", "Low displacement risk", "Low skill complexity"];
+  const labels = [
+    "Salary",
+    "Low AI intensity",
+    "Low Automation score",
+    "Low reskilling need",
+    "Low displacement risk",
+    "Low skill complexity",
+  ];
 
   // Initialize angles equally (e.g., 60 degrees each for 6 metrics)
   useEffect(() => {
@@ -120,42 +127,42 @@ export function DraggablePie({ weights, setWeights }) {
         style={{ touchAction: "none", overflow: "visible" }}
       />
 
-     <div style={{ 
-  marginTop: "20px", 
-  display: "grid", 
-  gridTemplateColumns: "1fr", 
-  gap: "5px",               
-  width: "100%",              
-}}>
-    {(() => {
-    const totalWeight = d3.sum(Object.values(weights || {}));
+      <div
+        style={{
+          marginTop: "20px",
+          display: "grid",
+          gridTemplateColumns: "1fr",
+          gap: "5px",
+          width: "100%",
+        }}
+      >
+        {(() => {
+          const totalWeight = d3.sum(Object.values(weights || {}));
 
-    return metrics.map((m, i) => {
-      const percentage = totalWeight > 0 
-        ? Math.round((weights[m] / totalWeight) * 100) 
-        : 0;
+          return metrics.map((m, i) => {
+            const percentage = totalWeight > 0 ? Math.round((weights[m] / totalWeight) * 100) : 0;
 
-      return (
-        <div key={m} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {/* Color Dot */}
-          <div style={{ 
-            width: "8px", 
-            height: "8px", 
-            borderRadius: "50%", 
-            background: colors[i % colors.length] 
-          }} />
-          
-          <span style={{ fontSize: "15px", color: "#475569" }}>
-            <span style={{ color: colors[i % colors.length], marginRight: "4px" }}>
-              {percentage}%
-            </span>
-            {labels[i]}
-          </span>
-        </div>
-      );
-    });
-  })()}
-</div>
+            return (
+              <div key={m} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {/* Color Dot */}
+                <div
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: colors[i % colors.length],
+                  }}
+                />
+
+                <span style={{ fontSize: "15px", color: "#475569" }}>
+                  <span style={{ color: colors[i % colors.length], marginRight: "4px" }}>{percentage}%</span>
+                  {labels[i]}
+                </span>
+              </div>
+            );
+          });
+        })()}
+      </div>
     </div>
   );
 }
