@@ -54,7 +54,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
         <Briefcase size={18} className="inline-icon" /> Across Industries
       </>
     ),
-    description: "Analyzing how metrics have shifted over the last decade across different sectors.",
+    description: "Analyzing how metrics have shifted across different sectors.",
   },
   section3a: {
     title: (
@@ -62,7 +62,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
         <MessageCircle size={18} className="inline-icon" /> How AI automation risk affected
       </>
     ),
-    description: "Compare how different industries intersect with regional AI profiles and automation risks.",
+    description: "Drag the pie chart weights to see how different factors influence across industries and countries.",
   },
   section3b: {
     title: (
@@ -79,7 +79,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
       </>
     ),
     description:
-      "To reduce class imbalance, this view focuses on Tech, Finance, and Manufacture only. Compare their subcategories to see where risk-weighted demand is strongest and where competition is likely concentrated.",
+      "This view uses a fixed 9-category taxonomy (Agriculture, Education, Energy, Finance, Government, Healthcare, Manufacturing, Retail, Tech). Select a category to compare subcategories and see where risk-weighted demand is strongest.",
   },
   section4: {
     title: (
@@ -98,6 +98,7 @@ const BADGE_MAP: Record<string, string[]> = {
   "section1-2": ["Can_Mouse_Over.png"],
   section2: ["Aggregated_Data.png", "Data_Normalized.png"],
   section3b: ["Can_Sort_&_Filter.png"],
+  "section3b-2": ["Can_Mouse_Over.png", "Aggregated_Data.png"],
 };
 
 function App() {
@@ -284,8 +285,8 @@ const [industries, setIndustries] = useState([]);
         <TransitionSection
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("industries.png")}
-          title="Which industry to work in? Industry-level trends and risks. And how AI intensity correlates with salary."
-          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities 鈥?and risks 鈥?lie."
+          title="Which industry to work in? How AI intensity correlates with salary?"
+          description="How have different sectors been impacted by AI over the past decade? Let's dive into industry-level trends and see where the opportunities lie."
         />
 
         <TaskSection task="section2">
@@ -303,7 +304,7 @@ const [industries, setIndustries] = useState([]);
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Job count.png")}
           title="How many jobs are out there?"
-          description="To make the comparison more meaningful, this chart keeps only Tech, Finance, and Manufacture. Each category has its own bar chart, showing risk-weighted job counts across subcategories so volume differences are clearer and less biased by tiny classes."
+          description="Explore risk-weighted demand through circle packing. Choose one of the 9 categories and compare the relative size of subcategory job volumes."
         />
 
         <TaskSection task="section3b-2">
@@ -313,13 +314,11 @@ const [industries, setIndustries] = useState([]);
         <TransitionSection
           scrollParentRef={rightContainerRef}
           imageSrc={imageUrl("Evaluation.png")}
-          title="How does AI risk compare across industries?"
-          description="Salary and job volume tell one side of the story. But what about automation risk? The radar chart below lets you compare industries across multiple AI-related dimensions 鈥?and adjust the weights to see what matters most to you."
+          title="Job seeking guide under AI era?"
+          description="By weighting different areas, from salary and AI intensity to automation risk, reskilling rate, displacement risk, and skill complexity, you can create a personalized scorecard that reflects what matters most to you!"
         />
 
-        <TaskSection task="section4">
-          <Radar scrollParentRef={rightContainerRef} />
-        </TaskSection>
+      
 
         <TaskSection task="section3a">
           <WeightedBarChart weights={weights} activeMetrics={ACTIVE_METRICS} />

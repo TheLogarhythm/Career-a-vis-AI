@@ -466,22 +466,22 @@ const ROADMAP = [
   {
     icon: <Globe size={20} className="roadmap-icon-svg" />,
     question: "Where to work?",
-    desc: "Global salary & AI intensity distribution across 10 major tech economies",
-  },
-  {
-    icon: <Briefcase size={20} className="roadmap-icon-svg" />,
-    question: "Which industry is better?",
-    desc: "How different sectors have evolved over the past decade",
+    desc: "Global salary & AI intensity distribution across the world",
   },
   {
     icon: <DollarSign size={20} className="roadmap-icon-svg" />,
-    question: "Does AI really impact salary?",
-    desc: "How AI intensity correlates with wages across industries",
+    question: "Which industry is better?",
+    desc: "Compare across industries and see how AI intensity correlates with wages ",
+  },
+  {
+    icon: < Briefcase size={20} className="roadmap-icon-svg" />,
+    question: "Which job role is better?",
+    desc: "Job openings analysis & our evaluation for job seekers",
   },
   {
     icon: <BarChart2 size={20} className="roadmap-icon-svg" />,
-    question: "Which roles have more openings?",
-    desc: "Job openings analysis & our evaluation for job seekers",
+    question: "Job seeking guide under AI era?",
+    desc: "Evaluate industries and countries based on multiple weighted factors",
   },
 ];
 

@@ -149,8 +149,8 @@ const WeightedBarChart = ({ weights, activeMetrics }) => {
 
   return (
     <div style={{ display: "flex", gap: "20px", marginTop: "20px", width: "100%" }}>
-      <BarGroup data={indScores} title="Industry Intensity Index" color="#3b82f6" />
-      <BarGroup data={regScores} title="Regional Intensity Index" color="#10b981" />
+      <BarGroup data={indScores} title="Industry Ranking" color="#3b82f6" />
+      <BarGroup data={regScores} title="Regional Ranking" color="#10b981" />
     </div>
   );
 };

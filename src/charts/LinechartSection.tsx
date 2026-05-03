@@ -82,7 +82,7 @@ const [isOverlayActive, setIsOverlayActive] = useState(false);
     <div style={{ background: "#f8fafc", fontFamily: "sans-serif" }}>
       <div style={{ background: "white", padding: "40px", position: "relative", zIndex: 20 }}>
         <h3 style={{ textAlign: "center", color: "#1e293b", marginBottom: "20px" }}>
-          Historical Trend Analysis
+          Trend Analysis
         </h3>
 
 
