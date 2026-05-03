@@ -61,7 +61,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
         <MessageCircle size={18} className="inline-icon" /> How AI automation risk affected
       </>
     ),
-    description: "Drag the pie chart weights to see how different factors influence across industries and countries.",
+    description: "Drag the pie chart weights to see how different factors influence across industries and countries. The percentages are rounded to nearest 1%",
   },
   section3b: {
     title: (

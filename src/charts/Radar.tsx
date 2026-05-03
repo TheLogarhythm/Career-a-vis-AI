@@ -19,6 +19,18 @@ export function DraggablePie({ weights, setWeights }) {
     "Low displacement risk",
     "Low skill complexity",
   ];
+  const [hoveredLabel, setHoveredLabel] = useState(null);
+
+  const definitions = {
+    "Salary": "Median annual wage for this occupation.",
+    "Low AI intensity": "Occupations with fewer tasks performed by AI.",
+    "Low Automation score": "Lower risk of tasks replaced by machinery.",
+    "Low reskilling need": "Ease of transitioning without extensive training.",
+    "Low displacement risk": "Stability against industry shifts.",
+    "Low skill complexity": "Breadth and depth of required skills."
+  };
+
+
 
   // Initialize angles equally (e.g., 60 degrees each for 6 metrics)
   useEffect(() => {
@@ -141,25 +153,48 @@ export function DraggablePie({ weights, setWeights }) {
 
           return metrics.map((m, i) => {
             const percentage = totalWeight > 0 ? Math.round((weights[m] / totalWeight) * 100) : 0;
-
             return (
-              <div key={m} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {/* Color Dot */}
+              <div key={m} style={{ position: "relative", width: "100%" }}>
                 <div
                   style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    background: colors[i % colors.length],
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    cursor: "help",
+                    padding: "2px 0"
                   }}
-                />
+                  onMouseEnter={() => setHoveredLabel(labels[i])}
+                  onMouseLeave={() => setHoveredLabel(null)}
+                >
+                  <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: colors[i % colors.length] }} />
+                  <span style={{ fontSize: "15px", color: "#475569" }}>
+                    <span style={{ color: colors[i % colors.length], marginRight: "4px" }}>{percentage}%</span>
+                    {labels[i]}
+                  </span>
+                </div>
 
-                <span style={{ fontSize: "15px", color: "#475569" }}>
-                  <span style={{ color: colors[i % colors.length], marginRight: "4px" }}>{percentage}%</span>
-                  {labels[i]}
-                </span>
+                {/* Custom Instant Tooltip */}
+                {hoveredLabel === labels[i] && (
+                  <div style={{
+                    position: "absolute",
+                    left: "0",
+                    top: "-35px",
+                    background: "#1e293b",
+                    color: "#fff",
+                    padding: "6px 10px",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    zIndex: 100,
+                    whiteSpace: "nowrap",
+                    pointerEvents: "none",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+                  }}>
+                    {definitions[labels[i]]}
+                  </div>
+                )}
               </div>
             );
+
           });
         })()}
       </div>

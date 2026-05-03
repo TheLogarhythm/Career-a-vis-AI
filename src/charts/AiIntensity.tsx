@@ -136,6 +136,13 @@ function AiHeatmap({ selectedIndustry }) {
 
     const blockWidth = xScale.bandwidth();
     const blockHeight = innerHeight / gridRows;
+    // Create a lookup for total counts per industry
+const industryTotals = d3.rollup(
+  gridData, 
+  v => d3.sum(v, d => d.count), 
+  d => d.industry
+);
+
 
     mainGroup
       .selectAll(".bin")
@@ -151,13 +158,26 @@ function AiHeatmap({ selectedIndustry }) {
       .style("opacity", (d) => (d.avgIntensity >= intensityThreshold ? 1 : 0.05))
       .style("stroke", "#fff")
       .style("stroke-width", "0.5px")
-      .on("mouseover", function (event, d) {
-        tooltip.style("opacity", 1);
-        tooltip.html(
-          `<strong>${d.industry}</strong><br/>Jobs: ${d.count}<br/>Avg Intensity: ${d.avgIntensity.toFixed(2)}`,
-        );
-        d3.select(this).style("stroke", "#000").style("stroke-width", "1.5px");
-      })
+.on("mouseover", function (event, d) {
+    const totalForThisIndustry = industryTotals.get(d.industry);
+    const rawPercentage = (d.count / totalForThisIndustry) * 100;
+    
+    // If it's less than 0.5, it would round to 0, so use 1 decimal place instead
+    const displayPercentage = rawPercentage < 0.5 && rawPercentage > 0 
+        ? rawPercentage.toFixed(1) 
+        : rawPercentage.toFixed(0);
+
+    tooltip.style("opacity", 1);
+    tooltip.html(
+      `<strong>${d.industry}</strong><br/>
+       Jobs: ${displayPercentage}%<br/>
+       Avg Intensity: ${d.avgIntensity.toFixed(2)}`
+    );
+    
+    d3.select(this).style("stroke", "#000").style("stroke-width", "1.5px");
+})
+
+
       .on("mousemove", function (event) {
         const [x, y] = d3.pointer(event, svgRef.current);
         tooltip.style("left", `${x + 15}px`).style("top", `${y + 15}px`);
@@ -196,14 +216,14 @@ function AiHeatmap({ selectedIndustry }) {
       .attr("y", 9)
       .attr("text-anchor", "end")
       .style("font-size", "11px")
-      .text("Low density (0 jobs)");
+      .text("Low density (0 %)");
 
     legendGroup
       .append("text")
       .attr("x", legendWidth + 5)
       .attr("y", 9)
       .style("font-size", "11px")
-      .text(`High density (${maxCount} jobs)`);
+      .text(`High density`);
   }, [data]);
 
   useEffect(() => {

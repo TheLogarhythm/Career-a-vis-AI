@@ -155,11 +155,11 @@ function Task3Linechart({ scrollParentRef, selectedIndustry, comparisonIndustry,
     groupsEnter.append("text").attr("class", "chart-label").style("font-weight", "bold");
 
     const yLabels = {
-      ai_mentioned: "AI Adoption Rate (%)",
-      ai_intensity_score: "AI Intensity Score",
-      salary_usd: "Avg Salary (USD)",
-      automation_risk_score: "Automation Risk Score",
-      comparison: "Salary (USD)",
+      ai_mentioned: "  ",
+      ai_intensity_score: "  ",
+      salary_usd: "  ",
+      automation_risk_score: "  ",
+      comparison: "  ",
     };
 
     const allGroups = groupsEnter.merge(groups);
