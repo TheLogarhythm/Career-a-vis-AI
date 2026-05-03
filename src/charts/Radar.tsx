@@ -11,6 +11,7 @@ export function DraggablePie({ weights, setWeights }) {
   const colors = ["#3498db", "#2ecc71", "#e74c3c", "#f39c12", "#9b59b6", "#1abc9c"];
   const radius = 85;
   const padding = 30;
+  const labels = ["Salary", "Low AI intensity", "Low Automation score", "Low reskilling need", "Low displacement risk", "Low skill complexity"];
 
   // Initialize angles equally (e.g., 60 degrees each for 6 metrics)
   useEffect(() => {
@@ -148,7 +149,7 @@ export function DraggablePie({ weights, setWeights }) {
             <span style={{ color: colors[i % colors.length], marginRight: "4px" }}>
               {percentage}%
             </span>
-            {m.replace(/_/g, " ").replace(" score", "")}
+            {labels[i]}
           </span>
         </div>
       );
