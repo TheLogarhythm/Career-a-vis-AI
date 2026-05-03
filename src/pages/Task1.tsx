@@ -412,22 +412,6 @@ function Task1({ scrollParentRef, onStageChange }) {
         }).join("");
       }
     }
-
-    // ── Update badge text ──
-    const badgeMain = fixedRef.current?.querySelector(".badge-main");
-    const badgeSub = fixedRef.current?.querySelector(".badge-sub");
-    if (badgeMain) {
-      badgeMain.textContent =
-        frame === "ds1" ? "Average Salary (2010-2025)" : frame === "ds3" ? "Global AI Index" : "Speculative Salary";
-    }
-    if (badgeSub) {
-      badgeSub.textContent =
-        frame === "ds1"
-          ? "Avg salary for jobs in country"
-          : frame === "ds3"
-            ? "Select metric to explore"
-            : "Calculated based on Avg Salary and AI Index Total Score";
-    }
   }, [geoData, ds1Map, ds3Map, ds3Metric, stageIndex]);
 
   const frame = stageIndex === 0 ? "ds1" : stageIndex === 1 ? "ds3" : "future";
@@ -540,14 +524,29 @@ function Task1({ scrollParentRef, onStageChange }) {
     ),
   };
 
+  const badgeMainText =
+    frame === "ds1" ? "Average Salary (2010-2025)" : frame === "ds3" ? "Global AI Index" : "Speculative Salary";
+  const badgeSubContent =
+    frame === "ds1" ? (
+      "Avg salary for jobs in country"
+    ) : frame === "ds3" ? (
+      <>
+        How AI were adopted in each field, normalized with top country = 100.
+        <br />
+        {DS3_DESCS[ds3Metric as keyof typeof DS3_DESCS] || DS3_DESCS["Total score"]}
+      </>
+    ) : (
+      "Calculated based on Avg Salary and AI Index Total Score"
+    );
+
   const showMetricToggle = frame === "ds3";
 
   return (
     <div className="task1-scroll-container" style={{ height: task1ContainerHeight }}>
       <div className="task1-fixed-viewport" ref={fixedRef}>
         <div className="dataset-badge">
-          <div className="badge-main">Dataset 1: Global AI Impact (2010-2025)</div>
-          <div className="badge-sub">Three stages: DS1 &rarr; DS3 &rarr; speculative forecast</div>
+          <div className="badge-main">{badgeMainText}</div>
+          <div className="badge-sub">{badgeSubContent}</div>
         </div>
 
         <div className="task1-stage-layout">
