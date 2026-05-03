@@ -78,7 +78,7 @@ const TASK_DETAILS: Record<string, TaskDetail> = {
       </>
     ),
     description:
-      "This view uses a fixed 9-category taxonomy (Agriculture, Education, Energy, Finance, Government, Healthcare, Manufacturing, Retail, Tech). Select a category to compare subcategories and see where risk-weighted demand is strongest.",
+      "Select a category to compare subcategories and see where risk-weighted demand is strongest.",
   },
   section4: {
     title: (
